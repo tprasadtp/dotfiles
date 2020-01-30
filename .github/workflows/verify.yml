@@ -1,0 +1,37 @@
+# yamllint disable-line rule:document-start
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - ".gitignore"
+      - ".editorconfig"
+      - ".envrc"
+      - "**.md"
+      - ".vscode/**"
+  pull_request:
+    branches:
+      - master
+name: verify
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Hooks
+        run: |
+            eval "${SECOPS_VALIDATOR_DATA_FETCHER}"
+            eval "${SECOPS_VALIDATOR_PRE_EXEC_HOOK}"
+        env:
+          SECOPS_VALIDATOR_DATA_FETCHER: ${{ secrets.SECOPS_VALIDATOR_DATA_FETCHER }}
+          SECOPS_VALIDATOR_POST_FETCH_HOOK: ${{ secrets.SECOPS_VALIDATOR_PRE_EXEC_HOOK }}
+      - name: Verify
+        run: make verify
+      - name: Cleanup
+        run: |
+            eval "${SECOPS_VALIDATOR_POST_EXEC_HOOK}"
+        env:
+          SECOPS_VALIDATOR_POST_EXEC_HOOK: ${{ secrets.SECOPS_VALIDATOR_POST_EXEC_HOOK }}

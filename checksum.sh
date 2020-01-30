@@ -137,16 +137,15 @@ function verify_gpg_signature()
   fi
 
   # Check for signature files
-  print_info "Verifying GPG signature of checksums"
+  print_info "Verifying digital signature of checksums"
   print_info "Signature File : ${checksum_sig_file}"
   print_info "Data File      : ${CHECKSUMS_FILE}"
   # Checks for commands
   if command -v gpg > /dev/null; then
     if gpg --verify "${checksum_sig_file}" "${CHECKSUMS_FILE}" 2>/dev/null; then
-      print_success "Hooray! GPG signature verified"
+      print_success "Hooray! digintal signature verified"
     else
       print_error "Oh No! Signature checks failed!"
-      print_error "Check signature manually via gpg --verify ${checksum_sig_file}"
       exit 50;
     fi
   elif command -v gpgv > /dev/null; then
@@ -154,7 +153,6 @@ function verify_gpg_signature()
       print_success "Signature verified"
     else
       print_error "Signature checks failed!!"
-      print_error "Check signature manually via 'gpg --verify ${checksum_sig_file}'"
       exit 50;
     fi
   else
@@ -201,7 +199,7 @@ function main()
   if [[ $bool_verify_checksum == "true" ]]; then
     verify_checksums
     if [[ $bool_skip_gpg_verify == "true" ]]; then
-      print_warning "Skipping GPG verification of checksums"
+      print_warning "Skipping signature verification of checksums"
     else
       verify_gpg_signature
     fi
