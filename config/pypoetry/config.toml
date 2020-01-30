@@ -1,0 +1,4 @@
+# poetry Configuration
+[settings.virtualenvs]
+  create = true
+  in-project = true

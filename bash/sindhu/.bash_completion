@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#  Copyright (c) 2018-2020. Prasad Tengse
+#
+
+#----------------------------------------------------------
+#                Hashitools
+#----------------------------------------------------------
+
+if command -v terraform > /dev/null 2>&1; then
+  complete -C terraform terraform
+fi
+
+if command -v vault > /dev/null 2>&1; then
+  complete -C vault vault
+fi
+
+if command -v nomad > /dev/null 2>&1; then
+  complete -C nomad nomad
+fi
+
+#----------------------------------------------------------
+#                Kubernetes
+#----------------------------------------------------------
+
+if command -v kubectl > /dev/null 2>&1; then
+  alias k=kubectl
+  complete -F __start_kubectl k
+  # shellcheck disable=SC1090
+  source <(kubectl completion bash)
+fi
+
+if command -v helm > /dev/null 2>&1; then
+  # shellcheck disable=SC1090
+  source <(helm completion bash)
+fi
+
+if command -v minikube > /dev/null 2>&1; then
+  #shellcheck disable=SC1090
+  source <(minikube completion bash)
+fi

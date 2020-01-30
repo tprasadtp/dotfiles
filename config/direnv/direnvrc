@@ -1,0 +1,94 @@
+direnv_base_dir() {
+  echo "${direnv_layout_dir:-$PWD}"
+}
+
+# Usage: layout python <python_exe>
+#
+# Creates and loads a virtual environment under
+# "$direnv_layout_dir/python-$python_version".
+# This forces the installation of any egg into the project's sub-folder.
+# For python older then 3.3 this requires virtualenv to be installed.
+#
+# It's possible to specify the python executable if you want to use different
+# versions of python.
+#
+layout_virtualenv() {
+  local old_env
+  local python=${1:-python3}
+  [[ $# -gt 0 ]] && shift
+  old_env=$(direnv_base_dir)/.venv
+  unset PYTHONHOME
+  if [[ -d $old_env && $python == python ]]; then
+    VIRTUAL_ENV=$old_env
+  else
+    local python_version
+    # shellcheck disable=SC2046
+    read -r python_version <<<$($python -c "import platform as p; print(p.python_version())")
+    if [[ -z $python_version ]]; then
+      log_error "Could not find python's version"
+      return 1
+    fi
+
+    VIRTUAL_ENV=$(direnv_base_dir)/.venv
+    if [[ ! -d $VIRTUAL_ENV ]]; then
+       $python -m virtualenv "$@" "$VIRTUAL_ENV"
+    fi
+  fi
+  export VIRTUAL_ENV
+  PATH_add "$VIRTUAL_ENV/bin"
+}
+
+
+# Poetry
+layout_poetry() {
+  if [[ ! -f pyproject.toml ]]; then
+    log_error 'No pyproject.toml found.  Use `poetry new` or `poetry init` to create one first.'
+    exit 2
+  fi
+
+  local VENV=$( poetry show -v|grep "Using virtualenv:"|cut -f 3 -d " " 2>/dev/null)
+  export VIRTUAL_ENV=$VENV
+  export POETRY_ACTIVE=1
+  PATH_add "$VIRTUAL_ENV/bin"
+}
+
+
+# Anaconda
+layout_anaconda() {
+  local ANACONDA_HOME="${HOME}/miniconda3/"
+  PATH_add "$ANACONDA_HOME"/bin
+
+  if [ -n "$1" ]; then
+    # Explicit environment name from layout command.
+    local env_name="$1"
+    source activate ${env_name}
+  elif (grep -q name: environment.yml); then
+    # Detect environment name from `environment.yml` file in `.envrc` directory
+    source activate `grep name: environment.yml | sed -e 's/name: //' | cut -d "'" -f 2 | cut -d '"' -f 2`
+  else
+    (>&2 echo No environment specified);
+    exit 1;
+  fi;
+}
+
+
+# Python's builtin
+realpath() {
+    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+layout_python-venv() {
+    local python=${1:-python3}
+    [[ $# -gt 0 ]] && shift
+    unset PYTHONHOME
+    if [[ -n $VIRTUAL_ENV ]]; then
+        VIRTUAL_ENV=$(realpath "${VIRTUAL_ENV}")
+    else
+        VIRTUAL_ENV=$PWD/.venv
+    fi
+    export VIRTUAL_ENV
+    if [[ ! -d $VIRTUAL_ENV ]]; then
+        log_status "no venv found; creating $VIRTUAL_ENV"
+        "$python" -m venv "$VIRTUAL_ENV"
+    fi
+    PATH_add "$VIRTUAL_ENV/bin"
+}

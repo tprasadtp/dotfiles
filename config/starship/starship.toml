@@ -1,0 +1,144 @@
+prompt_order = [
+    "username",
+    "hostname",
+    "directory",
+    "git_branch",
+    "git_commit",
+    "git_state",
+    "git_status",
+    "package",
+    "golang",
+    "python",
+    "rust",
+    "aws",
+    "kubernetes",
+    "terraform",
+    "cmd_duration",
+    "line_break",
+    "jobs",
+    "battery",
+    "time",
+    "character",
+]
+
+[hostname]
+prefix = "歷"
+style = "#FF8800"
+
+[directory]
+style = "bold green"
+
+# Replace the "❯" symbol in the prompt with "➜"
+[character]      # The name of the module we are configuring is "character"
+symbol = "➜ "    # The "symbol" segment is being set to "➜"
+#symbol = " "
+
+# The cLOUD! onward and upward!
+# --------------------
+[aws]
+symbol = "  "
+
+# commad duration
+[cmd_duration]
+min_time = 5000
+
+# Git Stuff
+# --------------------
+# Enable Git commit
+[git_commit]
+disabled = false
+style = "#FFBB00"
+prefix = " "
+suffix = " "
+commit_hash_length = 7
+
+[git_branch]
+symbol = " "
+style = "#FF8800"
+truncation_length = 8
+
+[git_status]
+
+[git_status.staged]
+# value = ""
+style = "bold #A6CE39"
+
+[git_status.added]
+value = ""
+style = "bold green"
+
+[git_status.untracked]
+# value = ""
+style = "bold cyan"
+
+[git_status.deleted]
+# value = ""
+style = "bold red"
+
+[git_status.modified]
+# value = ""
+style = "bold #FFE01B"
+
+[git_status.stashed]
+# value = ""
+style = "bold gray"
+
+# Kubernetes
+# --------------------
+[kubernetes]
+symbol = "ﴱ "
+disabled = false
+style = "#4980f4"
+
+[golang]
+symbol = " "
+style = "#00ADD8"
+
+[package]
+symbol = " "
+style = "green"
+
+[python]
+symbol = " "
+style = "#FFD43B"
+
+[rust]
+symbol = " "
+style = "#DEA584"
+
+[terraform]
+symbol = " "
+style = "#623CE4"
+
+# Disable not needed features
+# --------------------
+[conda]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[env_var]
+disabled = true
+
+[hg_branch]
+disabled = true
+
+[java]
+disabled = true
+
+[ruby]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+# Because F**** nodejs, its worse than PHP
+[nodejs]
+disabled = true
+
+[php]
+disabled = true

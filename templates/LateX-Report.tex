@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{wrapfig}
+\usepackage{mhchem}
+\usepackage{amsmath}
+%\usepackage{minted} %For Source code uncomment before final compilation
+\usepackage{amssymb} %symbols and formlae
+\usepackage[margin=1in]{geometry} % set page margins automatically
+\usepackage{array} %tables
+\usepackage{graphicx} %better images
+\graphicspath{ {images/}} %path for images
+\usepackage{latexsym} %latex symbols
+\usepackage{setspace} %Line Spacing
+\usepackage{lmodern}
+\usepackage{caption}
+\usepackage{subcaption} %caption multi picture
+\usepackage{multirow} %Multiple rows as one cell
+%For Caption of table to be on top
+\usepackage{floatrow}
+ \floatsetup[table]{capposition=top}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1.5}
+\usepackage{siunitx}
+\usepackage{tabularx}
+\usepackage{nicefrac}
+\usepackage{float}
+
+%First page
+\usepackage{pdfpages}
+\newcommand{\degc}{\si{\degree}C}
+
+
+
+
+%
+\title{\vspace{-7ex}\textsc{Title}\vspace{-2ex}}
+\author{\emph{Tengse, Prasad}\\}
+\date{}
+%Begin Protocol
+\begin{document}
+		%\includepdf{titlepages}
+		\tableofcontents
+		\listoffigures
+		\pagebreak
+		%end contents page
+
+
+\section{Introduction}
+\hspace{1.5ex}
+
+%USe for minted code should escape from shell
+%\usemintedstyle[python]{perldoc}
+%\inputminted[breaklines,breakanywhere]{python}{Exercise_12_for_LateX.py}
+
+
+\begin{thebibliography}{10}
+	\bibitem{ref_1}
+	Reference 1
+
+	\bibitem{wiki_dpssd}
+	Wikipedia \\
+	\url{https://en.wikipedia.org/wiki/LateX}\\
+	\textit{Accessed on November 28\textsuperscript{th}, 2016 at 08:45pm}
+
+
+	%\bibitem{einstein}
+	%Albert Einstein.
+	%\textit{Zur Elektrodynamik bewegter K{\"o}rper}. (German)
+	%[\textit{On the electrodynamics of moving bodies}].
+	%Annalen der Physik, 322(10):891–921, 1905.
+
+\end{thebibliography}
+\pagebreak
+
+%Appendix
+
+
+\end{document}
