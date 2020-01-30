@@ -46,6 +46,8 @@ Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${NC}
 [-t --no-templates]    [Skip instaling Templates]
 [-m --minimal]         [Only install git, bash, gpg config]
 [-n --name]            [Name of the config]
+[-z --install-zsh]     [Include ZSH config]
+[-Z --only-zsh]        [Only Install ZSH config]
 [-h --help]            [Display this help message]
 [-v --version]         [Display version info]
 
