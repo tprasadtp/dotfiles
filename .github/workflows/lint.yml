@@ -16,7 +16,7 @@ on:
 name: lint
 jobs:
   lint:
-    name: Lint
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
