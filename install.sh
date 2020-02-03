@@ -140,6 +140,53 @@ function __link_files()
 }
 
 
+function __link_file()
+{
+  # Liks file to specified destination
+  # Arg-1 Input File
+  # Arg 2 Output symlink
+
+  local src="${1}"
+	local dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
+	local skip_base_dir_create="${3:-false}"
+
+#	 echo "${skip_base_dir}"
+#  echo "SRC : $src"
+#  echo "DEST: $dest"
+#  echo "CURDIR : $CURDIR"
+
+  if [ -f "${CURDIR}/${src}" ]; then
+		if [[ ${skip_base_dir_create} != "true" ]]; then
+
+			if mkdir -p "${dest_dir}"; then
+				f="$(basename "$src")"
+				if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
+					print_success "Linked : ${f}"
+				else
+					print_error "Linking ${f} failed!"
+					fi
+			else
+				print_error "Failed to create destination : $dest_dir"
+			fi # mkdir
+
+		# do not create base dir
+		else
+			print_info "Assuming ${dest_dir} already exists"
+
+			f="$(basename "$src")"
+			if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
+				print_success "Linked : ${f}"
+			else
+				print_error "Linking ${f} failed!"
+			fi
+		fi # base dir create flag
+
+    else
+      print_error "File ${src} not found!"
+  fi # src check
+
+}
+
 
 function minimal_install()
 {
@@ -148,26 +195,14 @@ function minimal_install()
     # Rest all files are ignored.
 
     # .bash_profile
-    if [[ -f ${CURDIR}/bash/.bash_profile ]]; then
-      if ln -sf "${CURDIR}"/bash/.bash_profile "${INSTALL_PREFIX}"/.bash_profile || print_error "Linking failed!"; then
-        print_success "Linked : .bash_profile"
-      else
-        print_error "Linking .bash_profile failed!"
-      fi #ln check
-    else
-      print_error "File .bash_profile was not found!"
-    fi
+		print_info "Installing .bash_profile"
+		__link_file "bash/.bash_profile" ".bash_profile" "true"
 
     # Git
     # First check for config specific directory
     if [[ -d $CURDIR/git/$config_name ]] && [[ -f $CURDIR/git/$config_name/.gitconfig ]];then
       print_info "GIT Profile : ${config_name}"
-      if ln -fs "$CURDIR"/git/"$config_name"/.gitconfig "$INSTALL_PREFIX"/.gitconfig; then
-        print_success "Linked : .gitconfig"
-      else
-        print_error "Linking failed!"
-      fi
-    # If no config specific dirs are found, use default `git`
+      __link_file "git/$config_name/.gitconfig" ".gitconfig" "true"
     else
       print_error "GIT    :  No config found!"
     fi
@@ -317,31 +352,35 @@ function install_zsh()
     __link_files "zsh/completions" ".zsh/completions"
     print_info "Installing fuzzy finder stuff"
     __link_files "zsh/fzf" ".zsh/fzf"
-    print_info "Installing $config_name profile"
-    __link_files "zsh/${config_name}.zshrc" ".zsh"
 
-    if rm -f "${INSTALL_PREFIX}"/.zsh/.zshrc ; then
-	    print_success "Removed duplicate .zshrc"
-    else
-      print_warning "Failed to remove duplicate .zshrc in ${INSTALL_PREFIX}/.zshrc"
-    fi
+		# Antibody and zshrc
+    print_info "Installing $config_name antibody"
+    __link_file "zsh/${config_name}.zshrc/.antibodyrc" ".zsh/.antibodyrc"
 
     # Now install core zshrc
-    print_notice "Installing ZSHRC ($config_name)"
-        # .bash_profile
-    if [[ -f ${CURDIR}/zsh/${config_name}.zshrc/.zshrc ]]; then
-      if ln -sf "${CURDIR}/zsh/${config_name}.zshrc"/.zshrc "${INSTALL_PREFIX}"/.zshrc || print_error "Linking failed!"; then
-        print_success "Linked : .zshrc"
-      else
-        print_error "Linking .zshrc failed!"
-      fi #ln check
-    else
-      print_error "File .zshrc was not found! in the profile!"
-    fi
+    print_info "Installing $config_name zshrc"
+		__link_file "zsh/${config_name}.zshrc/.zshrc" ".zshrc" "true"
 
   else
     print_error "cannot find ZSH profile ${config_name} in zsh"
   fi
+
+}
+
+
+function install_vim()
+{
+
+	if [[ -d $CURDIR/vim ]]; then
+		print_info "Installing VIM config"
+
+		print_info "Installing Autoload + Manager"
+		__link_file "vim/autoload/plug.vim" ".local/share/nvim/site/autoload/plug.vim"
+		print_info "Installing config"
+		__link_file "vim/init.vim" ".config/nvim/init.vim"
+	else
+		print_error "vim configs not found!"
+	fi
 
 }
 
@@ -371,11 +410,11 @@ function main()
                             ;;
       -x | --default-name)  use_default_name="true"
                             ;;
-      -t | --no-templates)  skip_templates="true";
+      -t | --install-templates)  bool_install_templates="true";
                             ;;
       -m | --minimal)       minimal_install="true";
                             ;;
-      -v | --version)       display_version;
+      --version)            display_version;
                             exit $?;
                             ;;
       -C | --only-config)   only_config="true";
@@ -389,6 +428,10 @@ function main()
       -z | --install-zsh)   readonly install_zsh="true";
 														;;
       -Z | --only-zsh)      readonly bool_only_zsh="true"
+                            ;;
+      -v | --install-vim)   readonly bool_install_vim="true";
+														;;
+      -V | --only-vim)      readonly bool_only_vim="true"
                             ;;
       -T | --test-mode)     INSTALL_PREFIX="${HOME}/Junk";
                             print_warning "Test mode is active!";
@@ -421,16 +464,22 @@ function main()
       exit $?
     fi
 
+    # Check if config name is empty
+    if [[ $config_name == "" ]]; then
+      print_error "No config name specified"
+      exit 10
+    fi
+
     if [[ $bool_only_zsh ]]; then
       print_notice "Only ZSH will be installed"
       install_zsh
       exit $?
     fi
 
-    # Check if config name is empty
-    if [[ $config_name == "" ]]; then
-      print_error "No config name specified"
-      exit 10
+    if [[ $bool_only_vim ]]; then
+      print_notice "Only VIM config will be installed"
+      install_vim
+      exit $?
     fi
 
     # Minimal checks
@@ -441,10 +490,10 @@ function main()
 
       minimal_install;
       # check templates
-      if [[ $skip_templates == "true" ]]; then
-        print_notice "Skipping templates installation"
+      if [[ $bool_install_templates == "true" ]]; then
+				install_templates;
       else
-        install_templates;
+        print_notice "Skipping templates installation"
       fi
 
       # check fonts
@@ -467,6 +516,13 @@ function main()
 				install_zsh
 			else
 				print_info "Skipping zsh install"
+			fi
+
+			# vim
+			if [[ $bool_install_vim == "true" ]]; then
+				install_vim
+			else
+				print_info "Skipping vim-config install"
 			fi
 
     fi # end of minimal if

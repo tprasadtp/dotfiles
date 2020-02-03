@@ -29,11 +29,11 @@ install: ## Installs default profile (bash, zsh, git, configs, fonts and templat
 
 .PHONY: test-install-default
 test-install-default: ## Test Installs default profile
-	@bash ./install.sh -i -x -T -z
+	@bash ./install.sh -i -x -T -z -v -t
 
 .PHONY: test-install-minimal
 test-install-minimal: ## Tets Installs minimal profile
-	@bash ./install.sh -i -T -e -c -t -f -n minimal
+	@bash ./install.sh -i -T -e -c -f -n minimal
 
 .PHONY: verify
 verify: ## Verifies checksums
@@ -114,17 +114,16 @@ sync-hpc: ## Syncs HPC dotfiles submodule with hpc profiles from this repo.
 install-tools: ## Installs extra tools used by dotfiles (starship-rs and direnv)
 	@echo -e "\033[1;92m➜ $@ \033[0m"
 	@echo -e "\033[34m‣ downloading starship-prompt\033[0m"
-	@mkdir -p vendor
-	@chmod 700 vendor
+	@mkdir -p $(ROOT_DIR)/vendor/tools
 	@echo -e "\033[33m  - download binary\033[0m"
-	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz --output vendor/starship.tar.gz
+	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz --output $(ROOT_DIR)/vendor/tools/starship.tar.gz
 	@echo -e "\033[33m  - download checksum\033[0m"
-	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz.sha256 --output vendor/starship.tar.gz.sha256
+	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz.sha256 --output $(ROOT_DIR)/vendor/tools/starship.tar.gz.sha256
 	@echo -e "\033[33m  - verify checksum\033[0m"
-	@echo "$$(cat vendor/starship.tar.gz.sha256) vendor/starship.tar.gz" | sha256sum --quiet -c -
+	@echo "$$(cat $(ROOT_DIR)/vendor/tools/starship.tar.gz.sha256) $(ROOT_DIR)/vendor/tools/starship.tar.gz" | sha256sum --quiet -c -
 	@echo -e "\033[33m  - install\033[0m"
 	@mkdir -p $(INSTALL_PREFIX)/bin
-	@tar xzf vendor/starship.tar.gz -C $(INSTALL_PREFIX)/bin
+	@tar xzf $(ROOT_DIR)/vendor/tools/starship.tar.gz -C $(INSTALL_PREFIX)/bin
 
 	@echo -e "\033[34m‣ downloading direnv\033[0m"
 	@echo -e "\033[33m  - download & install binary\033[0m"
@@ -139,6 +138,30 @@ install-tools: ## Installs extra tools used by dotfiles (starship-rs and direnv)
 	@echo -e "\033[33m  - on starship\033[0m"
 	@chmod 700 $(INSTALL_PREFIX)/bin/starship
 
+.PHONY: update-vim-plug
+update-vim-plug: ## updates vim-plug(not plugins)
+	@echo -e "\033[1;92m➜ $@ \033[0m"
+	@mkdir -p $(ROOT_DIR)/vim/vim-plug $(ROOT_DIR)/vendor/source
+	curl -sSfL -o $(ROOT_DIR)/vendor/source/vim-plug.json https://api.github.com/repos/junegunn/vim-plug/commits/master
+	curl -sSfL -o $(ROOT_DIR)/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+
+.PHONY: update-metadta
+update-metadata: ## update medatata-hashes
+	@echo -e "\033[1;92m➜ $@ \033[0m"
+	vimplug_chash="$$(jq -r '.sha' $(ROOT_DIR)/vendor/source/vim-plug.json)";\
+		__vimplug_cdate="$$(jq -r ".commit.committer.date" $(ROOT_DIR)/vendor/source/vim-plug.json)";\
+		vimplug_cdate=`date --date "$${__vimplug_cdate}" "+%b-%d-%Y" `;\
+		echo "{\"vimplug\": {\"commit\": \"$${vimplug_chash:0:7}\", \"sha1\": \"$${vimplug_chash}\", \"date\": \"$${vimplug_cdate}\"}}" | tee $(ROOT_DIR)/vendor/vendor.json
+
+
 .PHONY: clean-downloads
 clean-downloads: ## cleanup old downloads
-	@rm -f vendor/*.*
+	@rm -f vendor/{source,tools}/*.*
+
+.PHONY: debug-vars
+debug-vars:
+	@echo "ROOT_DIR: $(ROOT_DIR)"
+	@echo "INSTALL_PREFIX: $(INSTALL_PREFIX)"
+	@echo "HPC_REPO_DIR: $(HPC_REPO_DIR)"
+	@echo "XDG_CONFIG_HOME: $(XDG_CONFIG_HOME)"

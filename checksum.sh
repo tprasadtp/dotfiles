@@ -70,7 +70,7 @@ function generate_checksums()
       -not -path "./github/**" \
 			-not -path "./imtek-*/**" \
 			-not -path "./emp-*/**" \
-      -not -path "./vendor/**" \
+      -not -path "./vendor/source" \
       -not -path "./.github/**" \
       -not -name ".travis.yml" \
       -not -name "azure-pipelines.yml" \
