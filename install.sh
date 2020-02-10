@@ -147,7 +147,8 @@ function __link_file()
   # Arg 2 Output symlink
 
   local src="${1}"
-	local dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
+	local dest_dir
+	dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
 	local skip_base_dir_create="${3:-false}"
 
 #	 echo "${skip_base_dir}"

@@ -45,9 +45,20 @@
     ],
     "breadcrumbs.enabled": true,
     "python.dataScience.sendSelectionToInteractiveWindow": false,
+    "files.associations": {
+        "Dockerfile.*": "dockerfile",
+        "poetry.*": "toml",
+        ".envrc": "shellscript"
+    },
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.pythonPath": ".venv/bin/python",
+    "python.linting.flake8Enabled": true,
     "terraform.telemetry.enabled": false,
     "terraform.indexing.enabled": false,
-    "editor.fontFamily": "'Cascadia Code', 'monospace', monospace, 'Droid Sans Fallback'",
+    "terminal.integrated.fontFamily": "'StarshipCascade', 'monospace'",
+    "terminal.integrated.fontSize": 16,
+    "editor.fontFamily": "'StarshipCascade', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
     "editor.fontSize": 16,
     "files.watcherExclude": {
@@ -87,5 +98,6 @@
     "search.exclude": {
         "**/.venv": true,
         "**/.git": true
-    }
+    },
+    "[plaintext]": {}
 }

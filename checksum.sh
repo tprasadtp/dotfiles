@@ -12,10 +12,10 @@ set -eo pipefail
 readonly SCRIPT=$(basename "$0")
 readonly DIR="$(pwd)"
 readonly CHECKSUMS_FILE="${DIR}/SHA512SUMS"
-readonly YELLOW=$'\e[1;33m'
-readonly GREEN=$'\e[1;32m'
-readonly BLUE=$'\e[1;34m'
-readonly RED=$'\e[1;31m'
+readonly YELLOW=$'\e[33m'
+readonly GREEN=$'\e[32m'
+readonly BLUE=$'\e[34m'
+readonly RED=$'\e[31m'
 readonly NC=$'\e[0m'
 
 function display_usage()
@@ -39,7 +39,7 @@ EOF
 
 function print_info()
 {
-  printf "✦ %s \n" "$@"
+  printf "‣ %s \n" "$@"
 }
 
 function print_success()
@@ -70,7 +70,7 @@ function generate_checksums()
       -not -path "./github/**" \
 			-not -path "./imtek-*/**" \
 			-not -path "./emp-*/**" \
-      -not -path "./vendor/source" \
+      -not -path "./vendor/**" \
       -not -path "./.github/**" \
       -not -name ".travis.yml" \
       -not -name "azure-pipelines.yml" \
@@ -107,7 +107,9 @@ function sign_checksum()
 function verify_checksums() {
   print_info "Verifying SHA512SUMS"
   if [[ -f ${CHECKSUMS_FILE} ]]; then
-    if sha512sum -c "${CHECKSUMS_FILE}" --strict --status; then
+		printf "%s" "${YELLOW}"
+    if sha512sum -c "${CHECKSUMS_FILE}" --strict --quiet; then
+			printf "%s" "${NC}"
       print_success "Hooray! SHA512 checksums verified"
     else
       print_error "Failed! Some files failed checksum verification!"

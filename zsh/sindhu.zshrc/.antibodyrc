@@ -14,6 +14,11 @@ ohmyzsh/ohmyzsh path:plugins/ufw kind:fpath
 ohmyzsh/ohmyzsh path:plugins/docker-compose
 ohmyzsh/ohmyzsh path:plugins/docker kind:fpath
 
+# Podman
+containers/libpod path:completions/zsh kind:fpath
+# Buildah
+containers/buildah path:contrib/completions/bash kind:fpath
+
 # rust
 ohmyzsh/ohmyzsh path:plugins/cargo kind:fpath
 ohmyzsh/ohmyzsh path:plugins/rust kind:fpath
