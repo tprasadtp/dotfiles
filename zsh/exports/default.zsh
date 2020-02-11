@@ -4,7 +4,7 @@
 #-----------------------------------------------------------------------------
 
 #Add Custom Script paths
-export PATH="${PATH}:~/Tools/Android/Sdk/platform-tools:~/bin:~/.local/bin"
+export PATH="${PATH}:${HOME}/Tools/Android/Sdk/platform-tools:${HOME}/bin:${HOME}/.local/bin"
 #-----------------------------------------------------------------------------
 #                          GPG * SSH
 #-----------------------------------------------------------------------------

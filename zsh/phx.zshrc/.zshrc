@@ -74,29 +74,27 @@ autoload -Uz compinit
 #                  Personal Plugins
 #-----------------------------------------------------------------------------
 
-# Load Plugins
-
 # Load Exports
 # shellcheck disable=SC1090
-source  ~/.zsh/exports/default.zsh
+source  "${HOME}/.zsh/exports/default.zsh"
 
 # Fuzzy finder stuff
 # shellcheck disable=SC1090
-source ~/.zsh/fzf/settings.zsh
-source ~/.zsh/fzf/completion.zsh
-source ~/.zsh/fzf/key-bindings.zsh
+source "${HOME}/.zsh/fzf/settings.zsh"
+source "${HOME}/.zsh/fzf/completion.zsh"
+source "${HOME}/.zsh/fzf/key-bindings.zsh"
 
 # Fancy pants
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/fancy.zsh
+source  "${HOME}/.zsh/plugins/fancy.zsh"
 
 # Ubuntu
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/ubuntu.zsh
+source  "${HOME}/.zsh/plugins/ubuntu.zsh"
 
 # Go
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/golang.zsh
+source  "${HOME}/.zsh/plugins/golang.zsh"
 
 fpath+=~/.zsh/completions
 

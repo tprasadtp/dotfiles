@@ -13,7 +13,6 @@
 set -o pipefail
 
 #Constants
-readonly DATE=$(date +%Y-%m-%d:%H:%M:%S)
 readonly SCRIPT=$(basename "$0")
 readonly YELLOW=$'\e[33m'
 readonly GREEN=$'\e[32m'

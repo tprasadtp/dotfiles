@@ -152,7 +152,7 @@
 
 [user]
   	name = Prasad Tengse
-	email = code@prasadt.com
+	email = prasad.tengse@venus.uni-freiburg.de
 	signingkey = BA19B5162553B1BF
 
 [github]
@@ -166,3 +166,5 @@
 
 [credential]
 	helper = store
+[url "git@github.com:"]
+	insteadOf = https://github.com/

@@ -14,7 +14,6 @@ readonly DIR="$(pwd)"
 readonly CHECKSUMS_FILE="${DIR}/SHA512SUMS"
 readonly YELLOW=$'\e[33m'
 readonly GREEN=$'\e[32m'
-readonly BLUE=$'\e[34m'
 readonly RED=$'\e[31m'
 readonly NC=$'\e[0m'
 

@@ -29,7 +29,7 @@ export ZSH_CACHE_DIR
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 
-HISTFILE=~/.zsh_history
+HISTFILE="${HOME}/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -78,39 +78,39 @@ autoload -Uz compinit
 
 # Load Exports
 # shellcheck disable=SC1090
-source  ~/.zsh/exports/default.zsh
+source  "${HOME}/.zsh/exports/default.zsh"
 
 # Fuzzy finder stuff
 # shellcheck disable=SC1090
-source ~/.zsh/fzf/settings.zsh
-source ~/.zsh/fzf/completion.zsh
-source ~/.zsh/fzf/key-bindings.zsh
+source "${HOME}/.zsh/fzf/settings.zsh"
+source "${HOME}/.zsh/fzf/completion.zsh"
+source "${HOME}/.zsh/fzf/key-bindings.zsh"
 
 # Fancy pants
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/fancy.zsh
+source  "${HOME}/.zsh/plugins/fancy.zsh"
 
 # Hashicorp
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/hashicorp.zsh
+source  "${HOME}/.zsh/plugins/hashicorp.zsh"
 
 # Kubernetes
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/kubernetes.zsh
+source  "${HOME}/.zsh/plugins/kubernetes.zsh"
 
 # Ubuntu
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/ubuntu.zsh
+source  "${HOME}/.zsh/plugins/ubuntu.zsh"
 
 # google cloud
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/gcloud.zsh
+source  "${HOME}/.zsh/plugins/gcloud.zsh"
 
 # Go
 # shellcheck disable=SC1090
-source  ~/.zsh/plugins/golang.zsh
+source  "${HOME}/.zsh/plugins/golang.zsh"
 
-fpath+=~/.zsh/completions
+fpath+="${HOME}/.zsh/completions"
 
 if [[ $ZPROFILE_ENABLE == "true" ]]; then
   zprof
