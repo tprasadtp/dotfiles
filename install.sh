@@ -334,6 +334,9 @@ function install_config_files()
 		# GNU Radio
 		__install_config_files "gnuradio" ".gnuradio"
 
+		# Tilix
+		__install_config_files "tilix" ".config/tilix/schemes"
+
   fi
 }
 

@@ -19,7 +19,7 @@
     "update.enableWindowsBackgroundUpdates": false,
     "update.showReleaseNotes": false,
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-    "workbench.colorTheme": "Peacocks In Space Contrast (rainglow)",
+    "workbench.colorTheme": "Gruvbox Dark Hard",
     "workbench.enableExperiments": false,
     "workbench.startupEditor": "newUntitledFile",
     "yaml.customTags": [

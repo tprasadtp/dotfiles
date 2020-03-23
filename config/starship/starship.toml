@@ -21,20 +21,23 @@ prompt_order = [
     "character",
 ]
 
+[username]
+show_always = true
+disabled = false
+style_user = "#d386ff"
+
 [hostname]
 prefix = "歷"
 style = "#FF8800"
 
 [directory]
-style = "bold green"
+style = "#A6CE39"
 
 # Replace the "❯" symbol in the prompt with "➜"
 [character]      # The name of the module we are configuring is "character"
 symbol = "➜ "    # The "symbol" segment is being set to "➜"
 #symbol = " "
 
-# The cLOUD! onward and upward!
-# --------------------
 [aws]
 symbol = "  "
 
@@ -65,23 +68,23 @@ style = "bold #A6CE39"
 
 [git_status.added]
 value = ""
-style = "bold green"
+style = "green"
 
 [git_status.untracked]
 # value = ""
-style = "bold cyan"
+style = "cyan"
 
 [git_status.deleted]
 # value = ""
-style = "bold red"
+style = "red"
 
 [git_status.modified]
 # value = ""
-style = "bold #FFE01B"
+style = "#FFE01B"
 
 [git_status.stashed]
 # value = ""
-style = "bold gray"
+style = "gray"
 
 # Kubernetes
 # --------------------
@@ -95,8 +98,7 @@ symbol = " "
 style = "#00ADD8"
 
 [package]
-symbol = " "
-style = "green"
+disabled = true
 
 [python]
 symbol = " "
