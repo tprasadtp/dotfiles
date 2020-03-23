@@ -1,0 +1,10 @@
+{
+"goheader": {
+  "prefix": ["goheader", "gopkg"],
+  "body": [
+    "// Copyright © 2019-$CURRENT_YEAR Prasad Tengse",
+    "package pkg"
+  ],
+  "description": "Go Header"
+}
+}

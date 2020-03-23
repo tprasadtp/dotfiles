@@ -144,6 +144,7 @@ if [ -f ~/.bash_completion ]; then
   source ~/.bash_completion
 fi
 
+if command -v direnv > /dev/null; then
 _direnv_hook() {
   local previous_exit_status=$?;
   eval "$(direnv export bash)";
@@ -151,4 +152,5 @@ _direnv_hook() {
 };
 if ! [[ "${PROMPT_COMMAND:-}" =~ _direnv_hook ]]; then
   PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+fi
 fi

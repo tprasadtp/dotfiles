@@ -1,0 +1,4 @@
+# Always remind to "bee" careful
+Defaults lecture = always
+# Lecture file
+Defaults lecture_file = /etc/sudoers.d/sudo.lecture

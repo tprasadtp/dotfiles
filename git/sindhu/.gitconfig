@@ -104,7 +104,7 @@
 	# Make `git rebase` safer on OS X
 	# More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
 	trustctime = false
-	editor = nano
+	editor = nvim
 
 [color]
 
@@ -151,7 +151,7 @@
 	default = simple
 
 [user]
-  	name = Prasad Tengse
+  name = Prasad Tengse
 	email = tprasadtp@users.noreply.github.com
 	signingkey = BA19B5162553B1BF
 

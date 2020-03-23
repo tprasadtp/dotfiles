@@ -165,3 +165,11 @@ debug-vars:
 	@echo "INSTALL_PREFIX: $(INSTALL_PREFIX)"
 	@echo "HPC_REPO_DIR: $(HPC_REPO_DIR)"
 	@echo "XDG_CONFIG_HOME: $(XDG_CONFIG_HOME)"
+
+.PHONY: install-system
+install-system: ## Install system Mods (Requires Root)
+	@echo "Installing Sudo Lecture"
+	install -g root -o root -m 640 $(ROOT_DIR)/system/sudo/sudo.lecture /etc/sudoers.d/sudo.lecture
+	install -g root -o root -m 640 $(ROOT_DIR)/system/sudo/lecture /etc/sudoers.d/lecture
+	@echo "Installing Tilix Schemes"
+	install -g root -o root -m 644 -D $(ROOT_DIR)/system/tilix/*.json /usr/local/share/tilix/schemes

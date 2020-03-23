@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #Add Custom Script paths
-export PATH="${PATH}:~/Tools/Android/Sdk/platform-tools:~/bin:~/.local/bin"
+export PATH="${PATH}:~/Tools/Android/Sdk/platform-tools:~/bin:~/.local/bin:~/Tools/go"
 
 #Add GPG
 GPG_TTY=$(tty)
@@ -11,7 +11,7 @@ SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
 
 # Go
-export GOPATH=$HOME/Git/go
+export GOPATH=$HOME/Tools/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/:${HOME}/.local/lib

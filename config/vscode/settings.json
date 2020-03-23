@@ -46,9 +46,11 @@
     "breadcrumbs.enabled": true,
     "python.dataScience.sendSelectionToInteractiveWindow": false,
     "files.associations": {
+        "*.yml.j2": "jinja-yaml",
         "Dockerfile.*": "dockerfile",
         "poetry.*": "toml",
-        ".envrc": "shellscript"
+        ".envrc": "shellscript",
+        "*.bats": "shellscript",
     },
     "python.linting.pylintEnabled": false,
     "python.linting.enabled": true,
@@ -58,7 +60,7 @@
     "terraform.indexing.enabled": false,
     "terminal.integrated.fontFamily": "'StarshipCascade', 'monospace'",
     "terminal.integrated.fontSize": 16,
-    "editor.fontFamily": "'StarshipCascade', 'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.fontFamily": "'StarshipCascade', 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
     "editor.fontSize": 16,
     "files.watcherExclude": {
@@ -72,6 +74,7 @@
         "**/.pytest_cache/**": true
     },
     "cSpell.userWords": [
+        "Healthcheck",
         "Homelab",
         "Mitogen",
         "Prasad",
@@ -80,24 +83,33 @@
         "armhf",
         "autogen",
         "defaultssl",
+        "dependabot",
         "devtools",
         "direnv",
         "docgen",
         "eexist",
         "errno",
         "jetbrains",
+        "protonvpn",
         "systemd",
+        "tprasadtp",
         "traefik",
         "venv",
         "virtialenv"
     ],
-    "extensions.showRecommendationsOnlyOnDemand": true,
     "npm.fetchOnlinePackageInfo": false,
-    "update.mode": "manual",
+    "update.mode": "none",
     "workbench.settings.enableNaturalLanguageSearch": false,
     "search.exclude": {
         "**/.venv": true,
         "**/.git": true
     },
-    "[plaintext]": {}
+    "python.formatting.provider": "black",
+    "go.formatTool": "goimports",
+    "files.autoSave": "onFocusChange",
+    "extensions.autoUpdate": false,
+    "workbench.editorAssociations": [
+
+    ],
+    "material-icon-theme.showWelcomeMessage": false
 }
