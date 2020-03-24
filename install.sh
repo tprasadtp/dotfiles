@@ -298,6 +298,19 @@ function __install_config_files()
   fi
 }
 
+function install_vm_profile()
+{
+	# Starship
+	__install_config_files "starship" ".config"
+	# Tilix
+	__install_config_files "tilix" ".config/tilix/schemes"
+	# Fonts
+	__link_file "fonts/StarshipCascade-Regular-NerdFont.ttf" ".local/share/fonts/StarshipCascade-Regular-NerdFont.ttf"
+
+	# Bashrc
+	__link_files "bash/minimal" ""
+}
+
 function install_config_files()
 {
   # Installs files in config to .config
@@ -401,7 +414,7 @@ function main()
 
   while [ "${1}" != "" ]; do
     case ${1} in
-      -i | --install )      action_install="true"
+      -i | --install )      action_install="regular"
                             ;;
       -n | --name )         shift;
                             config_name="${1}";
@@ -417,6 +430,7 @@ function main()
                             ;;
       -m | --minimal)       minimal_install="true";
                             ;;
+			--vm)       					action_install="vm";;
       --version)            display_version;
                             exit $?;
                             ;;
@@ -450,7 +464,10 @@ function main()
   done
 
 
-  if [[  $action_install == "true" ]]; then
+	if [[ $action_install == "vm" ]]; then
+		install_vm_profile
+
+  elif [[ $action_install == "regular" ]]; then
 
     if [[ $use_default_name == "true" ]]; then
       config_name="sindhu";
@@ -531,7 +548,7 @@ function main()
     fi # end of minimal if
 
   else
-    print_error "Did you forget to pass -i | --install?"
+    print_error "Did you forget to pass -i | --install or --vm?"
     exit 10
   fi
 
