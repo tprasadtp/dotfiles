@@ -350,6 +350,9 @@ function install_config_files()
 		# Tilix
 		__install_config_files "tilix" ".config/tilix/schemes"
 
+		# MPV
+		__install_config_files "mpv" ".config/mpv"
+
   fi
 }
 
