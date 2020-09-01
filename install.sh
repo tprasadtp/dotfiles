@@ -365,12 +365,6 @@ function install_zsh()
     print_notice "Installing base configs"
     print_info "Installing custom plugins"
     __link_files "zsh/plugins" ".zsh/plugins"
-    print_info "Installing Exports"
-    __link_files "zsh/exports" ".zsh/exports"
-    print_info "Installing Compdefs"
-    __link_files "zsh/completions" ".zsh/completions"
-    print_info "Installing fuzzy finder stuff"
-    __link_files "zsh/fzf" ".zsh/fzf"
 
 		# Antibody and zshrc
     print_info "Installing $config_name antibody"

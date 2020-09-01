@@ -73,44 +73,25 @@ autoload -Uz compinit
 #-----------------------------------------------------------------------------
 #                  Personal Plugins
 #-----------------------------------------------------------------------------
-
-# Load Plugins
-
-# Load Exports
+# Load Common
 # shellcheck disable=SC1090
-source  "${HOME}/.zsh/exports/default.zsh"
+source  "${HOME}/.zsh/plugins/common.zsh"
 
 # Fuzzy finder stuff
 # shellcheck disable=SC1090
-source "${HOME}/.zsh/fzf/settings.zsh"
-source "${HOME}/.zsh/fzf/completion.zsh"
-source "${HOME}/.zsh/fzf/key-bindings.zsh"
+source "${HOME}/.zsh/plugins/fzf.zsh"
 
 # Fancy pants
 # shellcheck disable=SC1090
 source  "${HOME}/.zsh/plugins/fancy.zsh"
 
-# Hashicorp
+# DevTools
 # shellcheck disable=SC1090
-source  "${HOME}/.zsh/plugins/hashicorp.zsh"
+source  "${HOME}/.zsh/plugins/dev-tools.zsh"
 
-# Kubernetes
-# shellcheck disable=SC1090
-source  "${HOME}/.zsh/plugins/kubernetes.zsh"
-
-# Ubuntu
+# Ubuntu Common Stuff
 # shellcheck disable=SC1090
 source  "${HOME}/.zsh/plugins/ubuntu.zsh"
-
-# google cloud
-# shellcheck disable=SC1090
-source  "${HOME}/.zsh/plugins/gcloud.zsh"
-
-# Go
-# shellcheck disable=SC1090
-source  "${HOME}/.zsh/plugins/golang.zsh"
-
-fpath+="${HOME}/.zsh/completions"
 
 if [[ $ZPROFILE_ENABLE == "true" ]]; then
   zprof
