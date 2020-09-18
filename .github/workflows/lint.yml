@@ -24,7 +24,7 @@ jobs:
         run: make shellcheck
       - name: Test Install script
         run: |
-          make verify-integrity
+          ./checksum.sh -v -G
           # Modify after verification
           sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
           make test-install-default
