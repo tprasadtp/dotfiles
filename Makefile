@@ -7,7 +7,7 @@ INSTALL_PREFIX ?= $(HOME)
 
 # Get directory of makefile without trailing slash
 ROOT_DIR := $(patsubst %/, %, $(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
-HPC_REPO_DIR ?= $(ROOT_DIR)/../hpc-dotfiles
+HPC_REPO_DIR ?= ../hpc-dotfiles
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
 GITUNTRACKEDCHANGES := $(shell git status --porcelain --untracked-files=no)
@@ -21,32 +21,27 @@ test: shellcheck test-install-default  test-install-minimal ## Runs all the test
 
 .PHONY: shellcheck
 shellcheck: ## Runs the shellcheck tests on the scripts.
-	@bash ./tests/test-shell-scripts.sh
+	./tests/test-shell-scripts.sh
 
 .PHONY: install
 install: ## Installs default profile (bash, zsh, git, configs, fonts and templates)
-	@bash ./install.sh -i -x -z
+	./install.sh -i -x -z
 
 .PHONY: test-install-default
 test-install-default: ## Test Installs default profile
-	@bash ./install.sh -i -x -T -z -v -t
+	./install.sh -i -x -T -z -v -t
 
 .PHONY: test-install-minimal
-test-install-minimal: ## Tets Installs minimal profile
-	@bash ./install.sh -i -T -e -c -f -n minimal
+test-install-minimal: ## Test Install minimal profile
+	./install.sh -i -T -e -c -f -n minimal
 
 .PHONY: verify
 verify: ## Verifies checksums
-	@bash checksum.sh -v
-
-.PHONY: verify-integrity
-verify-integrity: ## Verifies checksums
-	@bash checksum.sh -v -G
+	./checksum.sh -v
 
 .PHONY: sign
-sign: ## sign
-	@bash checksum.sh -c -s -v
-
+sign: ## Sign
+	./checksum.sh -c -s -v
 
 .PHONY: help
 help: ## This help dialog.
@@ -75,37 +70,37 @@ sync-hpc: ## Syncs HPC dotfiles submodule with hpc profiles from this repo.
 	@echo -e "\033[34m‣ syncing profiles\033[0m"
 
 	@echo -e "\033[33m  - common bash files\033[0m"
-	@cp --preserve --force $(ROOT_DIR)/bash/.bash_profile $(HPC_REPO_DIR)/bash/.bash_profile
+	@cp --preserve --force bash/.bash_profile $(HPC_REPO_DIR)/bash/.bash_profile
 	@echo -e "\033[33m  - bash hpc profile\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/bash/hpc/ $(HPC_REPO_DIR)/bash/hpc/
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  bash/hpc/ $(HPC_REPO_DIR)/bash/hpc/
 	@echo -e "\033[33m  - bash minimal profile\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/bash/minimal/ $(HPC_REPO_DIR)/bash/minimal/
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  bash/minimal/ $(HPC_REPO_DIR)/bash/minimal/
 
 	@echo -e "\033[33m  - git hpc profile\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/git/hpc/ $(HPC_REPO_DIR)/git/hpc/
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  git/hpc/ $(HPC_REPO_DIR)/git/hpc/
 
 	@echo -e "\033[33m  - gnupg hpc profile\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/gnupg/hpc/ $(HPC_REPO_DIR)/gnupg/hpc/
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  gnupg/hpc/ $(HPC_REPO_DIR)/gnupg/hpc/
 
 	@echo -e "\033[34m‣ syncing configs\033[0m"
 	@echo -e "\033[33m  - starship\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/config/starship/ $(HPC_REPO_DIR)/config/starship
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  config/starship/ $(HPC_REPO_DIR)/config/starship
 	@echo -e "\033[33m  - direnv\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/config/direnv/ $(HPC_REPO_DIR)/config/direnv
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  config/direnv/ $(HPC_REPO_DIR)/config/direnv
 
 	@echo -e "\033[34m‣ syncing meta\033[0m"
 	@echo -e "\033[33m  - LICENSE\033[0m"
-	@cp --preserve --force $(ROOT_DIR)/LICENSE.md $(HPC_REPO_DIR)/LICENSE.md
+	@cp --preserve --force LICENSE.md $(HPC_REPO_DIR)/LICENSE.md
 	@echo -e "\033[33m  - .gitignore\033[0m"
-	@cp --preserve --force $(ROOT_DIR)/.gitignore $(HPC_REPO_DIR)/.gitignore
+	@cp --preserve --force .gitignore $(HPC_REPO_DIR)/.gitignore
 	@echo -e "\033[33m  - .editorconfig\033[0m"
 	@echo -e "\033[33m  - signer\033[0m"
-	@cp --preserve --force $(ROOT_DIR)/checksum.sh $(HPC_REPO_DIR)/checksum.sh
-	@cp --preserve --force $(ROOT_DIR)/.editorconfig $(HPC_REPO_DIR)/.editorconfig
+	@cp --preserve --force checksum.sh $(HPC_REPO_DIR)/checksum.sh
+	@cp --preserve --force .editorconfig $(HPC_REPO_DIR)/.editorconfig
 	@echo -e "\033[33m  - testing scripts\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  $(ROOT_DIR)/tests/ $(HPC_REPO_DIR)/tests
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  tests/ $(HPC_REPO_DIR)/tests
 	@echo -e "\033[33m  - ci-config\033[0m"
-	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  --exclude='sync-hpc.yml'  $(ROOT_DIR)/.github/ $(HPC_REPO_DIR)/.github
+	@rsync --checksum --copy-unsafe-links --perms --executability --times --recursive --delete  --exclude='sync-hpc.yml'  .github/ $(HPC_REPO_DIR)/.github
 
 	@echo -e "\033[33m  - copy reference\033[0m"
 	@echo "tprasadtp/dotfiles@$(GITCOMMIT)" > $(HPC_REPO_DIR)/.upstream
@@ -113,46 +108,23 @@ sync-hpc: ## Syncs HPC dotfiles submodule with hpc profiles from this repo.
 .PHONY: install-tools
 install-tools: ## Installs extra tools used by dotfiles (starship-rs and direnv)
 	@echo -e "\033[1;92m➜ $@ \033[0m"
-	@echo -e "\033[34m‣ downloading starship-prompt\033[0m"
-	@mkdir -p $(ROOT_DIR)/vendor/tools
-	@echo -e "\033[33m  - download binary\033[0m"
-	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz --output $(ROOT_DIR)/vendor/tools/starship.tar.gz
-	@echo -e "\033[33m  - download checksum\033[0m"
-	@curl -sL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz.sha256 --output $(ROOT_DIR)/vendor/tools/starship.tar.gz.sha256
-	@echo -e "\033[33m  - verify checksum\033[0m"
-	@echo "$$(cat $(ROOT_DIR)/vendor/tools/starship.tar.gz.sha256) $(ROOT_DIR)/vendor/tools/starship.tar.gz" | sha256sum --quiet -c -
-	@echo -e "\033[33m  - install\033[0m"
-	@mkdir -p $(INSTALL_PREFIX)/bin
-	@tar xzf $(ROOT_DIR)/vendor/tools/starship.tar.gz -C $(INSTALL_PREFIX)/bin
-
-	@echo -e "\033[34m‣ downloading direnv\033[0m"
-	@echo -e "\033[33m  - download & install binary\033[0m"
-	@mkdir -p $(INSTALL_PREFIX)/bin
-	@curl -sL https://github.com/direnv/direnv/releases/download/v2.20.0/direnv.linux-amd64 -o $(INSTALL_PREFIX)/bin/direnv
-
-	@echo -e "\033[34m‣ set permissions\033[0m"
-	@echo -e "\033[33m  - on bin\033[0m"
-	@chmod 700 $(INSTALL_PREFIX)/bin
-	@echo -e "\033[33m  - on direnv\033[0m"
-	@chmod 700 $(INSTALL_PREFIX)/bin/direnv
-	@echo -e "\033[33m  - on starship\033[0m"
-	@chmod 700 $(INSTALL_PREFIX)/bin/starship
+	./install.sh --tools
 
 .PHONY: update-vim-plug
 update-vim-plug: ## updates vim-plug(not plugins)
 	@echo -e "\033[1;92m➜ $@ \033[0m"
-	@mkdir -p $(ROOT_DIR)/vim/vim-plug $(ROOT_DIR)/vendor/source
-	curl -sSfL -o $(ROOT_DIR)/vendor/source/vim-plug.json https://api.github.com/repos/junegunn/vim-plug/commits/master
-	curl -sSfL -o $(ROOT_DIR)/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	@mkdir -p vim/vim-plug vendor/source
+	curl -sSfL -o vendor/source/vim-plug.json https://api.github.com/repos/junegunn/vim-plug/commits/master
+	curl -sSfL -o vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 
 .PHONY: update-metadta
 update-metadata: ## update medatata-hashes
 	@echo -e "\033[1;92m➜ $@ \033[0m"
-	vimplug_chash="$$(jq -r '.sha' $(ROOT_DIR)/vendor/source/vim-plug.json)";\
-		__vimplug_cdate="$$(jq -r ".commit.committer.date" $(ROOT_DIR)/vendor/source/vim-plug.json)";\
+	vimplug_chash="$$(jq -r '.sha' vendor/source/vim-plug.json)";\
+		__vimplug_cdate="$$(jq -r ".commit.committer.date" vendor/source/vim-plug.json)";\
 		vimplug_cdate=`date --date "$${__vimplug_cdate}" "+%b-%d-%Y" `;\
-		echo "{\"vimplug\": {\"commit\": \"$${vimplug_chash:0:7}\", \"sha1\": \"$${vimplug_chash}\", \"date\": \"$${vimplug_cdate}\"}}" | tee $(ROOT_DIR)/vendor/vendor.json
+		echo "{\"vimplug\": {\"commit\": \"$${vimplug_chash:0:7}\", \"sha1\": \"$${vimplug_chash}\", \"date\": \"$${vimplug_cdate}\"}}" | tee vendor/vendor.json
 
 
 .PHONY: clean-downloads
@@ -169,5 +141,5 @@ debug-vars:
 .PHONY: install-system
 install-system: ## Install system mods (Requires Root)
 	@echo "Installing Sudo Lecture"
-	install -g root -o root -m 640 $(ROOT_DIR)/system/sudo/sudo.lecture /etc/sudoers.d/sudo.lecture
-	install -g root -o root -m 640 $(ROOT_DIR)/system/sudo/lecture /etc/sudoers.d/lecture
+	install -g root -o root -m 640 system/sudo/sudo.lecture /etc/sudoers.d/sudo.lecture
+	install -g root -o root -m 640 system/sudo/lecture /etc/sudoers.d/lecture

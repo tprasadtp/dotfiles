@@ -1,11 +1,4 @@
 {
-	"auths": {
-		"docker.pkg.github.com": {},
-		"https://docker.pkg.github.com": {}
-	},
-	"HttpHeaders": {
-		"User-Agent": "Docker-Client/18.09.7 (linux)"
-	},
 	"psFormat": "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Networks}}\t{{.Ports}}\t{{.Image}}\t{{.Command}}",
 	"imagesFormat": "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}",
 	"pluginsFormat": "table {{.ID}}\t{{.Name}}\t{{.Enabled}}",

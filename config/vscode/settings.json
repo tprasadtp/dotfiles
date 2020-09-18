@@ -2,33 +2,22 @@
   "breadcrumbs.enabled": true,
   "cmake.configureOnOpen": false,
   "cSpell.userWords": [
-    "Healthcheck",
-    "Homelab",
-    "Mitogen",
     "Prasad",
     "Tengse",
-    "ansible",
-    "armhf",
     "autogen",
     "cache",
-    "defaultssl",
     "dependabot",
     "devtools",
     "direnv",
     "docgen",
     "eexist",
     "errno",
-    "jetbrains",
-    "protonvpn",
-    "pytest",
-    "systemd",
+    "markdownlint",
     "tprasadtp",
-    "traefik",
-    "venv",
-    "virtialenv"
+    "venv"
   ],
   "dart.allowAnalytics": false,
-  "diffEditor.ignoreTrimWhitespace": true,
+  "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.renderSideBySide": true,
   "editor.fontFamily": "'StarshipCode', 'Droid Sans Fallback'",
   "editor.fontLigatures": true,
@@ -41,8 +30,6 @@
   "extensions.autoUpdate": false,
   "files.associations": {
     ".envrc": "shellscript",
-    "*.bats": "shellscript",
-    "*.yml.j2": "jinja-yaml",
     "Dockerfile.*": "dockerfile",
     "poetry.*": "toml"
   },
@@ -116,5 +103,10 @@
     "!Split",
     "!Join sequence",
     "!vault"
-  ]
+  ],
+  "workbench.iconTheme": "material-icon-theme",
+  "material-icon-theme.saturation": 1,
+  "aws.cdk.explorer.enabled": false,
+  "aws.telemetry": false,
+  "codespaces.accountProvider": "GitHub"
 }

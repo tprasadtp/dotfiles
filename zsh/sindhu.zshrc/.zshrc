@@ -70,6 +70,10 @@ zstyle ':completion:*' menu select
 # completion stuff
 autoload -Uz compinit
 
+# Autosuggest from history only
+export ZSH_AUTOSUGGEST_STRATEGY=(history)
+
+
 #-----------------------------------------------------------------------------
 #                  Personal Plugins
 #-----------------------------------------------------------------------------

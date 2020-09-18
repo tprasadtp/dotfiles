@@ -19,9 +19,14 @@ readonly GREEN=$'\e[32m'
 readonly RED=$'\e[31m'
 readonly BLUE=$'\e[34m'
 readonly NC=$'\e[0m'
-readonly VERSION="3.2.1 Beta"
 readonly CURDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 readonly spacing_string="%+11s"
+
+# Define direnv and antibody versions
+readonly ANTIBODY_VERSION="6.1.1"
+readonly DIRENV_VERSION="2.20.0"
+
+
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
   [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
  [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
@@ -46,6 +51,8 @@ Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${NC}
 [-m --minimal]         [Only install git, bash, gpg config]
 [-n --name]            [Name of the config]
 [-z --install-zsh]     [Include ZSH config]
+
+[--tools]              [Install direnv, starship and antibody]
 [-Z --only-zsh]        [Only Install ZSH config]
 [-h --help]            [Display this help message]
 [-v --version]         [Display version info]
@@ -62,12 +69,11 @@ ${YELLOW}* If -x or --default-name parameter is used, name parameter is
 
 ${YELLOW}Notes on file removal/rename${NC}
 --------------------------------------------
-* If files are deleted/renamed in this repo, symlinks will become broken,
- if you had them already. In such cases remove the broken symlinks manually
+* If files are deleted/renamed in this repo, symlinks might become broken
+. In such cases remove the broken symlinks manually
  or install the files again or both.
 
 Github repo link : ${BLUE}https://github.com/tprasadtp/dotfiles${NC}
-Version          : ${BLUE}${VERSION}${NC}
 EOF
 }
 
@@ -94,6 +100,11 @@ function print_error()
 function print_notice()
 {
   printf "%s✦ %s %s\n" "${BLUE}" "$@" "${NC}"
+}
+
+function print_step()
+{
+  printf "  - %s\n" "$@"
 }
 
 function display_version()
@@ -298,18 +309,6 @@ function __install_config_files()
   fi
 }
 
-function install_vm_profile()
-{
-	# Starship
-	__install_config_files "starship" ".config"
-	# Tilix
-	__install_config_files "tilix" ".config/tilix/schemes"
-	# Fonts
-	__link_file "fonts/StarshipCascade-Regular-NerdFont.ttf" ".local/share/fonts/StarshipCascade-Regular-NerdFont.ttf"
-
-	# Bashrc
-	__link_files "bash/minimal" ""
-}
 
 function install_config_files()
 {
@@ -398,14 +397,58 @@ function install_vim()
 }
 
 
+function install_tools()
+{
+		print_info "Installing Required Tools"
+		mkdir -p "${INSTALL_PREFIX}/bin"
+		mkdir -p vendor/tools
+
+		print_info "Download and Install Starship"
+		print_step "download binary"
+		curl -sSfL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz --output vendor/tools/starship.tar.gz
+		print_step "fetch chevksum"
+		curl -sSfL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz.sha256 --output vendor/tools/starship.tar.gz.sha256
+		print_step "verify checksum"
+		echo "$(cat vendor/tools/starship.tar.gz.sha256) vendor/tools/starship.tar.gz" | sha256sum --quiet -c -
+		print_step "install"
+		tar xzf vendor/tools/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+
+		print_info "Download and Install direnv"
+		curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" -o "${INSTALL_PREFIX}/bin/direnv"
+
+		print_info "Download and Install antibody"
+		print_step "download binary"
+		curl -sSfL "https://github.com/getantibody/antibody/releases/download/v${ANTIBODY_VERSION}/antibody_Linux_x86_64.tar.gz" --output vendor/tools/antibody_Linux_x86_64.tar.gz
+		print_step "get checksum"
+		curl -sSfL "https://github.com/getantibody/antibody/releases/download/v${ANTIBODY_VERSION}/antibody_${ANTIBODY_VERSION}"_checksums.txt  --output vendor/tools/antibody_"${ANTIBODY_VERSION}"_checksums.txt
+		print_step "verify checksum"
+		(cd vendor/tools/ && sha256sum -c --ignore-missing "antibody_${ANTIBODY_VERSION}_checksums.txt")
+		print_step "install"
+		tar --extract --gzip --file=vendor/tools/antibody_Linux_x86_64.tar.gz --directory="${INSTALL_PREFIX}/bin" antibody
+
+
+		print_info "Set Permissions"
+		print_step "direnv"
+		chmod 700 "${INSTALL_PREFIX}/bin/direnv"
+		print_step "starship"
+		chmod 700 "${INSTALL_PREFIX}/bin/starship"
+		print_step "antibody"
+		chmod 700 "${INSTALL_PREFIX}/bin/antibody"
+}
+
 function main()
 {
   #check if no args
-  if [ $# -lt 1 ]; then
-    print_error "No arguments/Invalid number of arguments See usage below."
-    display_usage;
-    exit 1;
-  fi;
+	if [[ ${CODESPACES} == "true" ]]; then
+		print_warning "Invoking codespaces Install"
+		action_install="codespaces"
+	else
+		if [ $# -lt 1 ]; then
+			print_error "No arguments/Invalid number of arguments See usage below."
+			display_usage;
+			exit 1;
+		fi
+	fi
 
   INSTALL_PREFIX="${HOME}"
 
@@ -427,10 +470,12 @@ function main()
                             ;;
       -m | --minimal)       minimal_install="true";
                             ;;
-			--vm)       					action_install="vm";;
+			--codespaces)       	action_install="codespaces";;
       --version)            display_version;
                             exit $?;
                             ;;
+			--tools)              install_tools;
+														exit $?;;
       -C | --only-config)   only_config="true";
                             ;;
       -c | --no-config)     skip_config="true";
@@ -461,8 +506,37 @@ function main()
   done
 
 
-	if [[ $action_install == "vm" ]]; then
-		install_vm_profile
+	if [[ $action_install == "codespaces" ]]; then
+
+	  config_name="sindhu"
+
+		# Neofetch
+		print_info "Installing Config"
+		__install_config_files "neofetch" ".config/neofetch"
+
+		# Docker
+		__install_config_files "docker" ".docker"
+
+		# Starship
+		__install_config_files "starship" ".config"
+
+		# Direnv
+		__install_config_files "direnv" ".config/direnv"
+
+		# VS Code
+		__install_config_files "vscode" ".config/Code/User"
+
+		# Tools
+		install_tools
+
+		# ZSH
+		install_zsh
+
+		# Fonts
+		install_fonts
+
+		minimal_install
+
 
   elif [[ $action_install == "regular" ]]; then
 
@@ -545,7 +619,7 @@ function main()
     fi # end of minimal if
 
   else
-    print_error "Did you forget to pass -i | --install or --vm?"
+    print_error "Did you forget to pass -i | --install or --codespaces?"
     exit 10
   fi
 
