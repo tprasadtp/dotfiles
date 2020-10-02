@@ -107,13 +107,6 @@ function print_step()
   printf "  - %s\n" "$@"
 }
 
-function display_version()
-{
-  # shellcheck disable=SC2059
-  printf "${spacing_string} ${YELLOW} ${SCRIPT} ${NC}\n${spacing_string} ${YELLOW} ${VERSION} ${NC}\n" "Executable:" "Version:";
-}
-
-
 function __link_files()
 {
   # Liks files inside a directory to specified destination

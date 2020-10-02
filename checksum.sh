@@ -71,6 +71,7 @@ function generate_checksums()
 			-not -path "./emp-*/**" \
       -not -path "./vendor/**" \
       -not -path "./.github/**" \
+			-not -path "./scripts/**" \
       -not -name ".travis.yml" \
       -not -name "azure-pipelines.yml" \
       -not -name "SHA512SUMS" \

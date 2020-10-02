@@ -1,5 +1,6 @@
 {
   "breadcrumbs.enabled": true,
+  //CMake, ROS Helper stuff
   "cmake.configureOnOpen": false,
   "cSpell.userWords": [
     "Prasad",
@@ -10,9 +11,6 @@
     "devtools",
     "direnv",
     "docgen",
-    "eexist",
-    "errno",
-    "markdownlint",
     "tprasadtp",
     "venv"
   ],
@@ -48,10 +46,12 @@
   },
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
+  //Go Tools and Settings
   "go.formatTool": "goimports",
+  //Json,NPM Disable downloads
   "json.schemaDownload.enable": false,
-  "material-icon-theme.showWelcomeMessage": false,
   "npm.fetchOnlinePackageInfo": false,
+  //Python Stuff
   "python.analysis.logLevel": "Warning",
   "python.autoUpdateLanguageServer": false,
   "python.dataScience.sendSelectionToInteractiveWindow": false,
@@ -79,11 +79,11 @@
   "update.mode": "none",
   "update.showReleaseNotes": false,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-  "workbench.colorTheme": "Gruvbox Dark Hard",
   "workbench.editorAssociations": [],
   "workbench.enableExperiments": false,
   "workbench.settings.enableNaturalLanguageSearch": false,
   "workbench.startupEditor": "newUntitledFile",
+  //YAML, This is required for Cloudformation Tags
   "yaml.customTags": [
     "!fn",
     "!And",
@@ -104,9 +104,18 @@
     "!Join sequence",
     "!vault"
   ],
-  "workbench.iconTheme": "material-icon-theme",
-  "material-icon-theme.saturation": 1,
+  //AWS SDK
   "aws.cdk.explorer.enabled": false,
   "aws.telemetry": false,
-  "codespaces.accountProvider": "GitHub"
+  // CodeSpaces
+  "codespaces.accountProvider": "GitHub",
+  //Icons and Themes
+  "workbench.iconTheme": "material-icon-theme",
+  //Icon Theme
+  "material-icon-theme.saturation": 1,
+  "material-icon-theme.showWelcomeMessage": false,
+  //Themes
+  "workbench.colorTheme": "Gruvbox Dark Hard",
+  "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
+  "workbench.preferredLightColorTheme": "Gruvbox Dark Soft"
 }
