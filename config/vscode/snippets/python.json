@@ -1,13 +1,12 @@
 {
   "Copyright-PythonScript": {
       "prefix": [
-          "pythonscriptheader"
+          "pyscript"
       ],
       "body": [
           "#!/usr/bin/env python",
           "# -*- coding: utf-8 -*-",
-          "#  Copyright (c) 2019-$CURRENT_YEAR.",
-          "#  Prasad Tengse",
+          "#  Copyright (c) 2019-$CURRENT_YEAR Prasad Tengse",
           "#",
           ""
       ],
@@ -21,8 +20,7 @@
     ],
     "body": [
         "# -*- coding: utf-8 -*-",
-        "#  Copyright (c) 2019-$CURRENT_YEAR.",
-        "#  Prasad Tengse",
+        "#  Copyright (c) 2019-$CURRENT_YEAR Prasad Tengse",
         "#",
         ""
     ],

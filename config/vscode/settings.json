@@ -14,16 +14,16 @@
     "tprasadtp",
     "venv"
   ],
-  "dart.allowAnalytics": false,
   "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.renderSideBySide": true,
-  "editor.fontFamily": "'StarshipCode', 'Droid Sans Fallback'",
+  "editor.fontFamily": "'JetBrainsMono Nerd Font', 'Droid Sans Fallback'",
   "editor.fontLigatures": true,
-  "editor.fontSize": 16,
+  "editor.fontSize": 18,
   "editor.formatOnPaste": true,
   "editor.suggestSelection": "first",
   "editor.trimAutoWhitespace": true,
   "explorer.confirmDelete": false,
+  //Extensions disable auto update
   "extensions.autoCheckUpdates": false,
   "extensions.autoUpdate": false,
   "files.associations": {
@@ -69,12 +69,12 @@
     "**/.venv": true
   },
   "settingsSync.keybindingsPerPlatform": false,
-  "telemetry.enableCrashReporter": false,
-  "telemetry.enableTelemetry": false,
-  "terminal.integrated.fontFamily": "StarshipMono",
-  "terminal.integrated.fontSize": 16,
+  //Integrated Terminal Settings
+  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+  "terminal.integrated.fontSize": 18,
+  "terminal.integrated.shell.linux": "/usr/bin/zsh",
+  //Terraform
   "terraform.indexing.enabled": false,
-  "terraform.telemetry.enabled": false,
   "update.enableWindowsBackgroundUpdates": false,
   "update.mode": "none",
   "update.showReleaseNotes": false,
@@ -104,12 +104,29 @@
     "!Join sequence",
     "!vault"
   ],
+  //InterlliCode disable not needed stuff
+  "vsintellicode.java.completionsEnabled": false,
+  "vsintellicode.sql.completionsEnabled": false,
   //AWS SDK
   "aws.cdk.explorer.enabled": false,
-  "aws.telemetry": false,
   // CodeSpaces
   "codespaces.accountProvider": "GitHub",
+  "codespaces.featureSet": "stable",
+  "codespaces.enableSubmoduleCloning": true,
+  //Disable Telemetry for various stuff
+  //------------------------------------------------
+  //core
+  "telemetry.enableCrashReporter": false,
+  "telemetry.enableTelemetry": false,
+  //dart
+  "dart.allowAnalytics": false,
+  //Terraform
+  "terraform.telemetry.enabled": false,
+  //AWS
+  "aws.telemetry": false,
+  //------------------------------------------------
   //Icons and Themes
+  //------------------------------------------------
   "workbench.iconTheme": "material-icon-theme",
   //Icon Theme
   "material-icon-theme.saturation": 1,

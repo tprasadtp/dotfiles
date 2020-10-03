@@ -25,6 +25,7 @@ readonly spacing_string="%+11s"
 # Define direnv and antibody versions
 readonly ANTIBODY_VERSION="6.1.1"
 readonly DIRENV_VERSION="2.20.0"
+readonly STARSHIP_VERSION="v0.45.2"
 
 
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
@@ -398,9 +399,9 @@ function install_tools()
 
 		print_info "Download and Install Starship"
 		print_step "download binary"
-		curl -sSfL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz --output vendor/tools/starship.tar.gz
-		print_step "fetch chevksum"
-		curl -sSfL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-gnu.tar.gz.sha256 --output vendor/tools/starship.tar.gz.sha256
+		curl -sSfL "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz" --output vendor/tools/starship.tar.gz
+		print_step "fetch checksum"
+		curl -sSfL "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz.sha256" --output vendor/tools/starship.tar.gz.sha256
 		print_step "verify checksum"
 		echo "$(cat vendor/tools/starship.tar.gz.sha256) vendor/tools/starship.tar.gz" | sha256sum --quiet -c -
 		print_step "install"

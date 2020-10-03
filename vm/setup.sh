@@ -23,16 +23,6 @@ function install_tilix()
 
 }
 
-function install_font()
-{
-	echo "Getting Font"
-	curl -SsfL "https://github.com/tprasadtp/dotfiles/blob/master/fonts/StarshipCode.ttf?raw=true" -o StarshipCode.ttf
-
-  echo "Installing Font"
-  mkdir -p $HOME/.local/share/fonts
-  install -o $USER -g "$USER" -m 600 StarshipCode.ttf $HOME/.local/share/fonts/StarshipCode.ttf
-
-}
 
 function install_sudo_lecture()
 {

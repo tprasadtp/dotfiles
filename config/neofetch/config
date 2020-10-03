@@ -21,10 +21,10 @@ print_info() {
     info "Shell" shell
     info "Resolution" resolution
     info "DE" de
-    info "WM" wm
-    info "WM Theme" wm_theme
-    info "Theme" theme
-    info "Icons" icons
+    #info "WM" wm
+    #info "WM Theme" wm_theme
+    #info "Theme" theme
+    #info "Icons" icons
     info "Terminal" term
     info "Terminal Font" term_font
     info "CPU" cpu
@@ -35,7 +35,7 @@ print_info() {
     #info "Disk" disk
     #info "Battery" battery
     info "Font" font
-    #info "Song" song
+    info "Song" song
     #info "Local IP" local_ip
     #info "Public IP" public_ip
     info "Birthday" birthday
@@ -96,7 +96,7 @@ os_arch="on"
 # on:   '2 days, 10 hours, 3 mins'
 # off:  '2 days, 10 hours, 3 minutes'
 # tiny: '2d 10h 3m'
-uptime_shorthand="off"
+uptime_shorthand="on"
 
 
 # Shell
@@ -111,7 +111,7 @@ uptime_shorthand="off"
 # Example:
 # on:  '/bin/bash'
 # off: 'bash'
-shell_path="on"
+shell_path="off"
 
 # Show $SHELL version
 #
@@ -300,7 +300,7 @@ song_shorthand="off"
 # Example:
 # on:  'Thu 14 Apr 2016 11:50 PM'
 # off: '2016-04-14 23:50:55'
-birthday_shorthand="on"
+birthday_shorthand="off"
 
 # Whether to show the time in the output
 #
@@ -318,7 +318,7 @@ birthday_time="off"
 # Default:  '+%a %d %b %Y %l:%M %p'
 # Values:   'date format'
 # Flag:     --birthday_format
-birthday_format="+%a %d %b %Y %l:%M %p"
+birthday_format="+%a %d %b %Y"
 
 
 # Text Colors
@@ -347,7 +347,7 @@ colors=(distro)
 # Default:  'on'
 # Values:   'on', 'off'
 # Flag:     --bold
-bold="off"
+bold="on"
 
 # Enable/Disable Underline
 #
@@ -390,7 +390,7 @@ end=15
 # Default:  'on'
 # Values:   'on', 'off'
 # Flag:     --color_blocks
-color_blocks="off"
+color_blocks="on"
 
 # Color block width in spaces
 #
@@ -469,7 +469,7 @@ bar_color_total="distro"
 cpu_display="info"
 memory_display="info"
 battery_display="info"
-disk_show=('/' '/dev/sda5' '/dev/sda/9')
+disk_show=('/' '/home')
 disk_subtitle="mount"
 
 # Image Options
@@ -585,7 +585,7 @@ ascii="distro"
 #       Change this to 'arch_old' or 'ubuntu_old' to use the old logos.
 # NOTE: Ubuntu has flavor varients.
 #       Change this to 'Lubuntu', 'Xubuntu', 'Ubuntu-GNOME' or 'Ubuntu-Budgie' to use the flavors.
-ascii_distro="Ubuntu-GNOME"
+ascii_distro="auto"
 
 # Ascii Colors
 #

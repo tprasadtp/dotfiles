@@ -73,12 +73,13 @@ Plug 'stephpy/vim-yaml'
 " Octave
 Plug 'jvirtanen/vim-octave'
 
+"" Disabled
 " LateX
-Plug 'lervag/vimtex'
+"Plug 'lervag/vimtex'
 
 
 " autocomplete all
-Plug 'valloric/youcompleteme'
+" Plug 'valloric/youcompleteme'
 
 "Dockerfile
 Plug 'ekalinin/dockerfile.vim'

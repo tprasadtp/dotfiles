@@ -1,104 +1,89 @@
-prompt_order = [
-    "username",
-    "hostname",
-    "directory",
-    "git_branch",
-    "git_commit",
-    "git_state",
-    "git_status",
-    "package",
-    "golang",
-    "python",
-    "rust",
-    "aws",
-    "kubernetes",
-    "terraform",
-    "cmd_duration",
-    "line_break",
-    "jobs",
-    "battery",
-    "time",
-    "character",
-]
+# format = """\
+# $username\
+# $hostname\
+# $directory\
+# $git_branch\
+# $git_commit\
+# $git_state\
+# $git_status\
+# $package\
+# $golang\
+# $python\
+# $rust\
+# $gcloud\
+# $aws\
+# $kubernetes\
+# $helm\
+# $terraform\
+# $cmd_duration\
+# $line_break\
+# $jobs\
+# $battery\
+# $time\
+# $character\
+# """
+
+format = "$all"
+
+# Core
+
+[character]
+success_symbol = "[➜](green) "
+error_symbol = "[✖](red) "
 
 [username]
-show_always = true
 disabled = false
+show_always = false
 style_user = "#d386ff"
 
 [hostname]
-prefix = "歷"
-style = "#FF8800"
+ssh_only = true
+symbol = " "
+style = "#E95420"
+
+[cmd_duration]
+min_time = 5000
 
 [directory]
 style = "#A6CE39"
 
-# Replace the "❯" symbol in the prompt with "➜"
-[character]      # The name of the module we are configuring is "character"
-symbol = "➜ "    # The "symbol" segment is being set to "➜"
-#symbol = " "
-
+# Cloud
+# ------------------------
 [aws]
 symbol = "  "
+style = "#FF9900"
 
-# commad duration
-[cmd_duration]
-min_time = 5000
+[gcloud]
+disabled = true
+symbol = " "
+
 
 # Git Stuff
-# --------------------
-# Enable Git commit
-[git_commit]
-disabled = false
-style = "#FFBB00"
-prefix = " "
-suffix = " "
-commit_hash_length = 7
-
+# ------------------------
 [git_branch]
 symbol = " "
 style = "#FF8800"
 truncation_length = 8
 
+[git_commit]
+style = "#FFBB00"
+format = "[ $hash ]($style)"
+commit_hash_length = 7
+only_detached = false
+
 [git_status]
-
-[git_status.staged]
-# value = ""
-style = "bold #A6CE39"
-
-[git_status.added]
-value = ""
-style = "green"
-
-[git_status.untracked]
-# value = ""
-style = "cyan"
-
-[git_status.deleted]
-# value = ""
-style = "red"
-
-[git_status.modified]
-# value = ""
-style = "#FFE01B"
-
-[git_status.stashed]
-# value = ""
-style = "gray"
+style = "bold #F05032"
+deleted = "-"
 
 # Kubernetes
 # --------------------
 [kubernetes]
 symbol = "ﴱ "
-disabled = false
 style = "#4980f4"
 
 [golang]
 symbol = " "
 style = "#00ADD8"
-
-[package]
-disabled = true
 
 [python]
 symbol = " "
@@ -114,6 +99,9 @@ style = "#623CE4"
 
 # Disable not needed features
 # --------------------
+[docker_context]
+disabled = true
+
 [conda]
 disabled = true
 
@@ -129,18 +117,44 @@ disabled = true
 [java]
 disabled = true
 
-[ruby]
-disabled = true
-
-[nix_shell]
+[julia]
 disabled = true
 
 [memory_usage]
 disabled = true
 
-# Because F**** nodejs, its worse than PHP
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
 [nodejs]
 disabled = true
 
+[ocaml]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
 [php]
+disabled = true
+
+[ruby]
+disabled = true
+
+[shlvl]
+disabled = true
+
+[singularity]
+disabled = true
+
+[swift]
+disabled = true
+
+[zig]
 disabled = true
