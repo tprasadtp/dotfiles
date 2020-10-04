@@ -45,7 +45,8 @@ style = "#E95420"
 min_time = 5000
 
 [directory]
-style = "#A6CE39"
+#style = "#A6CE39"
+style = "bold #00A8E1"
 
 # Cloud
 # ------------------------

@@ -40,11 +40,11 @@ if (( ${+CLOUDSDK_HOME} )); then
 fi
 
 #-----------------------------------------------------------------------------
-#                          gcloud
+#                          Go
 #-----------------------------------------------------------------------------
 
-export GOPATH=$HOME/Tools/go
-export PATH=$PATH:$GOPATH/bin
+export GOROOT="$HOME/Tools/go"
+export PATH="$PATH:$GOROOT/bin"
 
 #-----------------------------------------------------------------------------
 #                        Hashicorp
