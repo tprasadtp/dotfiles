@@ -40,7 +40,7 @@ readonly FD_VERSION="8.1.1"
 
 # Default settings
 DOT_PROFILE_ID="sindhu"
-INSTALL_PREFIX="${HOME}"
+INSTALL_PREFIX="${HOME}/Junk"
 LOG_LVL=0
 
 function display_usage()
@@ -365,6 +365,12 @@ function install_fish_configs_handler()
 
 function __install_minimal_config_files_handler()
 {
+  # Git
+  __install_config_files "git" ""
+
+  # GPG
+  __install_config_files "gnupg" ".gnupg"
+
   # Docker
   __install_config_files "docker" ".docker"
 
@@ -387,7 +393,7 @@ function __install_other_config_files_handler()
   # Cobra
   __install_config_files "cobra" ""
 
-  # VS code [Mainly Telemetry stuff]
+  # VS code
   __install_config_files "vscode" ".config/Code/User"
 
   # Font config
@@ -456,11 +462,6 @@ function install_minimal_wrapper()
 function install_regular_wrapper()
 {
   install_bash_handler
-
-  print_notice "Install Git & GPG"
-  __install_config_files "git" ""
-  __install_config_files "gnupg" ".gnupg"
-
   install_fish_configs_handler
   install_config_files_handler
   install_fonts_handler
@@ -474,10 +475,9 @@ function install_codespaces_wrapper()
 {
   print_notice "Codespaces:: Tools"
   install_tools_handler
-  print_notice "Codespaces:: Configs"
-  __install_config_files "docker" ".docker"
-  __install_config_files "direnv" ".config/direnv"
-  __install_config_files "vscode" ".config/Code/User"
+  print_notice "Codespaces:: Configs[Min]"
+
+  __install_minimal_config_files_handler
   print_notice "Codespaces:: Fish"
   install_fish_configs_handler
   print_notice "Codespaces:: Fonts"
@@ -503,7 +503,7 @@ function main()
 {
   #check if no args
   if [[ ${CODESPACES} == "true" ]]; then
-    print_warning "Invoking codespaces Install"
+    print_warning "Codespaces:: Install"
     action_install_mode="codespaces"
   else
     if [ $# -lt 1 ]; then
