@@ -27,5 +27,5 @@ jobs:
           ./checksum.sh -v -G
           # Modify after verification
           sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
-          make test-install-default
+          make test-install
           make test-install-minimal

@@ -2,28 +2,21 @@ SHELL := /bin/bash
 
 .DEFAULT_GOAL := help
 
-# Set install prefix if not set already
-INSTALL_PREFIX ?= $(HOME)
-
-.PHONY: test
-test: shellcheck test-install-default  test-install-minimal ## Runs all the tests
-
-
 .PHONY: shellcheck
 shellcheck: ## Runs the shellcheck tests on the scripts.
 	./tests/test-shell-scripts.sh
 
 .PHONY: install
 install: ## Installs default profile
-	./install.sh -i -x -z
+	./install.sh --install
 
-.PHONY: test-install-default
-test-install-default: ## Test Installs default profile
-	./install.sh -T --install
+.PHONY: test-install
+test-install: ## Test Installs default profile
+	./install.sh --install --debug
 
 .PHONY: test-install-minimal
 test-install-minimal: ## Test Install minimal profile
-	./install.sh -i -T -e -c -f -n minimal
+	./install.sh --minimal --debug
 
 .PHONY: verify
 verify: ## Verifies checksums
@@ -31,7 +24,7 @@ verify: ## Verifies checksums
 
 .PHONY: sign
 sign: ## Sign
-	./checksum.sh -c -s -v
+	./checksum.sh -s -v
 
 .PHONY: help
 help: ## This help dialog.
