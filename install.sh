@@ -40,7 +40,7 @@ readonly FD_VERSION="8.1.1"
 
 # Default settings
 DOT_PROFILE_ID="sindhu"
-INSTALL_PREFIX="${HOME}/Junk"
+INSTALL_PREFIX="${HOME}"
 LOG_LVL=0
 
 function display_usage()
