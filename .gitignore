@@ -45,7 +45,4 @@ Temporary Items
 .uuid
 
 # Vendor
-vendor/source/
-vendor/tools/
-
-!/vendor/vendor.json
+vendor/cache/

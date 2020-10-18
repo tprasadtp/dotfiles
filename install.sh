@@ -8,73 +8,90 @@
 # https://wiki.archlinux.org/index.php/Dotfiles#Tools
 # But most of them require Perl or python. Though
 # most systems have those installed by default, I wanted something
-# which was dependent only on bash/zsh
+# which was dependent only on bash
 
 set -o pipefail
 
 #Constants
 readonly SCRIPT=$(basename "$0")
-readonly YELLOW=$'\e[33m'
-readonly GREEN=$'\e[32m'
-readonly RED=$'\e[31m'
-readonly BLUE=$'\e[34m'
+readonly YELLOW=$'\e[38;5;221m'
+readonly GREEN=$'\e[38;5;42m'
+readonly RED=$'\e[38;5;197m'
+readonly PINK=$'\e[38;5;212m'
+readonly BLUE=$'\e[38;5;159m'
+readonly ORANGE=$'\e[38;5;208m'
+readonly TEAL=$'\e[38;5;192m'
+readonly VIOLET=$'\e[38;5;219m'
+readonly GRAY=$'\e[38;5;246m'
 readonly NC=$'\e[0m'
 readonly CURDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-readonly spacing_string="%+11s"
-
-# Define direnv and antibody versions
-readonly ANTIBODY_VERSION="6.1.1"
-readonly DIRENV_VERSION="2.20.0"
-readonly STARSHIP_VERSION="v0.45.2"
-
-
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
   [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
  [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
 [0;1;32;92m/_[0;1;36;96m__[0;1;34;94m_/[0;1;35;95m\_[0;1;31;91m__[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m/[0m [0;1;35;95m/_[0;1;31;91m/_[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m__[0;1;35;95m/[0m
 "
 
+# Define direnv, bat, fzf, fd versions
+readonly FZF_VERSION="0.23.1"
+readonly BAT_VERSION="6.1.1"
+readonly DIRENV_VERSION="2.20.0"
+readonly STARSHIP_VERSION="0.46.0"
+readonly FD_VERSION="8.1.1"
+
+# Default settings
+DOT_PROFILE_ID="sindhu"
+INSTALL_PREFIX="${HOME}"
+LOG_LVL=0
+
 function display_usage()
 {
 #Prints out help menu
 cat <<EOF
 $LOGO
-Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${NC}
+Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${YELLOW}
 ---------------------------------------------
-[-i --install]         [Install dotfiles]
-[-f --no-fonts]        [Do not install fonts]
-[-c --no-config]       [Skip Configs in config]
-[-C --only-config]     [Only install config files]
-[-e --no-extra-config] [Skip extra config mainly UI, IDE stuff
-                        Useful for no GUI or servers]
-[-x --default-name]    [Fallback to default config name]
-[-t --no-templates]    [Skip instaling Templates]
-[-m --minimal]         [Only install git, bash, gpg config]
-[-n --name]            [Name of the config]
-[-z --install-zsh]     [Include ZSH config]
+[-i --install]        [Install dotfiles]
+[--codespaces]        [Instal in codespaces mode]
+                       Bash, Git, GPG, Fish,
+                       direnv, starship, docker,
+                       VSCode, Fonts and Poetry. Also,
+                       invokes --tools install.
+${TEAL}
+------------- Exclusive Modes ---------------${PINK}
+[-C | --only-config]  [Only install configs]
+[-F | --only-fish]    [Only install fish configs]
+[-M | --minimal]      [Only install Bash, GPG, Git]
+[-B | --bash]         [Only install Bash and starship]
+[-X | --bin]          [Only install scripts to ~/bin]
+[-t | --tools]        [Install Tools necessary]
+                        - direnv, starship
+                        - bat,fd and fzf
+${TEAL}
+------------- Skip Modes --------------------${BLUE}
+[-c | --no-config]     [Skip installing all config]
+[-e | --minimal-config)[Install only base essential configs,
+                        skip extra, usually GUI stuff.]
+[-k | --no-fonts)      [Skip installing fonts]
+[-w | --no-templates)  [Skip installing templates]
+[-f | --no-fish)       [Skip installing all fish shell
+                        configs]
+${TEAL}
+------------- Enable Modes ------------------${NC}
+[-x | --bin]          [Install scripts in bin to ~/bin]
 
-[--tools]              [Install direnv, starship and antibody]
-[-Z --only-zsh]        [Only Install ZSH config]
-[-h --help]            [Display this help message]
-[-v --version]         [Display version info]
+${TEAL}
+----------- Profile Selector ----------------${NC}
+When a profile name is set, and if matching config is found,
+they will b used instead of default ones. Profile specific
+configs are stored in folder with suffix -[DOT_PROFILE_ID].
+${ORANGE}
+[-p | --profile]      [Set Profile name]
 
-${YELLOW}Notes on --name parameter${NC}
----------------------------------------------
-* If a config specific file or directory is not found,
-  It is,
-    a] Skiped for Git, GNUPG, BASH
-    b] Default is used for configs
-    c] Fonts and Templates are common for all
-${YELLOW}* If -x or --default-name parameter is used, name parameter is
-  ignored.
-
-${YELLOW}Notes on file removal/rename${NC}
---------------------------------------------
-* If files are deleted/renamed in this repo, symlinks might become broken
-. In such cases remove the broken symlinks manually
- or install the files again or both.
-
-Github repo link : ${BLUE}https://github.com/tprasadtp/dotfiles${NC}
+${TEAL}
+----------- Debugging & Help ----------------${VIOLET}
+[-v | --verbose]      [Enable verbose loggging]
+[-h --help]           [Display this help message]
+${NC}
 EOF
 }
 
@@ -98,14 +115,39 @@ function print_error()
    printf "%s✖ %s %s\n" "${RED}" "$@" "${NC}"
 }
 
-function print_notice()
+
+function print_debug()
 {
-  printf "%s✦ %s %s\n" "${BLUE}" "$@" "${NC}"
+  if [[ $LOG_LVL -gt 0  ]]; then
+    printf "%s⚒ %s %s\n" "${GRAY}" "$@" "${NC}"
+  fi
 }
 
-function print_step()
+function print_notice()
 {
-  printf "  - %s\n" "$@"
+  printf "%s★ %s %s\n" "${TEAL}" "$@" "${NC}"
+}
+
+function print_step_notice()
+{
+  printf "%s  ★ %s %s\n" "${TEAL}" "$@" "${NC}"
+}
+
+function print_step_error()
+{
+  printf "%s  ✖ %s %s\n" "${RED}" "$@" "${NC}"
+}
+
+function print_step_debug()
+{
+  if [[ $LOG_LVL -gt 0  ]]; then
+    printf "%s  ⚒ %s %s\n" "${GRAY}" "$@" "${NC}"
+  fi
+}
+
+function print_step_info()
+{
+  printf "%s  - %s %s\n" "${VIOLET}" "$@" "${NC}"
 }
 
 function __link_files()
@@ -113,7 +155,7 @@ function __link_files()
   # Liks files inside a directory to specified destination
   # Arg-1 Input directory
   # Arg 2 Output dir to place symlinks
-  # Always .md .git .travis.yml are ignored.
+  # Always .md .git are ignored.
   # This operation is NOT recursive.
 
   local src="${1}"
@@ -129,151 +171,58 @@ function __link_files()
       do
         f="$(basename "$file")"
         if ln -sfn "$file" "${INSTALL_PREFIX}/${dest}/${f}"; then
-          print_success "Linked : ${f}"
+          print_step_debug "Linked : ${f}"
         else
-          print_error "Linking ${f} failed!"
+          print_step_error "Linking ${f} failed!"
         fi
-      done< <(find "$CURDIR/${src}" -maxdepth 1  -not -name "$(basename "$src")" -not -name '*.md' -not -name '.travis.yml' -not -name '.git' -not -name 'LICENSE'  -not -name '.editorconfig' -print0)
+      done< <(find "$CURDIR/${src}" -maxdepth 1  -not -name "$(basename "$src")" -not -name '*.md' -not -name '.git' -not -name 'LICENSE'  -not -name '.editorconfig' -print0)
     else
-      print_error "Failed to create destination : $dest"
+      print_step_error "Failed to create destination : $dest"
     fi # mkdir
     else
-      print_error "Directory ${src} not found!"
+      print_step_error "Directory ${src} not found!"
   fi # src check
 
 }
 
 
-function __link_file()
+function __link_single_item()
 {
-  # Liks file to specified destination
-  # Arg-1 Input File
+  # Liks item to specified destination
+  # Arg-1 Input file/directory
   # Arg 2 Output symlink
 
   local src="${1}"
-	local dest_dir
-	dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
-	local skip_base_dir_create="${3:-false}"
+  local dest_dir
+  dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
 
-#	 echo "${skip_base_dir}"
-#  echo "SRC : $src"
-#  echo "DEST: $dest"
-#  echo "CURDIR : $CURDIR"
+  #	 echo "${skip_base_dir_create}"
+  #  echo "SRC : $src"
+  #  echo "DEST: $dest"
+  #  echo "CURDIR : $CURDIR"
 
   if [ -f "${CURDIR}/${src}" ]; then
-		if [[ ${skip_base_dir_create} != "true" ]]; then
-
-			if mkdir -p "${dest_dir}"; then
-				f="$(basename "$src")"
-				if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
-					print_success "Linked : ${f}"
-				else
-					print_error "Linking ${f} failed!"
-					fi
-			else
-				print_error "Failed to create destination : $dest_dir"
-			fi # mkdir
-
-		# do not create base dir
-		else
-			print_info "Assuming ${dest_dir} already exists"
-
-			f="$(basename "$src")"
-			if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
-				print_success "Linked : ${f}"
-			else
-				print_error "Linking ${f} failed!"
-			fi
-		fi # base dir create flag
-
-    else
-      print_error "File ${src} not found!"
-  fi # src check
-
-}
-
-
-function minimal_install()
-{
-    # Installs only minimal dotfiles
-    # git, zsh, bash and gpg
-    # Rest all files are ignored.
-
-    # .bash_profile
-		print_info "Installing .bash_profile"
-		__link_file "bash/.bash_profile" ".bash_profile" "true"
-
-    # Git
-    # First check for config specific directory
-    if [[ -d $CURDIR/git/$config_name ]] && [[ -f $CURDIR/git/$config_name/.gitconfig ]];then
-      print_info "GIT Profile : ${config_name}"
-      __link_file "git/$config_name/.gitconfig" ".gitconfig" "true"
-    else
-      print_error "GIT    :  No config found!"
-    fi
-
-    # Bash
-    # First check for config specific directory
-    if [[ -d $CURDIR/bash/$config_name ]];then
-      print_info "BASH Profile : ${config_name}"
-      __link_files "bash/${config_name}" ""
-    # If no config specific dirs are found, use default `bash`
-    else
-      print_error "BASH   :  No config found!"
-    fi
-
-    # GPG
-    # First check for config specific directory
-    if [[ -d $CURDIR/gnupg/${config_name} ]];then
-      print_info "GNUPG  Profile : ${config_name}"
-      __link_files "gnupg/$config_name" ".gnupg/"
-    # If no config specific dirs are found, use default `gnupg`
-    else
-      print_error "GNUPG  : No config found!"
-    fi
-
-		if [[ ${minimal_install} == "true" ]]; then
-			__install_config_files "starship" ".config"
-		fi
-
-}
-
-
-function install_fonts()
-{
-  print_info "Installing fonts..."
-  if mkdir -p "$INSTALL_PREFIX"/.local/share; then
-	  if ln -snf "$CURDIR"/fonts "$INSTALL_PREFIX"/.local/share/fonts; then
-      print_success "Fonts installed successfully!"
-      if [[ $clear_font_cache == "true" ]]; then
-        print_info "Clearing font cache..."
-        print_warning "Please enter root/sudo password when requested."
-        sudo fc-cache -f  || print_error "Failed to clear font cache!"
+    if mkdir -p "${dest_dir}"; then
+      f="$(basename "$src")"
+      if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
+        print_step_debug "Linked : ${f}"
+      else
+        print_step_error "Linking ${f} failed!"
       fi
     else
-      print_error "Failed to link fonts to .local/share/fonts"
-    fi
+      print_step_error "Failed to create destination : $dest_dir"
+    fi # mkdir
   else
-    print_error "Failed to create fonts directory. Fonts will not be linked!"
-  fi
-}
+    print_step_error "File ${src} not found!"
+  fi # src check
 
-
-function install_templates()
-{
-  print_info "Installing templates..."
-  if mkdir -p "${INSTALL_PREFIX}"/Templates; then
-    __link_files "templates" "Templates"
-  else
-    print_error "Failed to create ~/Templates directory. Templates will not be installed"
-  fi
 }
 
 
 function __install_config_files()
 {
   if [[ $# -lt 2 ]]; then
-    print_error "Invalid number of arguments "
+    print_step_error "Invalid number of arguments "
     exit 21;
   fi
 
@@ -281,15 +230,15 @@ function __install_config_files()
   dest_dir="$2"
 
   # First check for config specific directory
-  if [[ -d $CURDIR/config/$cfg_dir-$config_name ]];then
-    print_notice "Using config/${cfg_dir} (${config_name})"
+  if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]];then
+    print_step_notice "config/${cfg_dir}(${DOT_PROFILE_ID})"
 
-    cfg_dir="${cfg_dir}-${config_name}"
+    cfg_dir="${cfg_dir}-${DOT_PROFILE_ID}"
   # If no config specific dirs are found, use default config
   elif [[ -d $CURDIR/config/$cfg_dir ]];then
-    print_notice "Using config/${cfg_dir} (default)"
+    print_step_info "config/${cfg_dir}"
   else
-    print_error "No configs found for ${cfg_dir}"
+    print_step_error "No configs found for ${cfg_dir}"
     exit 21
   fi
 
@@ -298,21 +247,124 @@ function __install_config_files()
     # destination path is prefixed with INSTALL_PREFIX automatically
     __link_files "config/$cfg_dir" "$dest_dir"
   else
-    print_error "Failed to create $dest_dir directory."
-    print_error "$cfg_dir will not be installed!"
+    print_step_error "Failed to create $dest_dir directory."
+    print_step_error "$cfg_dir will not be installed!"
+  fi
+}
+
+function install_tools_handler()
+{
+  print_info "Installing Required Tools"
+  mkdir -p "${INSTALL_PREFIX}/bin"
+  mkdir -p vendor/cache
+
+  print_info "Download and Install Starship"
+  print_step_info "download"
+  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz" --output vendor/cache/starship.tar.gz
+  print_step_info "checksum"
+  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
+  print_step_info "verify"
+  echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -
+  print_step_info "install"
+  tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+
+  print_info "Download and Install direnv"
+  curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" \
+    -o "${INSTALL_PREFIX}/bin/direnv"
+
+  print_info "Download and Install sharkdp/bat"
+  print_step_info "download"
+  curl -sSfL "https://github.com/sharkdp/bat/releases/download/v0.16.0/bat-v0.16.0-x86_64-unknown-linux-musl.tar.gz" \
+    --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+  print_step_info "extract"
+  tar --extract --strip=1 --gzip \
+    --file="vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+    --directory="${INSTALL_PREFIX}/bin" \
+    --wildcards "*bat"
+
+  print_info "Download and Install unegunn/fzf"
+  print_step_info "download"
+  curl -sSfL "https://github.com/junegunn/fzf-bin/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tgz" \
+    --output vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tgz
+  print_step_info "extract"
+  tar --extract --gzip \
+    --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tgz" \
+    --directory="${INSTALL_PREFIX}/bin" \
+    fzf
+
+  print_info "Download and Install sharkdp/fzf"
+  print_step_info "download binary"
+  curl -sSfL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+    --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+  tar --extract --strip=1 --gzip \
+    --file="vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+    --directory="${INSTALL_PREFIX}/bin" \
+    --wildcards "*fd"
+
+  print_info "Set Permissions"
+  print_step_info "direnv"
+  chmod 700 "${INSTALL_PREFIX}/bin/direnv"
+  print_step_info "starship"
+  chmod 700 "${INSTALL_PREFIX}/bin/starship"
+  print_step_info "sharkdp/bat"
+  chmod 700 "${INSTALL_PREFIX}/bin/bat"
+  print_step_info "unegunn/fzf"
+  chmod 700 "${INSTALL_PREFIX}/bin/fzf"
+  print_step_info "sharkdp/fd"
+  chmod 700 "${INSTALL_PREFIX}/bin/fd"
+}
+
+function install_fonts_handler()
+{
+  if [[ $bool_skip_fonts == "true" ]]; then
+    print_notice "Skipped installing templates"
+  else
+    print_notice "Installing fonts"
+    if mkdir -p "$INSTALL_PREFIX"/.local/share; then
+      if ln -snf "$CURDIR"/fonts "$INSTALL_PREFIX"/.local/share/fonts; then
+        print_success "Done"
+      else
+        print_error "Failed to link fonts to .local/share/fonts"
+      fi
+    else
+      print_error "Failed to create fonts directory. Fonts will not be linked!"
+    fi
   fi
 }
 
 
-function install_config_files()
+function install_templates_handler()
 {
-  # Installs files in config to .config
-  # Easy way clould be to use gnu stow.
-  # But Its not installed by default.
+  if [[ $bool_skip_templates == "true" ]]; then
+    print_notice "Skipped installing templates"
+  else
+    print_notice "Installing templates"
+    if mkdir -p "${INSTALL_PREFIX}"/Templates; then
+      __link_files "templates" "Templates"
+    else
+      print_error "Failed to create ~/Templates directory."
+      print_error "Templates will not be installed"
+    fi
+    print_success "Done"
+  fi
+}
 
-  # Neofetch
-  __install_config_files "neofetch" ".config/neofetch"
 
+function install_fish_configs_handler()
+{
+  if [[ $bool_skip_fish == "true" ]]; then
+    print_notice "Skipped installing fish configurations"
+  else
+    print_notice "Install fish configs"
+    print_step_info "fisher"
+    __link_single_item "fish/fisher/fisher.fish" ".config/fish/functions/fisher.fish"
+    __install_config_files "fish" ".config/fish/"
+  fi
+}
+
+
+function __install_minimal_config_files_handler()
+{
   # Docker
   __install_config_files "docker" ".docker"
 
@@ -322,302 +374,340 @@ function install_config_files()
   # Direnv
   __install_config_files "direnv" ".config/direnv"
 
-  if [[ ${skip_extra_config} == "true" ]];then
-    print_info "Skipping extra configs (fonts, extra utils and GUI stuff)"
+  # Poetry
+  __install_config_files "pypoetry" ".config/pypoetry"
+}
+
+
+function __install_other_config_files_handler()
+{
+  # Ughh!
+  __install_config_files "npm" ""
+
+  # Cobra
+  __install_config_files "cobra" ""
+
+  # VS code [Mainly Telemetry stuff]
+  __install_config_files "vscode" ".config/Code/User"
+
+  # Font config
+  __install_config_files "fonts" ""
+
+  # GNU Radio
+  __install_config_files "gnuradio" ".gnuradio"
+
+  # Tilix
+  __install_config_files "tilix" ".config/tilix/schemes"
+
+  # MPV
+  __install_config_files "mpv" ".config/mpv"
+}
+
+
+function install_config_files_handler()
+{
+  if [[ $bool_skip_config == "true" ]]; then
+    print_notice "Skipped installing configs"
   else
-    #
-    # VS code [Mainly Telemetry stuff]
-    __install_config_files "vscode" ".config/Code/User"
-    __install_config_files "fonts" ""
-    __install_config_files "npm" ""
-
-		# Cobra
-    __install_config_files "cobra" ""
-
-    # Poetry
-    __install_config_files "pypoetry" ".config/pypoetry"
-
-		# GNU Radio
-		__install_config_files "gnuradio" ".gnuradio"
-
-		# Tilix
-		__install_config_files "tilix" ".config/tilix/schemes"
-
-		# MPV
-		__install_config_files "mpv" ".config/mpv"
-
+    print_notice "Installing config files"
+    __install_minimal_config_files_handler
+    if [[ $bool_minimal_config == "true" ]]; then
+      print_notice "skipped installing extra stuff"
+    else
+      print_notice "Installing 'extra' configs"
+      __install_other_config_files_handler
+    fi
   fi
 }
 
 
-function install_zsh()
+function install_bash_handler()
 {
-  if [[ -d $CURDIR/zsh/$config_name.zshrc ]]; then
-    print_info "Will use $config_name.zshrc (in zsh)"
-
-    print_notice "Installing base configs"
-    print_info "Installing custom plugins"
-    __link_files "zsh/plugins" ".zsh/plugins"
-
-		# Antibody and zshrc
-    print_info "Installing $config_name antibody"
-    __link_file "zsh/${config_name}.zshrc/.antibodyrc" ".zsh/.antibodyrc"
-
-    # Now install core zshrc
-    print_info "Installing $config_name zshrc"
-		__link_file "zsh/${config_name}.zshrc/.zshrc" ".zshrc" "true"
-
+  # Installs only bash
+  # .bash_profile
+  print_notice "Installing bash configs"
+  # First check for config specific directory
+  if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]];then
+    print_success "Found profile ${DOT_PROFILE_ID}"
+    # bash_profile is just a stub common for all
+    print_debug "Installing .bash_profile"
+    __link_single_item "bash/.bash_profile" ".bash_profile" "true"
+    __link_files "bash/${DOT_PROFILE_ID}" ""
+    print_success "Done"
+  # If no config specific dirs are found, use default `bash`
   else
-    print_error "cannot find ZSH profile ${config_name} in zsh"
+    print_error "BASH: no config found!"
+    return 2
   fi
-
 }
 
 
-function install_vim()
+function install_minimal_wrapper()
 {
-
-	if [[ -d $CURDIR/vim ]]; then
-		print_info "Installing VIM config"
-
-		print_info "Installing Autoload + Manager"
-		__link_file "vim/autoload/plug.vim" ".local/share/nvim/site/autoload/plug.vim"
-		print_info "Installing config"
-		__link_file "vim/init.vim" ".config/nvim/init.vim"
-	else
-		print_error "vim configs not found!"
-	fi
-
+  print_notice "Installing minimal configs"
+  install_bash_handler
+  __install_config_files "git" ""
+  __install_config_files "gnupg" ".gnupg"
+  __install_config_files "starship" ".config"
+  __install_config_files "direnv" ".config/direnv"
 }
 
 
-function install_tools()
+function install_regular_wrapper()
 {
-		print_info "Installing Required Tools"
-		mkdir -p "${INSTALL_PREFIX}/bin"
-		mkdir -p vendor/tools
+  install_bash_handler
 
-		print_info "Download and Install Starship"
-		print_step "download binary"
-		curl -sSfL "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz" --output vendor/tools/starship.tar.gz
-		print_step "fetch checksum"
-		curl -sSfL "https://github.com/starship/starship/releases/download/${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz.sha256" --output vendor/tools/starship.tar.gz.sha256
-		print_step "verify checksum"
-		echo "$(cat vendor/tools/starship.tar.gz.sha256) vendor/tools/starship.tar.gz" | sha256sum --quiet -c -
-		print_step "install"
-		tar xzf vendor/tools/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+  print_notice "Install Git & GPG"
+  __install_config_files "git" ""
+  __install_config_files "gnupg" ".gnupg"
 
-		print_info "Download and Install direnv"
-		curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" -o "${INSTALL_PREFIX}/bin/direnv"
+  install_fish_configs_handler
+  install_config_files_handler
+  install_fonts_handler
+  install_templates_handler
+  install_scripts_handler
 
-		print_info "Download and Install antibody"
-		print_step "download binary"
-		curl -sSfL "https://github.com/getantibody/antibody/releases/download/v${ANTIBODY_VERSION}/antibody_Linux_x86_64.tar.gz" --output vendor/tools/antibody_Linux_x86_64.tar.gz
-		print_step "get checksum"
-		curl -sSfL "https://github.com/getantibody/antibody/releases/download/v${ANTIBODY_VERSION}/antibody_${ANTIBODY_VERSION}"_checksums.txt  --output vendor/tools/antibody_"${ANTIBODY_VERSION}"_checksums.txt
-		print_step "verify checksum"
-		(cd vendor/tools/ && sha256sum -c --ignore-missing "antibody_${ANTIBODY_VERSION}_checksums.txt")
-		print_step "install"
-		tar --extract --gzip --file=vendor/tools/antibody_Linux_x86_64.tar.gz --directory="${INSTALL_PREFIX}/bin" antibody
-
-
-		print_info "Set Permissions"
-		print_step "direnv"
-		chmod 700 "${INSTALL_PREFIX}/bin/direnv"
-		print_step "starship"
-		chmod 700 "${INSTALL_PREFIX}/bin/starship"
-		print_step "antibody"
-		chmod 700 "${INSTALL_PREFIX}/bin/antibody"
 }
+
+
+function install_codespaces_wrapper()
+{
+  print_notice "Codespaces:: Tools"
+  install_tools_handler
+  print_notice "Codespaces:: Configs"
+  __install_config_files "docker" ".docker"
+  __install_config_files "direnv" ".config/direnv"
+  __install_config_files "vscode" ".config/Code/User"
+  print_notice "Codespaces:: Fish"
+  install_fish_configs_handler
+  print_notice "Codespaces:: Fonts"
+  install_fonts_handler
+  print_notice "Codespaces:: Bash"
+  install_bash_handler
+}
+
+
+function install_scripts_handler()
+{
+  if [[ $bool_install_bin == "true" ]]; then
+    print_warning "Installing scripts to ~/bin is enabled!"
+    print_warning "Make sure your PATH is properly setup!"
+    __link_files "bin" "bin"
+  else
+    print_debug "Installing scripts is not enabled"
+  fi
+}
+
 
 function main()
 {
   #check if no args
-	if [[ ${CODESPACES} == "true" ]]; then
-		print_warning "Invoking codespaces Install"
-		action_install="codespaces"
-	else
-		if [ $# -lt 1 ]; then
-			print_error "No arguments/Invalid number of arguments See usage below."
-			display_usage;
-			exit 1;
-		fi
-	fi
-
-  INSTALL_PREFIX="${HOME}"
+  if [[ ${CODESPACES} == "true" ]]; then
+    print_warning "Invoking codespaces Install"
+    action_install_mode="codespaces"
+  else
+    if [ $# -lt 1 ]; then
+      print_error "No arguments/Invalid number of arguments See usage below."
+      display_usage;
+      exit 1;
+    fi
+  fi
 
   while [ "${1}" != "" ]; do
     case ${1} in
-      -i | --install )      action_install="regular"
-                            ;;
-      -n | --name )         shift;
-                            config_name="${1}";
-                            ;;
-      -h | --help )         display_usage;
-                            exit $?
-                            ;;
-      -f | --no-fonts)      skip_fonts="true";
-                            ;;
-      -x | --default-name)  use_default_name="true"
-                            ;;
-      -t | --install-templates)  bool_install_templates="true";
-                            ;;
-      -m | --minimal)       minimal_install="true";
-                            ;;
-			--codespaces)       	action_install="codespaces";;
-      --version)            display_version;
-                            exit $?;
-                            ;;
-			--tools)              install_tools;
-														exit $?;;
-      -C | --only-config)   only_config="true";
-                            ;;
-      -c | --no-config)     skip_config="true";
-                            ;;
-      -e | --no-extra-config) skip_extra_config="true";
-                            ;;
-      --clear-font-cache)   readonly clear_font_cache="true";
-                            ;;
-      -z | --install-zsh)   readonly install_zsh="true";
-														;;
-      -Z | --only-zsh)      readonly bool_only_zsh="true"
-                            ;;
-      -v | --install-vim)   readonly bool_install_vim="true";
-														;;
-      -V | --only-vim)      readonly bool_only_vim="true"
-                            ;;
-      -T | --test-mode)     INSTALL_PREFIX="${HOME}/Junk";
-                            print_warning "Test mode is active!";
-                            print_warning "Files will be installed to ${INSTALL_PREFIX}";
-                            mkdir -p "${INSTALL_PREFIX}" || exit 31
-                            ;;
-      * )                   print_error "Invalid argument(s). See usage below."
-                            usage;
-                            exit 1
-                            ;;
+      # Install Modes
+      -i | --install)         flag_install="true";;
+      --codespaces)           flag_codespaces="true";;
+      -C | --only-config)     flag_only_config="true";;
+      -F | --only-fish)       flag_only_fish="true";;
+      -M | --minimal)         flag_only_minimal="true";;
+      -B | --bash)            flag_only_bash="true";;
+      -X | --bin)             flag_only_bin="true";bool_install_bin="true";;
+      -t | --tools)           flag_only_tools="true";;
+      # Skip modes
+      -c | --no-config)       readonly bool_skip_config="true";;
+      # Minimal config profile. This is different than minimal profile.
+      # this *ONLY* applies to configs *NOTHING* else. Mostly used to skip
+      # GUI stuff which are not used on HPC and headless systems
+      -e | --minimal-config)  readonly bool_minimal_config="true";;
+      -k | --no-fonts)        readonly bool_skip_fonts="true";;
+      -w | --no-templates)    readonly bool_skip_templates="true";;
+      -f | --no-fish)         readonly bool_skip_fish="true";;
+      # ENABLE Install binaries,
+      # This is special as its inverted bool comapred to others
+      -x | --bin)             bool_install_bin="true";;
+      # Custom profile [overrides defaults]
+      -p | --profile )        shift;DOT_PROFILE_ID="${1}";
+                              OVERRIDE_DOT_PROFILE_ID="true";;
+      # Debug mode
+      -v | --verbose)         LOG_LVL=$(( ++LOG_LVL ));
+                              print_debug "Enabled verbose logging";;
+      -d | --debug)           INSTALL_PREFIX="${HOME}/Junk";
+                              LOG_LVL=$(( ++LOG_LVL ));
+                              print_warning "DEBUG mode is active!";
+                              print_warning "Files will be installed to ${INSTALL_PREFIX}";
+                              mkdir -p "${INSTALL_PREFIX}" || exit 31;;
+      # Help and unknown option handler
+      -h | --help )           display_usage;exit $?;;
+      * )                     print_error "Invalid argument(s). See usage below."
+                              display_usage;exit 1;;
     esac
     shift
   done
 
+  # Flag conflict checks
 
-	if [[ $action_install == "codespaces" ]]; then
-
-	  config_name="sindhu"
-
-		# Neofetch
-		print_info "Installing Config"
-		__install_config_files "neofetch" ".config/neofetch"
-
-		# Docker
-		__install_config_files "docker" ".docker"
-
-		# Starship
-		__install_config_files "starship" ".config"
-
-		# Direnv
-		__install_config_files "direnv" ".config/direnv"
-
-		# VS Code
-		__install_config_files "vscode" ".config/Code/User"
-
-		# Tools
-		install_tools
-
-		# ZSH
-		install_zsh
-
-		# Fonts
-		install_fonts
-
-		minimal_install
-
-
-  elif [[ $action_install == "regular" ]]; then
-
-    if [[ $use_default_name == "true" ]]; then
-      config_name="sindhu";
-      print_info "Using default config name";
-    fi
-
-    if [[ $only_config == "true" ]]; then
-      if [[ $skip_config == "true" ]]; then
-        print_error "Option conflicts!"
-        exit 1
-      fi
-      print_notice "Only config files will be installed."
-      install_config_files
-      exit $?
-    fi
-
-    # Check if config name is empty
-    if [[ $config_name == "" ]]; then
-      print_error "No config name specified"
+  # install with anything should raise error
+  if [[ $flag_install == "true" ]]; then
+    if [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
+    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
       exit 10
-    fi
-
-    if [[ $bool_only_zsh ]]; then
-      print_notice "Only ZSH will be installed"
-      install_zsh
-      exit $?
-    fi
-
-    if [[ $bool_only_vim ]]; then
-      print_notice "Only VIM config will be installed"
-      install_vim
-      exit $?
-    fi
-
-    # Minimal checks
-    if [[ ${minimal_install} == "true" ]]; then
-      print_notice "Minimal install is set to True."
-      minimal_install;
     else
-
-      minimal_install;
-      # check templates
-      if [[ $bool_install_templates == "true" ]]; then
-				install_templates;
-      else
-        print_notice "Skipping templates installation"
-      fi
-
-      # check fonts
-      if [[ $skip_fonts == "true" ]]; then
-        print_notice "Skipping fonts installation"
-      else
-        install_fonts;
-      fi
-
-      #check config skip flag
-      if [[ $skip_config == "true" ]]; then
-        print_notice ".config files will not be installed."
-      else
-        print_info "Installing config files..."
-        install_config_files
-      fi
-
-			# zsh
-			if [[ $install_zsh == "true" ]]; then
-				install_zsh
-			else
-				print_info "Skipping zsh install"
-			fi
-
-			# vim
-			if [[ $bool_install_vim == "true" ]]; then
-				install_vim
-			else
-				print_info "Skipping vim-config install"
-			fi
-
-    fi # end of minimal if
-
+      print_debug "Setting install mode to regular"
+      action_install_mode="regular"
+    fi
   else
-    print_error "Did you forget to pass -i | --install or --codespaces?"
-    exit 10
+    print_debug "Unused flag [-i/--install]"
   fi
 
+  # Exclusive codespaces check
+  if [[ $flag_codespaces == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
+    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to codespaces"
+      action_install_mode="codespaces"
+    fi
+  else
+    print_debug "Unused flag [--codespaces]"
+  fi
+
+  # Exclusive config check
+  if [[ $flag_only_config == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_fish ]] \
+    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_config"
+      action_install_mode="only_config"
+    fi
+  else
+    print_debug "Unused flag [-C/--only-config]"
+  fi
+
+  # Exclusive fish check
+  if [[ $flag_only_fish == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_fish"
+      action_install_mode="only_fish"
+    fi
+  else
+    print_debug "Unused flag [-F/--only-fish]"
+  fi
+
+  # Exclusive minimal check
+  if [[ $flag_only_minimal == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to minimal"
+      if [[ $OVERRIDE_DOT_PROFILE_ID != "true" ]]; then
+        print_debug "No profile overrides selected, choosing minimal profile"
+        DOT_PROFILE_ID="minimal"
+      fi
+      action_install_mode="minimal"
+    fi
+  else
+    print_debug "Unused flag [-M/--minimal]"
+  fi
+
+  # Exclusive bash check
+  if [[ $flag_only_bash == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_bash"
+      action_install_mode="only_bash"
+    fi
+  else
+    print_debug "Unused flag [-B/--only-bash]"
+  fi
+
+  # Exclusive bin check
+  if [[ $flag_only_bin == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
+    ||  [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_bin"
+      action_install_mode="only_bin"
+    fi
+  else
+    print_debug "Unused flag [-X/--only-bin]"
+  fi
+
+  # Exclusive tools check
+  if [[ $flag_only_tools == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
+    ||  [[ ! -z $flag_only_bin ]]; then
+      print_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_tools"
+      action_install_mode="only_tools"
+    fi
+  else
+    print_debug "Unused flag [-t/--tools]"
+  fi
+
+
+
+  if [[ ! -z $action_install_mode ]]; then
+    print_debug "Install mode is set to ${action_install_mode}"
+    # Handle install modes
+    case ${action_install_mode} in
+      # Install All Mode
+      regular)        install_regular_wrapper;;
+      codespaces)     install_codespaces_wrapper;;
+      minimal)        install_minimal_wrapper;;
+      only_config)    install_config_files_handler;;
+      only_fish)      install_fish_configs_handler;;
+      only_bash)      install_bash_handler;;
+      only_bin)       install_scripts_handler;;
+      only_tools)     install_tools_handler;;
+      * )             print_error "Internal Error! Unknown action_install_mode !";exit 127;;
+    esac
+  else
+    print_error "Install mode is not set!!"
+    print_error "Did you pass -i/--install or specify any other actions?"
+    display_usage;
+    exit 10
+  fi # install_mode check
+
+  print_debug "Exiting script"
 }
 
 #
+# install_fish_configs_handler "$@"
 main "$@"

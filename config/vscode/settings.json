@@ -72,7 +72,7 @@
   //Integrated Terminal Settings
   "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
   "terminal.integrated.fontSize": 18,
-  "terminal.integrated.shell.linux": "/usr/bin/zsh",
+  "terminal.integrated.shell.linux": "/usr/bin/fish",
   //Terraform
   "terraform.indexing.enabled": false,
   "update.enableWindowsBackgroundUpdates": false,

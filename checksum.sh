@@ -24,8 +24,7 @@ cat <<EOF
 Bash script to checksum and sign
 
 Usage: ${YELLOW}${SCRIPT}   [options]${NC}
-[-c --checksum]        [Generate SHA512 checksum file]
-[-s --sign]            [GPG sign SHA512SUMS file]
+[-s --sign]            [Generate and sign SHA512SUMS file]
 [-v --verify]          [Verify SHA512 and GPG signatures]
 [-G --skip-gpg-verify] [Skip verifying GPG signature]
 [-h --help]            [Display this help message]
@@ -176,7 +175,6 @@ function main()
   while [[ ${1} != "" ]]; do
     case ${1} in
       -h | --help )           display_usage;exit 0;;
-      -c | --checksum)        bool_gen_checksum="true";;
       -s | --sign)            bool_sign_checksum="true";;
       -v | --verify)          bool_verify_checksum="true";;
       -G | --skip-gpg-verify) bool_skip_gpg_verify="true";;
@@ -187,15 +185,10 @@ function main()
 
   # Actions
 
-  if [[ $bool_gen_checksum == "true" ]]; then
-    print_info "Generating Checksums..."
-    generate_checksums
 
-    if [[ $bool_sign_checksum == "true" ]]; then
-      sign_checksum
-    else
-      print_warning "Not Signing checksums file!"
-    fi
+  if [[ $bool_sign_checksum == "true" ]]; then
+    generate_checksums
+    sign_checksum
   fi
 
   if [[ $bool_verify_checksum == "true" ]]; then

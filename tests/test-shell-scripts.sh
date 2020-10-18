@@ -11,7 +11,7 @@ echo "Testing ShellScripts"
 ERRORS=()
 
 # find all executables and run `shellcheck`
-for file in $(find . -type f -not -iwholename '*.git*' -not -iwholename 'vendor*' -executable | sort -u); do
+for file in $(find . -type f -not -iwholename '*.git*' -not -iwholename 'vendor*' -not -iwholename '**/*fetch*' -not -iwholename '**/fish/**' -not -iwholename '**/config/fish*' -executable | sort -u); do
 	if file "${file}" ; then
 		{
 			shellcheck -x -e SC2059 -e SC1071 "${file}" && printf " [ OK ]: sucessfully linted %s\n\n" "${file}"
