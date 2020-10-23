@@ -18,12 +18,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/:${HOME}/.local/lib
 
 export CPATH=$CPATH:${HOME}/.local/include
 
-PREF_MINIKUBE_HOME="/mnt/kube/minikube"
-if [ -d "$PREF_MINIKUBE_HOME" ]; then
-  # Take action if $DIR exists. #
-  export MINIKUBE_HOME="${PREF_MINIKUBE_HOME}"
-else
-  export MINIKUBE_HOME="${HOME}/.minikube"
+if [ -d "$HOME/.poetry/bin" ]; then
+  export PATH="${PATH}:${HOME}/.poetry/bin"
 fi
 
 unset PREF_MINIKUBE_HOME

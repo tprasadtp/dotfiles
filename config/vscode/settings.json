@@ -16,7 +16,7 @@
   ],
   "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.renderSideBySide": true,
-  "editor.fontFamily": "'JetBrainsMono Nerd Font', 'Droid Sans Fallback'",
+  "editor.fontFamily": "'FiraCode Nerd Font', 'Droid Sans Fallback'",
   "editor.fontLigatures": true,
   "editor.fontSize": 18,
   "editor.formatOnPaste": true,
@@ -69,8 +69,6 @@
     "**/.venv": true
   },
   "settingsSync.keybindingsPerPlatform": false,
-  //Integrated Terminal Settings
-  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
   "terminal.integrated.fontSize": 18,
   "terminal.integrated.shell.linux": "/usr/bin/fish",
   //Terraform
@@ -132,7 +130,26 @@
   "material-icon-theme.saturation": 1,
   "material-icon-theme.showWelcomeMessage": false,
   //Themes
-  "workbench.colorTheme": "Gruvbox Dark Hard",
-  "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
-  "workbench.preferredLightColorTheme": "Gruvbox Dark Soft"
+  "workbench.colorTheme": "GitHub Dark",
+  "workbench.preferredDarkColorTheme": "GitHub Dark",
+  "workbench.preferredLightColorTheme": "GitHub Light",
+  "terraform.languageServer": {
+
+    "external": true,
+    "pathToBinary": "",
+    "args": [
+      "serve"
+    ],
+    "maxNumberOfProblems": 100,
+    "trace.server": "off"
+  },
+  "material-icon-theme.files.associations": {
+    "*.ts": "typescript",
+    "**/ansible/*.yml": "ansible",
+    "fileName.ts": "angular"
+  },
+  "editor.semanticHighlighting.enabled": true,
+  "debug.console.fontSize": 18,
+  "terminal.integrated.fontFamily": "Firacode Nerd font",
+  "terminal.integrated.fontWeight": 400
 }

@@ -175,7 +175,7 @@ function __link_files()
         else
           print_step_error "Linking ${f} failed!"
         fi
-      done< <(find "$CURDIR/${src}" -maxdepth 1  -not -name "$(basename "$src")" -not -name '*.md' -not -name '.git' -not -name 'LICENSE'  -not -name '.editorconfig' -print0)
+      done< <(find "$CURDIR/${src}" -maxdepth 1  -not -name "$(basename "$src")" -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name 'COPYING.pdf' -not -name '.editorconfig' -print0)
     else
       print_step_error "Failed to create destination : $dest"
     fi # mkdir

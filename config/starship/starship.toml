@@ -1,34 +1,34 @@
-format = """\
-$username\
-$hostname\
-$directory\
-$git_branch\
-$git_commit\
-$git_state\
-$git_status\
-$package\
-$golang\
-$python\
-$rust\
-$gcloud\
-$aws\
-$kubernetes\
-$helm\
-$terraform\
-$cmd_duration\
-$jobs\
-$line_break\
-$battery\
-$time\
-$character
-"""
+# format = """\
+# $username\
+# $hostname\
+# $directory\
+# $git_branch\
+# $git_commit\
+# $git_state\
+# $git_status\
+# $package\
+# $golang\
+# $python\
+# $ruby
+# $rust\
+# $aws\
+# $gcloud\
+# $kubernetes\
+# $helm\
+# $cmd_duration\
+# $jobs\
+# $line_break\
+# $battery\
+# $time\
+# $character
+# """
 
-# format = "$all"
+format = "$all"
 
 # Core
 
 [character]
-success_symbol = "[➜](#FAFAFA)"
+success_symbol = "[»](#FAFAFA)"
 error_symbol = "[✘](red)"
 
 [username]
@@ -51,13 +51,20 @@ style = "#00E676"
 # Cloud
 # ------------------------
 [aws]
-symbol = "  "
-style = "#FF9900"
+#disabled = true
+symbol = " "
+format = "[$symbol]($style) "
 
 [gcloud]
-disabled = true
-symbol = " "
+#disabled = true
+format = "[$symbol]($style) "
+symbol = " "
 
+# Battery
+[battery]
+full_symbol = ""
+charging_symbol = ""
+discharging_symbol = ""
 
 # Git Stuff
 # ------------------------
@@ -73,13 +80,17 @@ commit_hash_length = 7
 only_detached = false
 
 [git_status]
-style = "bold #F05032"
+style = "#F05032"
 deleted = "-"
-renamed = ">"
+renamed = "»"
+ahead = "↑"
+behind = "↓"
+diverged = "↕"
 
 # Kubernetes
 # --------------------
 [kubernetes]
+disabled = false
 symbol = "ﴱ "
 style = "#4980f4"
 
@@ -88,76 +99,108 @@ symbol = "⚙"
 
 [golang]
 symbol = " "
+format = "[$symbol$version]($style) "
 style = "#00ADD8"
 
 [python]
 symbol = " "
+format = "[${symbol}${pyenv_prefix}${version} \\($virtualenv\\)]($style) "
 style = "#FFD43B"
 
-[rust]
-symbol = " "
-style = "#DEA584"
+[ruby]
+symbol = " "
 
-[terraform]
-symbol = "⚒"
-style = "#623CE4"
+[rust]
+symbol = " "
+style = "#DEA584"
 
 [time]
 disabled = false
 format = "[\\[$time\\]]($style) "
 use_12hr = true
 style = "#4FC3F7"
-# Custom
+
+
+# Usually disabled
+[terraform]
+disabled = true
+symbol = "⚒ "
+style = "#623CE4"
 
 
 # Disable not needed
 # --------------------
 [docker_context]
+symbol = " "
 disabled = true
 
 [conda]
+symbol = " "
 disabled = true
 
 [dotnet]
 disabled = true
 
+[dart]
+symbol = " "
+disabled = true
+
 [env_var]
 disabled = true
 
+[elixir]
+disabled = true
+symbol = " "
+
+[elm]
+symbol = " "
+disabled = true
+
+[haskell]
+symbol = " "
+disabled = true
+
 [hg_branch]
+symbol = " "
 disabled = true
 
 [java]
+symbol = " "
 disabled = true
 
 [julia]
+symbol = " "
 disabled = true
 
 [memory_usage]
+symbol = " "
 disabled = true
 
 [nim]
+symbol = " "
 disabled = true
 
 [nix_shell]
+symbol = " "
 disabled = true
 
 [nodejs]
+symbol = " "
 disabled = true
 
 [ocaml]
 disabled = true
 
 [package]
+symbol = " "
 disabled = true
 
 [perl]
+symbol = " "
 disabled = true
 
 [php]
-disabled = true
-
-[ruby]
+symbol = " "
 disabled = true
 
 [shlvl]
@@ -167,6 +210,7 @@ disabled = true
 disabled = true
 
 [swift]
+symbol = "ﯣ "
 disabled = true
 
 [zig]
