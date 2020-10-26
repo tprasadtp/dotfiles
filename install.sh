@@ -33,9 +33,9 @@ readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91
 
 # Define direnv, bat, fzf, fd versions
 readonly FZF_VERSION="0.23.1"
-readonly BAT_VERSION="6.1.1"
-readonly DIRENV_VERSION="2.20.0"
-readonly STARSHIP_VERSION="0.46.0"
+readonly BAT_VERSION="0.16.0"
+readonly DIRENV_VERSION="2.23.1"
+readonly STARSHIP_VERSION="0.46.2"
 readonly FD_VERSION="8.1.1"
 
 # Default settings
@@ -48,50 +48,52 @@ function display_usage()
 #Prints out help menu
 cat <<EOF
 $LOGO
-Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${YELLOW}
----------------------------------------------
+Usage: ${GREEN}${SCRIPT} ${BLUE}  [options] ${NC}
+${YELLOW}
 [-i --install]        [Install dotfiles]
 [--codespaces]        [Instal in codespaces mode]
                        Bash, Git, GPG, Fish,
                        direnv, starship, docker,
                        VSCode, Fonts and Poetry. Also,
-                       invokes --tools install.
-${TEAL}
-------------- Exclusive Modes ---------------${PINK}
+                       invokes --tools installation.
+${NC}
+---------------- Exclusive ------------------${PINK}
 [-C | --only-config]  [Only install configs]
 [-F | --only-fish]    [Only install fish configs]
 [-M | --minimal]      [Only install Bash, GPG, Git]
-[-B | --bash]         [Only install Bash and starship]
+[-B | --only-bash]    [Only install Bash and starship]
 [-X | --bin]          [Only install scripts to ~/bin]
+[-W | --only-walls]   [Only install wallpapers]
 [-t | --tools]        [Install Tools necessary]
                         - direnv, starship
-                        - bat,fd and fzf
-${TEAL}
-------------- Skip Modes --------------------${BLUE}
+                        - bat,fd and fzf${NC}
+----------------- Skip ----------------------${BLUE}
 [-c | --no-config]     [Skip installing all config]
 [-e | --minimal-config)[Install only base essential configs,
                         skip extra, usually GUI stuff.]
 [-k | --no-fonts)      [Skip installing fonts]
-[-w | --no-templates)  [Skip installing templates]
+[-j | --no-templates)  [Skip installing templates]
 [-f | --no-fish)       [Skip installing all fish shell
-                        configs]
-${TEAL}
-------------- Enable Modes ------------------${NC}
+                        configs]${NC}
+---------------- Addons ----------------------
 [-x | --bin]          [Install scripts in bin to ~/bin]
-
-${TEAL}
------------ Profile Selector ----------------${NC}
+[-w | --wallpapers]   [Install wallpaper collection]
+${NC}
+----------- Profile Selector ----------------${TEAL}
 When a profile name is set, and if matching config is found,
-they will b used instead of default ones. Profile specific
-configs are stored in folder with suffix -[DOT_PROFILE_ID].
-${ORANGE}
-[-p | --profile]      [Set Profile name]
+they will be used instead of default ones. Profile specific
+configs are stored in folder with suffix -{ProfileName}.${NC}
 
-${TEAL}
+  - Fonts, wallpapers & scripts do not support this!
+  - If profile specific settings are not found,
+    defaults are used!
+${ORANGE}
+[-p | --profile]      [Set Profile name]${NC}
+
 ----------- Debugging & Help ----------------${VIOLET}
 [-v | --verbose]      [Enable verbose loggging]
-[-h --help]           [Display this help message]
-${NC}
+[-h --help]           [Display this help message]${NC}
+
 EOF
 }
 
@@ -119,18 +121,26 @@ function print_error()
 function print_debug()
 {
   if [[ $LOG_LVL -gt 0  ]]; then
-    printf "%s⚒ %s %s\n" "${GRAY}" "$@" "${NC}"
+    printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
   fi
 }
 
 function print_notice()
 {
-  printf "%s★ %s %s\n" "${TEAL}" "$@" "${NC}"
+  if [[ $LOG_LVL -lt 2  ]]; then
+    printf "%s★ %s %s\n" "${TEAL}" "$@" "${NC}"
+  else
+    printf "%s⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
+  fi
 }
 
 function print_step_notice()
 {
-  printf "%s  ★ %s %s\n" "${TEAL}" "$@" "${NC}"
+  if [[ $LOG_LVL -lt 2  ]]; then
+    printf "%s  ★ %s %s\n" "${TEAL}" "$@" "${NC}"
+  else
+    printf "%s  ⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
+  fi
 }
 
 function print_step_error()
@@ -141,7 +151,7 @@ function print_step_error()
 function print_step_debug()
 {
   if [[ $LOG_LVL -gt 0  ]]; then
-    printf "%s  ⚒ %s %s\n" "${GRAY}" "$@" "${NC}"
+    printf "%s  • %s %s\n" "${GRAY}" "$@" "${NC}"
   fi
 }
 
@@ -159,23 +169,25 @@ function __link_files()
   # This operation is NOT recursive.
 
   local src="${1}"
-  local dest="${2}"
+  if [[ -z ${2} ]]; then
+    local dest="${INSTALL_PREFIX}"
+  else
+    local dest="${INSTALL_PREFIX}/${2}"
+  fi
 
-#  echo "SRC : $src"
-#  echo "DEST: $dest"
-#  echo "CURDIR : $CURDIR"
+  # echo "SRC : $src"
+  # echo "DEST: $dest"
 
   if [ -d "${CURDIR}/${src}" ]; then
-    if mkdir -p "${INSTALL_PREFIX}/${dest}"; then
+    if mkdir -p "${dest}"; then
+
       while IFS= read -r -d '' file
       do
         f="$(basename "$file")"
-        if ln -sfn "$file" "${INSTALL_PREFIX}/${dest}/${f}"; then
-          print_step_debug "Linked : ${f}"
-        else
-          print_step_error "Linking ${f} failed!"
-        fi
-      done< <(find "$CURDIR/${src}" -maxdepth 1  -not -name "$(basename "$src")" -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name 'COPYING.pdf' -not -name '.editorconfig' -print0)
+        # print_step_debug "${dest%/}/${f}"
+        __link_single_item_magic_action "$file" "${dest%/}/${f}"
+      done< <(find "$CURDIR/${src}" -maxdepth 1 -type f -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name '.editorconfig' -print0)
+
     else
       print_step_error "Failed to create destination : $dest"
     fi # mkdir
@@ -183,6 +195,18 @@ function __link_files()
       print_step_error "Directory ${src} not found!"
   fi # src check
 
+}
+
+# I ran out of ideas to name this fucntion
+function __link_single_item_magic_action()
+{
+  local src="${1}"
+  local dest="${2}"
+  if ln -sfn "${src}" "${dest}"; then
+    print_step_debug "${src} ⇢⇢ ${dest}"
+  else
+    print_step_error "Linking ${src} to ${dest} failed!"
+  fi
 }
 
 
@@ -193,27 +217,22 @@ function __link_single_item()
   # Arg 2 Output symlink
 
   local src="${1}"
-  local dest_dir
+  local dest_dir dest_item
   dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
+  dest_item="$(basename ${2})"
 
-  #	 echo "${skip_base_dir_create}"
-  #  echo "SRC : $src"
-  #  echo "DEST: $dest"
-  #  echo "CURDIR : $CURDIR"
+  # print_debug "SRC : $src"
+  # print_debug "DEST: $dest_dir/$dest_item"
 
-  if [ -f "${CURDIR}/${src}" ]; then
+  # Item to be linked is a file
+  if [[ -d ${CURDIR}/${src} ]] || [[ -f ${CURDIR}/${src} ]]; then
     if mkdir -p "${dest_dir}"; then
-      f="$(basename "$src")"
-      if ln -sfn "${CURDIR}/${src}" "${dest_dir}/${f}"; then
-        print_step_debug "Linked : ${f}"
-      else
-        print_step_error "Linking ${f} failed!"
-      fi
+      __link_single_item_magic_action "${CURDIR}/${src}" "${dest_dir}/${dest_item}"
     else
       print_step_error "Failed to create destination : $dest_dir"
     fi # mkdir
   else
-    print_step_error "File ${src} not found!"
+    print_step_error "File/directory ${src} not found!"
   fi # src check
 
 }
@@ -274,7 +293,7 @@ function install_tools_handler()
 
   print_info "Download and Install sharkdp/bat"
   print_step_info "download"
-  curl -sSfL "https://github.com/sharkdp/bat/releases/download/v0.16.0/bat-v0.16.0-x86_64-unknown-linux-musl.tar.gz" \
+  curl -sSfL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
   print_step_info "extract"
   tar --extract --strip=1 --gzip \
@@ -435,9 +454,6 @@ function install_bash_handler()
   # First check for config specific directory
   if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]];then
     print_success "Found profile ${DOT_PROFILE_ID}"
-    # bash_profile is just a stub common for all
-    print_debug "Installing .bash_profile"
-    __link_single_item "bash/.bash_profile" ".bash_profile" "true"
     __link_files "bash/${DOT_PROFILE_ID}" ""
     print_success "Done"
   # If no config specific dirs are found, use default `bash`
@@ -467,6 +483,7 @@ function install_regular_wrapper()
   install_fonts_handler
   install_templates_handler
   install_scripts_handler
+  install_walls_handler
 
 }
 
@@ -498,6 +515,23 @@ function install_scripts_handler()
   fi
 }
 
+function install_walls_handler()
+{
+  if [[ $bool_install_walls == "true" ]]; then
+
+    print_notice "Installing wallpapers"
+    print_step_info "Installig to ~/Pictures/Wallpapers"
+    __link_single_item "walls" "Pictures/Wallapers"
+
+    print_step_info "Applying GNOME wallpaper workaround!"
+    __link_single_item "walls" ".cache/gnome-control-center/backgrounds"
+
+  # walls is disabled
+  else
+    echo bool_install_walls:$bool_install_walls
+    print_debug "Wallpaper installation is disabled"
+  fi
+}
 
 function main()
 {
@@ -524,6 +558,7 @@ function main()
       -B | --bash)            flag_only_bash="true";;
       -X | --bin)             flag_only_bin="true";bool_install_bin="true";;
       -t | --tools)           flag_only_tools="true";;
+      -W | --only-walls)      flag_only_walls="true";bool_install_walls="true";;
       # Skip modes
       -c | --no-config)       readonly bool_skip_config="true";;
       # Minimal config profile. This is different than minimal profile.
@@ -531,19 +566,20 @@ function main()
       # GUI stuff which are not used on HPC and headless systems
       -e | --minimal-config)  readonly bool_minimal_config="true";;
       -k | --no-fonts)        readonly bool_skip_fonts="true";;
-      -w | --no-templates)    readonly bool_skip_templates="true";;
+      -j | --no-templates)    readonly bool_skip_templates="true";;
       -f | --no-fish)         readonly bool_skip_fish="true";;
-      # ENABLE Install binaries,
-      # This is special as its inverted bool comapred to others
+      # ENABLE Extra,
+      # These are special as they are inverted bool comapred to other bools
       -x | --bin)             bool_install_bin="true";;
+      -w | --wallpapers)      bool_install_walls="true";;
       # Custom profile [overrides defaults]
       -p | --profile )        shift;DOT_PROFILE_ID="${1}";
                               OVERRIDE_DOT_PROFILE_ID="true";;
       # Debug mode
-      -v | --verbose)         LOG_LVL=$(( ++LOG_LVL ));
+      -v | --verbose)         LOG_LVL="1";
                               print_debug "Enabled verbose logging";;
       -d | --debug)           INSTALL_PREFIX="${HOME}/Junk";
-                              LOG_LVL=$(( ++LOG_LVL ));
+                              LOG_LVL="2";
                               print_warning "DEBUG mode is active!";
                               print_warning "Files will be installed to ${INSTALL_PREFIX}";
                               mkdir -p "${INSTALL_PREFIX}" || exit 31;;
@@ -561,7 +597,7 @@ function main()
   if [[ $flag_install == "true" ]]; then
     if [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
       exit 10
     else
@@ -576,7 +612,7 @@ function main()
   if [[ $flag_codespaces == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
       exit 10
     else
@@ -591,7 +627,7 @@ function main()
   if [[ $flag_only_config == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
       exit 10
     else
@@ -606,7 +642,7 @@ function main()
   if [[ $flag_only_fish == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
       exit 10
     else
@@ -621,7 +657,7 @@ function main()
   if [[ $flag_only_minimal == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
       exit 10
     else
@@ -640,7 +676,7 @@ function main()
   if [[ $flag_only_bash == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
       exit 10
     else
@@ -655,7 +691,7 @@ function main()
   if [[ $flag_only_bin == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
-    ||  [[ ! -z $flag_only_tools ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
       exit 10
     else
@@ -670,7 +706,7 @@ function main()
   if [[ $flag_only_tools == "true" ]]; then
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
-    ||  [[ ! -z $flag_only_bin ]]; then
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
       print_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
       exit 10
     else
@@ -679,6 +715,21 @@ function main()
     fi
   else
     print_debug "Unused flag [-t/--tools]"
+  fi
+
+  # Exclusive tools check
+  if [[ $flag_only_walls == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
+    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_tools ]]; then
+      print_error "Incompatible Flags!, -W/--only-wallpapers cannot be used with other exclusive actions!"
+      exit 10
+    else
+      print_debug "Setting install mode to only_walls"
+      action_install_mode="only_walls"
+    fi
+  else
+    print_debug "Unused flag [-W/--only-wallpapers]"
   fi
 
 
@@ -696,6 +747,7 @@ function main()
       only_bash)      install_bash_handler;;
       only_bin)       install_scripts_handler;;
       only_tools)     install_tools_handler;;
+      only_walls)     install_walls_handler;;
       * )             print_error "Internal Error! Unknown action_install_mode !";exit 127;;
     esac
   else

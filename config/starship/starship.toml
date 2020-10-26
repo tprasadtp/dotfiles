@@ -1,35 +1,35 @@
-# format = """\
-# $username\
-# $hostname\
-# $directory\
-# $git_branch\
-# $git_commit\
-# $git_state\
-# $git_status\
-# $package\
-# $golang\
-# $python\
-# $ruby
-# $rust\
-# $aws\
-# $gcloud\
-# $kubernetes\
-# $helm\
-# $cmd_duration\
-# $jobs\
-# $line_break\
-# $battery\
-# $time\
-# $character
-# """
+format = """\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_commit\
+$git_state\
+$git_status\
+$package\
+$golang\
+$python\
+$ruby\
+$rust\
+$aws\
+$gcloud\
+$kubernetes\
+$helm\
+$cmd_duration\
+$jobs\
+$line_break\
+$battery\
+$time\
+$character\
+$custom
+"""
 
-format = "$all"
+# format = "$all"
 
 # Core
-
 [character]
 success_symbol = "[»](#FAFAFA)"
-error_symbol = "[✘](red)"
+error_symbol = "[»](red)"
 
 [username]
 disabled = false
@@ -46,7 +46,6 @@ min_time = 5000
 
 [directory]
 style = "#00E676"
-# style = "bold #00A8E1"
 
 # Cloud
 # ------------------------
@@ -81,7 +80,8 @@ only_detached = false
 
 [git_status]
 style = "#F05032"
-deleted = "-"
+deleted = "⎼"
+untracked = "?"
 renamed = "»"
 ahead = "↑"
 behind = "↓"
@@ -120,13 +120,11 @@ format = "[\\[$time\\]]($style) "
 use_12hr = true
 style = "#4FC3F7"
 
-
 # Usually disabled
 [terraform]
 disabled = true
 symbol = "⚒ "
 style = "#623CE4"
-
 
 # Disable not needed
 # --------------------

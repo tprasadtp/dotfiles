@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#  Copyright (c) 2018-2020. Prasad Tengse
+#  Copyright (c) 2020. Prasad Tengse
 #
 
 #----------------------------------------------------------
@@ -12,6 +12,10 @@ fi
 
 if command -v vault > /dev/null 2>&1; then
   complete -C vault vault
+fi
+
+if command -v consul > /dev/null 2>&1; then
+  complete -C consul consul
 fi
 
 if command -v nomad > /dev/null 2>&1; then
@@ -37,4 +41,8 @@ fi
 if command -v minikube > /dev/null 2>&1; then
   #shellcheck disable=SC1090
   source <(minikube completion bash)
+fi
+
+if command -v starship > /dev/null 2>&1; then
+  source <(starship completions bash)
 fi

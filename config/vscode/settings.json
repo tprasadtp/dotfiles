@@ -130,7 +130,7 @@
   "material-icon-theme.saturation": 1,
   "material-icon-theme.showWelcomeMessage": false,
   //Themes
-  "workbench.colorTheme": "GitHub Dark",
+  "workbench.colorTheme": "Gruvbox Material Dark",
   "workbench.preferredDarkColorTheme": "GitHub Dark",
   "workbench.preferredLightColorTheme": "GitHub Light",
   "terraform.languageServer": {
@@ -151,5 +151,10 @@
   "editor.semanticHighlighting.enabled": true,
   "debug.console.fontSize": 18,
   "terminal.integrated.fontFamily": "Firacode Nerd font",
-  "terminal.integrated.fontWeight": 400
+  "terminal.integrated.fontWeight": 400,
+  "gruvboxMaterial.colorfulSyntax": true,
+  "gruvboxMaterial.darkContrast": "hard",
+  "gruvboxMaterial.darkSelection": "green",
+  "gruvboxMaterial.lightContrast": "hard",
+  "go.useLanguageServer": true
 }

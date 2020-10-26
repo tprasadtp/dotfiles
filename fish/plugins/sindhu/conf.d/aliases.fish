@@ -1,19 +1,16 @@
 #clear time saver
 alias c='clear'
 alias e='exit'
-alias documents='cd ~/Documents'
-alias downloads='cd ~/Downloads'
-alias desktop='cd ~/Desktop'
-alias music='cd ~/Music'
-alias videos='cd ~/Videos'
+alias dl='cd ~/Private/Downloads'
 alias pinggoogle='ping google.com'
-alias pingdns='ping 8.8.8.8'
-alias bashrc='nano ~/.bashrc'
+alias pingdns='ping 1.1.1.3'
 alias greph='history | grep'
 alias t='tree -ahC -I .git'
+alias diskinfo='df -H -t ext4 -t btrfs -t vfat -t ntfs -t ecryptfs -T'
 
 #restart services
 alias nmr='sudo service network-manager restart'
+alias rnm='sudo service network-manager restart'
 
 # filter processes
 alias pfilter='ps -faux | grep'
@@ -36,21 +33,11 @@ alias fgrep='fgrep --color=auto'
 alias meminfo='free -m -l -t'
 
 #disk space
-alias diskinfo='df -H'
-
-## Get server cpu info ##
-alias cpuinfo='lscpu'
-
-## get GPU ram on desktop / laptop##
-alias gpumeminfo='grep -i --color memory /var/log/Xorg.0.log'
+alias diskinfo='df -HT -t ext4 -t vfat -t btrfs -t fuseblk '
 
 #show open ports
 alias ports='netstat -tulanp'
 
 # Weather and Moon
-# Custom alias for weather
-alias weather='curl v2.wttr.in'
-
-# Custom alias for Moon
-alias luna='curl wttr.in/Moon'
-alias moon='curl wttr.in/Moon'
+alias weather='curl -sSf v2.wttr.in'
+alias moon='curl -sSf wttr.in/Moon'

@@ -11,18 +11,14 @@ SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
 
 # Go
-export GOPATH=$HOME/Tools/go
-export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+if [ -d "$HOME/.poetry/bin" ]; then
+  export GOROOT=$HOME/Tools/go
+  export PATH=$PATH:$GOROOT/bin
+fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/:${HOME}/.local/lib
-
 export CPATH=$CPATH:${HOME}/.local/include
 
 if [ -d "$HOME/.poetry/bin" ]; then
   export PATH="${PATH}:${HOME}/.poetry/bin"
 fi
-
-unset PREF_MINIKUBE_HOME
-
-# Profile name
-export DOTFILE_PROFILE_ID="sindhu"

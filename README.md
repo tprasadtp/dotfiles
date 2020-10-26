@@ -7,4 +7,5 @@
 
 ## License
 
-Even though code is licensed under `MIT`, media assets under themes might be licensed under different licenses.
+Even though code is licensed under `MIT`, media assets under
+`walls` and `themes`, might be licensed under different licenses.
