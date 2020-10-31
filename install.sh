@@ -219,7 +219,7 @@ function __link_single_item()
   local src="${1}"
   local dest_dir dest_item
   dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
-  dest_item="$(basename ${2})"
+  dest_item="$(basename "${2}")"
 
   # print_debug "SRC : $src"
   # print_debug "DEST: $dest_dir/$dest_item"
@@ -528,7 +528,6 @@ function install_walls_handler()
 
   # walls is disabled
   else
-    echo bool_install_walls:$bool_install_walls
     print_debug "Wallpaper installation is disabled"
   fi
 }

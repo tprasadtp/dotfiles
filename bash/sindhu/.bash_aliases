@@ -49,7 +49,10 @@ alias fws='sudo ufw status numbered'
 alias k=kubectl
 
 # Execute a kubectl command against all namespaces
-alias ka='f(){ kubectl "$@" --all-namespaces;  unset -f f; }; f'
+ka()
+{
+  kubectl "$@" --all-namespaces
+}
 
 # Apply a YML file
 alias ka='kubectl apply -f'
@@ -72,7 +75,6 @@ alias kgswide='kubectl get svc -o wide'
 alias kes='kubectl edit svc'
 alias kds='kubectl describe svc'
 
-# Namespace management
 alias kgns=' edit namespace'
 alias kdns='kubectl describe namespace'
 
