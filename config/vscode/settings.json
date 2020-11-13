@@ -29,7 +29,8 @@
   "files.associations": {
     ".envrc": "shellscript",
     "Dockerfile.*": "dockerfile",
-    "poetry.*": "toml"
+    "poetry.*": "toml",
+    "*.hcl": "terraform"
   },
   "files.autoSave": "onFocusChange",
   "files.trimFinalNewlines": true,

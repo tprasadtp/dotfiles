@@ -43,12 +43,23 @@ DOT_PROFILE_ID="sindhu"
 INSTALL_PREFIX="${HOME}"
 LOG_LVL=0
 
+function option_error()
+{
+cat <<EOF
+$LOGO
+
+${TEAL}
+See ${SCRIPT} --help for more info.
+EOF
+}
+
 function display_usage()
 {
 #Prints out help menu
 cat <<EOF
 $LOGO
-Usage: ${GREEN}${SCRIPT} ${BLUE}  [options] ${NC}
+
+Usage: ${GREEN}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
 [-i --install]        [Install dotfiles]
 [--codespaces]        [Instal in codespaces mode]
@@ -540,8 +551,8 @@ function main()
     action_install_mode="codespaces"
   else
     if [ $# -lt 1 ]; then
-      print_error "No arguments/Invalid number of arguments See usage below."
-      display_usage;
+      print_error "No arguments!"
+      option_error;
       exit 1;
     fi
   fi
@@ -585,7 +596,7 @@ function main()
       # Help and unknown option handler
       -h | --help )           display_usage;exit $?;;
       * )                     print_error "Invalid argument(s). See usage below."
-                              display_usage;exit 1;;
+                              option_error;exit 1;;
     esac
     shift
   done
@@ -752,7 +763,7 @@ function main()
   else
     print_error "Install mode is not set!!"
     print_error "Did you pass -i/--install or specify any other actions?"
-    display_usage;
+    option_error;
     exit 10
   fi # install_mode check
 
