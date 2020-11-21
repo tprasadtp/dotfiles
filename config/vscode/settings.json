@@ -30,7 +30,7 @@
     ".envrc": "shellscript",
     "Dockerfile.*": "dockerfile",
     "poetry.*": "toml",
-    "*.hcl": "terraform"
+    "*.hcl": "hcl"
   },
   "files.autoSave": "onFocusChange",
   "files.trimFinalNewlines": true,
@@ -55,16 +55,16 @@
   //Python Stuff
   "python.analysis.logLevel": "Warning",
   "python.autoUpdateLanguageServer": false,
-  "python.dataScience.sendSelectionToInteractiveWindow": false,
   "python.formatting.provider": "black",
   "python.jediEnabled": false,
-  "python.languageServer": "Microsoft",
+  "python.languageServer": "Pylance",
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
   "python.linting.pycodestyleEnabled": true,
   "python.linting.pylintEnabled": false,
   "python.pythonPath": ".venv/bin/python",
   "python.showStartPage": false,
+  "jupyter.sendSelectionToInteractiveWindow": false,
   "search.exclude": {
     "**/.git": true,
     "**/.venv": true
@@ -72,9 +72,6 @@
   "settingsSync.keybindingsPerPlatform": false,
   "terminal.integrated.fontSize": 18,
   "terminal.integrated.shell.linux": "/usr/bin/fish",
-  //Terraform
-  "terraform.indexing.enabled": false,
-  "update.enableWindowsBackgroundUpdates": false,
   "update.mode": "none",
   "update.showReleaseNotes": false,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
@@ -106,8 +103,6 @@
   //InterlliCode disable not needed stuff
   "vsintellicode.java.completionsEnabled": false,
   "vsintellicode.sql.completionsEnabled": false,
-  //AWS SDK
-  "aws.cdk.explorer.enabled": false,
   // CodeSpaces
   "codespaces.accountProvider": "GitHub",
   "codespaces.featureSet": "stable",
@@ -119,10 +114,9 @@
   "telemetry.enableTelemetry": false,
   //dart
   "dart.allowAnalytics": false,
-  //Terraform
-  "terraform.telemetry.enabled": false,
   //AWS
   "aws.telemetry": false,
+  "aws.cdk.explorer.enabled": false,
   //------------------------------------------------
   //Icons and Themes
   //------------------------------------------------
@@ -130,20 +124,11 @@
   //Icon Theme
   "material-icon-theme.saturation": 1,
   "material-icon-theme.showWelcomeMessage": false,
+  "material-icon-theme.activeIconPack": "vue_vuex",
   //Themes
   "workbench.colorTheme": "Gruvbox Material Dark",
   "workbench.preferredDarkColorTheme": "GitHub Dark",
   "workbench.preferredLightColorTheme": "GitHub Light",
-  "terraform.languageServer": {
-
-    "external": true,
-    "pathToBinary": "",
-    "args": [
-      "serve"
-    ],
-    "maxNumberOfProblems": 100,
-    "trace.server": "off"
-  },
   "material-icon-theme.files.associations": {
     "*.ts": "typescript",
     "**/ansible/*.yml": "ansible",
@@ -162,5 +147,21 @@
     "tags": "json,yaml",
     "options": "",
     "transform": "camelcase"
-  }
+  },
+  "material-icon-theme.folders.associations": {
+    "generate.*.*": "generator",
+    "generate": "generator",
+    "gen.*.*": "generator",
+    "inventory": "server",
+    "templates": "template",
+    "roles": "ansible",
+    "vault": "keys",
+    ".venv": "python"
+  },
+  //Remote
+  "remote.SSH.enableAgentForwarding": false,
+  "dotfiles.repository": "https://github.com/tprasadtp/dotfiles",
+  "dotfiles.installCommand": "~/dotfiles/install.sh --codespaces",
+  //Disable GitHub auth
+  "github.gitAuthentication": false,
 }

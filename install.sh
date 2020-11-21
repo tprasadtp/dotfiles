@@ -37,6 +37,7 @@ readonly BAT_VERSION="0.16.0"
 readonly DIRENV_VERSION="2.23.1"
 readonly STARSHIP_VERSION="0.46.2"
 readonly FD_VERSION="8.1.1"
+readonly FISHER_VERSION="eab5c67f0b709dee051ac3e9ca0d51c071f712e0"
 
 # Default settings
 DOT_PROFILE_ID="sindhu"
@@ -47,9 +48,7 @@ function option_error()
 {
 cat <<EOF
 $LOGO
-
-${TEAL}
-See ${SCRIPT} --help for more info.
+${TEAL}See ${SCRIPT} --help for more info.
 EOF
 }
 
@@ -58,53 +57,57 @@ function display_usage()
 #Prints out help menu
 cat <<EOF
 $LOGO
-
-Usage: ${GREEN}${SCRIPT} ${BLUE} [options] ${NC}
+Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
-[-i --install]        [Install dotfiles]
-[--codespaces]        [Instal in codespaces mode]
-                       Bash, Git, GPG, Fish,
-                       direnv, starship, docker,
-                       VSCode, Fonts and Poetry. Also,
-                       invokes --tools installation.
+[-i --install]          [Install dotfiles]
+[--codespaces]          [Instal in codespaces mode]
+                         Bash, Git, GPG, Fish,
+                         direnv, starship, docker,
+                         VSCode, Fonts and Poetry. Also,
+                         invokes --tools installation.
+[--remote-code]         [Instal in remote-code mode]
+                         Bash, Git, GPG, Fish,
+                         direnv, starship, docker,
+                         VSCode, and Poetry. Also,
+                         invokes --tools installation.
 ${NC}
 ---------------- Exclusive ------------------${PINK}
-[-C | --only-config]  [Only install configs]
-[-F | --only-fish]    [Only install fish configs]
-[-M | --minimal]      [Only install Bash, GPG, Git]
-[-B | --only-bash]    [Only install Bash and starship]
-[-X | --bin]          [Only install scripts to ~/bin]
-[-W | --only-walls]   [Only install wallpapers]
-[-t | --tools]        [Install Tools necessary]
-                        - direnv, starship
-                        - bat,fd and fzf${NC}
+[-C | --only-config]    [Only install configs]
+[-F | --only-fish]      [Only install fish configs]
+[-M | --minimal]        [Only install Bash, GPG, Git]
+[-B | --only-bash]      [Only install Bash and starship]
+[-X | --bin]            [Only install scripts to ~/bin]
+[-W | --only-walls]     [Only install wallpapers]
+[-t | --tools]          [Install Tools necessary]
+                          - direnv, starship
+                          - bat,fd and fzf${NC}
 ----------------- Skip ----------------------${BLUE}
-[-c | --no-config]     [Skip installing all config]
-[-e | --minimal-config)[Install only base essential configs,
-                        skip extra, usually GUI stuff.]
-[-k | --no-fonts)      [Skip installing fonts]
-[-j | --no-templates)  [Skip installing templates]
-[-f | --no-fish)       [Skip installing all fish shell
+[-c | --no-config]      [Skip installing all config]
+[-e | --minimal-config) [Install only base essential configs,
+                         skip extra, usually GUI stuff.]
+[-k | --no-fonts)       [Skip installing fonts]
+[-j | --no-templates)   [Skip installing templates]
+[-f | --no-fish)        [Skip installing all fish shell
                         configs]${NC}
----------------- Addons ----------------------
-[-x | --bin]          [Install scripts in bin to ~/bin]
-[-w | --wallpapers]   [Install wallpaper collection]
+---------------- Addons ----------------------${TEAL}
+[-x | --bin]            [Install scripts in bin to ~/bin]
+[-w | --wallpapers]     [Install wallpaper collection]
 ${NC}
------------ Profile Selector ----------------${TEAL}
+------------ Profile Selector ----------------
 When a profile name is set, and if matching config is found,
 they will be used instead of default ones. Profile specific
-configs are stored in folder with suffix -{ProfileName}.${NC}
+configs are stored in folder with suffix -{ProfileName}.
 
-  - Fonts, wallpapers & scripts do not support this!
-  - If profile specific settings are not found,
-    defaults are used!
+- Fonts, wallpapers & scripts do not support this!
+- If profile specific settings are not found,
+  defaults are used.
 ${ORANGE}
-[-p | --profile]      [Set Profile name]${NC}
+[-p | --profile]        [Set Profile name]${NC}
 
------------ Debugging & Help ----------------${VIOLET}
-[-v | --verbose]      [Enable verbose loggging]
-[-h --help]           [Display this help message]${NC}
-
+----------- Debugging & Help ----------------${GRAY}
+[-v | --verbose]        [Enable verbose loggging]
+[--test]                [Installs to ~/Junk instead of ~]
+[-h --help]             [Display this help message]${NC}
 EOF
 }
 
@@ -138,25 +141,22 @@ function print_debug()
 
 function print_notice()
 {
-  if [[ $LOG_LVL -lt 2  ]]; then
-    printf "%s★ %s %s\n" "${TEAL}" "$@" "${NC}"
-  else
-    printf "%s⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
-  fi
+  printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
 }
 
 function print_step_notice()
 {
-  if [[ $LOG_LVL -lt 2  ]]; then
-    printf "%s  ★ %s %s\n" "${TEAL}" "$@" "${NC}"
-  else
-    printf "%s  ⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
-  fi
+  printf "%s  • %s %s\n" "${TEAL}" "$@" "${NC}"
 }
 
 function print_step_error()
 {
   printf "%s  ✖ %s %s\n" "${RED}" "$@" "${NC}"
+}
+
+function print_step_success()
+{
+  printf "%s  ✔ %s %s\n" "${GREEN}" "$@" "${NC}"
 }
 
 function print_step_debug()
@@ -379,21 +379,96 @@ function install_templates_handler()
   fi
 }
 
-
-function install_fish_configs_handler()
+function __download_and_install_fisher()
 {
-  if [[ $bool_skip_fish == "true" ]]; then
-    print_notice "Skipped installing fish configurations"
+  local fisher_plugin_file fish_config_dir
+
+  fisher_plugin_file="${INSTALL_PREFIX}/.config/fish/functions/fisher.fish"
+  fish_config_dir="${INSTALL_PREFIX}/.config/fish"
+
+  print_step_info "install fisher@${FISHER_VERSION}"
+
+  print_step_debug "create base functions directory"
+  if mkdir -p "${fish_config_dir}/functions"; then
+    print_step_debug "done"
   else
-    print_notice "Install fish configs"
-    print_step_info "fisher"
-    __link_single_item "fish/fisher/fisher.fish" ".config/fish/functions/fisher.fish"
-    __install_config_files "fish" ".config/fish/"
+    print_step_error "failed to create ${fish_config_dir}/functions"
+  fi
+
+  print_step_info "downloading fisher"
+  if curl -sfL \
+    "https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/fisher.fish" \
+    --output "${fisher_plugin_file}"; then
+    print_step_success "done"
+  else
+    print_step_error "failed to install fisher!"
+    print_step_notice "to fix this problem by run,"
+    print_step_notice "curl -sL git.io/fisher | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
   fi
 }
 
 
-function __install_minimal_config_files_handler()
+function install_fish_configs_handler()
+{
+  local fisher_plugin_file
+  fisher_plugin_file="${INSTALL_PREFIX}/.config/fish/functions/fisher.fish"
+
+  if [[ $bool_skip_fish == "true" ]]; then
+    print_notice "Skipped installing fish configurations"
+  else
+
+    print_notice "Install fish configs"
+
+    # Handle fisher upgrade to 4.x
+    if [[ -e "${INSTALL_PREFIX}/.config/fish/fishfile" ]]; then
+      print_step_notice "upgrade to fish_plugins"
+      if rm "${INSTALL_PREFIX}/.config/fish/fishfile"; then
+        print_step_success "removed fishfile file"
+      else
+        print_step_error "failed to delete .config/fish/fishfile"
+      fi
+    else
+      print_step_debug "no need to perform fisher 3.x to 4.x upgrade fixes"
+    fi
+
+    # Install configs and plugin settings
+    __install_config_files "fish" ".config/fish/"
+
+    # Fisher
+    print_step_debug "check if its necessary to install fisher"
+
+    if [[ -f ${fisher_plugin_file} ]]; then
+      # fisher file exists no need to reinstall again.
+      # updating is done using fisher itself!
+      # update the fish_plugins to correct version of fisher and
+      # run fisher update
+      print_step_notice "fisher is already installed"
+    elif [[ -L ${fisher_plugin_file} ]]; then
+      # fisher is a symlink.
+      # we used to vendor fisher but its no longer necessary.
+      # remove old symlink and install fisher
+      print_step_info "remove old symlink to fisher"
+      if rm "$fisher_plugin_file"; then
+        print_step_success "done"
+      else
+        print_step_error "Failed to remove symlink"
+      fi
+      # install fisher
+      __download_and_install_fisher
+
+    else
+      # there is neither symlink nor fisher.fish file
+      # we will have to install fisher manaually.
+      # we skip installing autocomplete scripts.
+      # because once we run fisher update fisher will install them anyways.
+      __download_and_install_fisher
+    fi
+
+  fi # bool_skip_fish check
+}
+
+
+function __install_config_files_handler()
 {
   # Git
   __install_config_files "git" ""
@@ -404,6 +479,9 @@ function __install_minimal_config_files_handler()
   # Docker
   __install_config_files "docker" ".docker"
 
+  # Nano
+  __install_config_files "nano" ".config/nano"
+
   # Starship
   __install_config_files "starship" ".config"
 
@@ -412,6 +490,9 @@ function __install_minimal_config_files_handler()
 
   # Poetry
   __install_config_files "pypoetry" ".config/pypoetry"
+
+  # ansible
+  __install_config_files "ansible" ""
 }
 
 
@@ -437,6 +518,9 @@ function __install_other_config_files_handler()
 
   # MPV
   __install_config_files "mpv" ".config/mpv"
+
+  # Gedit
+  __install_config_files "gedit" ".local/share/gedit/styles"
 }
 
 
@@ -446,7 +530,7 @@ function install_config_files_handler()
     print_notice "Skipped installing configs"
   else
     print_notice "Installing config files"
-    __install_minimal_config_files_handler
+    __install_config_files_handler
     if [[ $bool_minimal_config == "true" ]]; then
       print_notice "skipped installing extra stuff"
     else
@@ -505,7 +589,7 @@ function install_codespaces_wrapper()
   install_tools_handler
   print_notice "Codespaces:: Configs[Min]"
 
-  __install_minimal_config_files_handler
+  __install_config_files_handler
   print_notice "Codespaces:: Fish"
   install_fish_configs_handler
   print_notice "Codespaces:: Fonts"
@@ -551,7 +635,7 @@ function main()
     action_install_mode="codespaces"
   else
     if [ $# -lt 1 ]; then
-      print_error "No arguments!"
+      print_error "No arguments specified!"
       option_error;
       exit 1;
     fi
@@ -588,7 +672,7 @@ function main()
       # Debug mode
       -v | --verbose)         LOG_LVL="1";
                               print_debug "Enabled verbose logging";;
-      -d | --debug)           INSTALL_PREFIX="${HOME}/Junk";
+      -d | --debug | --test)  INSTALL_PREFIX="${HOME}/Junk";
                               LOG_LVL="2";
                               print_warning "DEBUG mode is active!";
                               print_warning "Files will be installed to ${INSTALL_PREFIX}";

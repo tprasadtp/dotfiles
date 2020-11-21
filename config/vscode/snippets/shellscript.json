@@ -1,11 +1,11 @@
 {
-  "Shellscript-Header": {
+  "Shellscript-Base": {
     "prefix": [
       "shellscript"
     ],
     "body": [
       "#!/usr/bin/env bash",
-      "#  Copyright (c) \\$CURRENT_YEAR. Prasad Tengse",
+      "#  Copyright (c) ${CURRENT_YEAR:2020}. Prasad Tengse",
       "#  ",
       "#",
       "set -eo pipefail",
@@ -23,7 +23,7 @@
       "cat <<EOF",
       "Bash script to",
       "",
-      "Usage: \\${YELLOW}\\${SCRIPT}   [options]\\${NC}",
+      "Usage: \\${YELLOW}\\${SCRIPT}  [options]\\${NC}",
       "[-h --help]            [Display this help message]",
       "EOF",
       "}",

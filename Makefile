@@ -53,6 +53,10 @@ install-tools: ## Installs extra tools used by dotfiles (starship-rs,fzf,fd and 
 clean-downloads: ## cleanup old downloads
 	@rm -f vendor/{tools}/*.*
 
+.PHONY: show-broken
+show-broken: ## Show broken symlinks
+	@find ~/.config/ -xtype l
+
 .PHONY: debug-vars
 debug-vars: ## Debug Variables
 	@echo "INSTALL_PREFIX: $(INSTALL_PREFIX)"

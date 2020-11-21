@@ -89,19 +89,19 @@ log() {
     printf '[%sC' "$ascii_width"
 
     # Print the info name and color the text.
-    printf '[3%s;1m%s[m' "${PF_COL1-4}" "$name"
+    printf '[3%s;1m%s[m' "${XF_COL1-4}" "$name"
 
     # Print the info name and info data separator.
-    printf %s "$PF_SEP"
+    printf %s "$XF_SEP"
 
     # Move the cursor backward the length of the *current* info name and
     # then move it forwards the length of the *longest* info name. This
     # aligns each info data line.
-    printf '[%sD[%sC' "${#name}" "${PF_ALIGN:-$info_length}"
+    printf '[%sD[%sC' "${#name}" "${XF_ALIGN:-$info_length}"
 
     # Print the info data, color it and strip all leading whitespace
     # from the string.
-    printf '[3%sm%s[m\n' "${PF_COL2-7}" "$info"
+    printf '[3%sm%s[m\n' "${XF_COL2-7}" "$info"
 
     # Keep track of the number of times 'log()' has been run.
     info_height=$((${info_height:-0} + 1))
@@ -121,7 +121,7 @@ get_title() {
     # shellcheck disable=SC2039
     hostname=${HOSTNAME:-${hostname:-$(hostname)}}
 
-    log "[3${PF_COL3:-1}m${user}${c7}@[3${PF_COL3:-1}m${hostname}" " " >&6
+    log "[3${XF_COL3:-1}m${user}${c7}@[3${XF_COL3:-1}m${hostname}" " " >&6
 }
 
 get_os() {
@@ -776,10 +776,10 @@ get_ascii() {
     # This function also sets the text colors according
     # to the ascii color.
     read_ascii() {
-        # 'PF_COL1': Set the info name color according to ascii color.
-        # 'PF_COL3': Set the title color to some other color. ¯\_(ツ)_/¯
-        PF_COL1=${PF_COL1:-${1:-7}}
-        PF_COL3=${PF_COL3:-$((${1:-7}%8+1))}
+        # 'XF_COL1': Set the info name color according to ascii color.
+        # 'XF_COL3': Set the title color to some other color. ¯\_(ツ)_/¯
+        XF_COL1=${XF_COL1:-${1:-7}}
+        XF_COL3=${XF_COL3:-$((${1:-7}%8+1))}
 
         # POSIX sh has no 'var+=' so 'var=${var}append' is used. What's
         # interesting is that 'var+=' _is_ supported inside '$(())'
@@ -796,14 +796,14 @@ get_ascii() {
 
     # This checks for ascii art in the following order:
     # '$1':        Argument given to 'get_ascii()' directly.
-    # '$PF_ASCII': Environment variable set by user.
+    # '$XF_ASCII': Environment variable set by user.
     # '$distro':   The detected distribution name.
     # '$os':       The name of the operating system/kernel.
     #
     # NOTE: Each ascii art below is indented using tabs, this
     #       allows indentation to continue naturally despite
     #       the use of '<<-EOF'.
-    case ${1:-${PF_ASCII:-${distro:-$os}}} in
+    case ${1:-${XF_ASCII:-${distro:-$os}}} in
         [Aa]lpine*)
             read_ascii 4 <<-EOF
 				${c4}   /\\ /\\
@@ -1262,7 +1262,7 @@ main() {
         exit
     }
 
-    # list all available values for PF_INFO
+    # list all available values for XF_INFO
     [ "$1" = -l ] && {
         sed -n 's/^get_\(\w\+\)() {/\1/p' "$(readlink -f -- "$0")"
         exit
@@ -1303,13 +1303,13 @@ main() {
     get_os
 
     # Allow the user to specify the order and inclusion of information
-    # functions through the 'PF_INFO' environment variable.
+    # functions through the 'XF_INFO' environment variable.
     # shellcheck disable=2086
     {
         # Disable globbing and set the positional parameters to the
-        # contents of 'PF_INFO'.
+        # contents of 'XF_INFO'.
         set -f
-        set +f -- ${PF_INFO-ascii title os host kernel cpu gpu pkgs memory}
+        set +f -- ${XF_INFO-ascii title os host kernel cpu gpu pkgs memory}
 
         # Iterate over the info functions to determine the lengths of the
         # "info names" for output alignment. The option names and subtitles

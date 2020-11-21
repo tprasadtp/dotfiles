@@ -1,10 +1,50 @@
 {
-"goheader": {
-  "prefix": ["goheader", "gopkg"],
+"GO-Cobra-CLI-Root-Command": {
+  "prefix": ["gocliroot"],
   "body": [
-    "// Copyright © 2019-$CURRENT_YEAR Prasad Tengse",
-    "package pkg"
+    "package cli",
+    "",
+    "import (",
+    "\t\"github.com/fatih/color\"",
+    "\t\"github.com/spf13/cobra\"",
+    "\t\"github.com/tprasadtp/pkg/version\"",
+    ")",
+    "",
+    "//LogFormat Select logging format",
+    "var LogFormat string = \"pretty\"",
+    "",
+    "//logLevel Set Logging level",
+    "var LogLevel string = \"info\"",
+    "",
+    "//disableColors disable colors",
+    "var disableColors bool = false",
+    "",
+    "// rootCmd represents the base command when called without any sub-commands",
+    "var rootCmd = &cobra.Command{",
+    "\tUse:     \"$1\",",
+    "\tVersion: version.GetShortVersion(),",
+    "\tShort:   \"Short Desc\",",
+    "\tLong:    \"Long Desc,",
+    "\tPersistentPreRun: func(cmd *cobra.Command, args []string) {",
+    "\t\t//disable colors",
+    "\t\t\tif disableColors {",
+    "\t\t\tcolor.NoColor = true",
+    "\t\t}",
+    "\t},",
+    "}",
+    "",
+    "func init() {",
+    "\trootCmd.PersistentFlags().BoolVarP(&disableColors, \"no-color\", \"n\", false, \"disable colored output\")",
+    "\trootCmd.PersistentFlags().BoolVarP(&disableColors, \"no-colour\", \"n\", false, \"disable colored output\")",
+    "\trootCmd.PersistentFlags().StringVar(&LogFormat, \"log-format\", \"pretty\", \"set logging format\")",
+    "\trootCmd.PersistentFlags().StringVar(&LogLevel, \"log-level\", \"info\", \"set logging level\")",
+    "}",
+    "",
+    "// Execute executes the root command.",
+    "func Execute() error {",
+    "\treturn rootCmd.Execute()",
+    "}"
   ],
-  "description": "Go Header"
+  "description": "Go CLI Root File"
 }
 }

@@ -14,6 +14,7 @@ $rust\
 $aws\
 $gcloud\
 $kubernetes\
+$terraform \
 $helm\
 $cmd_duration\
 $jobs\
@@ -52,10 +53,10 @@ style = "#00E676"
 [aws]
 #disabled = true
 symbol = " "
-format = "[$symbol]($style) "
+format = "[$symbol ($profile)]($style) "
 
 [gcloud]
-#disabled = true
+disabled = true
 format = "[$symbol]($style) "
 symbol = " "
 
@@ -104,7 +105,7 @@ style = "#00ADD8"
 
 [python]
 symbol = " "
-format = "[${symbol}${pyenv_prefix}${version} \\($virtualenv\\)]($style) "
+# format = "[${symbol}${pyenv_prefix}${version} \\($virtualenv\\)]($style) "
 style = "#FFD43B"
 
 [ruby]
@@ -120,11 +121,11 @@ format = "[\\[$time\\]]($style) "
 use_12hr = true
 style = "#4FC3F7"
 
-# Usually disabled
 [terraform]
-disabled = true
-symbol = "⚒ "
-style = "#623CE4"
+disabled = false
+symbol = " "
+format = "[$symbol\\[$workspace\\]]($style)"
+style = "#735686"
 
 # Disable not needed
 # --------------------
