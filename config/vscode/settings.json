@@ -128,7 +128,18 @@
   "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
   "material-icon-theme.files.associations": {
     "*.ts": "typescript",
-    "**/ansible/*.yml": "ansible",  },
+  },
+  "material-icon-theme.folders.associations": {
+    "generate.*.*": "generator",
+    "generate": "generator",
+    "gen.*.*": "generator",
+    "inventory": "server",
+    "templates": "template",
+    "roles": "ansible",
+    "vault": "keys",
+    "modules": "terraform",
+    "cloudformation": "aws"
+  },
   "editor.semanticHighlighting.enabled": true,
   "debug.console.fontSize": 18,
   "terminal.integrated.fontFamily": "Firacode Nerd font",
@@ -139,21 +150,10 @@
     "options": "",
     "transform": "camelcase"
   },
-  "material-icon-theme.folders.associations": {
-    "generate.*.*": "generator",
-    "generate": "generator",
-    "gen.*.*": "generator",
-    "inventory": "server",
-    "templates": "template",
-    "roles": "ansible",
-    "vault": "keys",
-    ".venv": "python",
-    "venv": "python"
-  },
   //Remote
   "remote.SSH.enableAgentForwarding": false,
   "dotfiles.repository": "https://github.com/tprasadtp/dotfiles",
   "dotfiles.installCommand": "~/dotfiles/install.sh --codespaces",
   //Disable GitHub auth
-  "github.gitAuthentication": false
+  "github.gitAuthentication": false,
 }
