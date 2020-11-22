@@ -104,8 +104,8 @@ format = "[$symbol$version]($style) "
 style = "#00ADD8"
 
 [python]
+python_binary = "python3"
 symbol = " "
-# format = "[${symbol}${pyenv_prefix}${version} \\($virtualenv\\)]($style) "
 style = "#FFD43B"
 
 [ruby]
