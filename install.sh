@@ -261,7 +261,7 @@ function __install_config_files()
 
   # First check for config specific directory
   if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]];then
-    print_step_notice "config/${cfg_dir}(${DOT_PROFILE_ID})"
+    print_step_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
 
     cfg_dir="${cfg_dir}-${DOT_PROFILE_ID}"
   # If no config specific dirs are found, use default config
@@ -269,7 +269,6 @@ function __install_config_files()
     print_step_info "config/${cfg_dir}"
   else
     print_step_error "No configs found for ${cfg_dir}"
-    exit 21
   fi
 
 
@@ -506,6 +505,8 @@ function __install_other_config_files_handler()
 
   # VS code
   __install_config_files "vscode" ".config/Code/User"
+  __install_config_files "vscode/snippets" ".config/Code/User/snippets"
+
 
   # Font config
   __install_config_files "fonts" ""
@@ -850,8 +851,6 @@ function main()
     option_error;
     exit 10
   fi # install_mode check
-
-  print_debug "Exiting script"
 }
 
 #
