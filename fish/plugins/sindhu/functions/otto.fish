@@ -6,11 +6,9 @@ function __print_otto_not_found -a msg -d "Wrapper to print not found"
   printf "\e[38;5;220m  ⚠ $msg was not found in PATH.\e[0m\n"
 end
 
-function otto -d "Generate completions [including builtin man completions]"
+function otto -d "Generate completions"
   echo "✈ Generating..."
-  if man gh &> /dev/null
-    __print_otto_step "GitHub CLI autocomplete will be generated via manpages."
-  else if type -q gh
+  if type -q gh
     command gh completion -s fish > $HOME/.local/share/fish/generated_completions/gh.fish
   else
     __print_otto_step "GitHub CLI"
@@ -37,8 +35,5 @@ function otto -d "Generate completions [including builtin man completions]"
   else
     __print_otto_not_found "poetry"
   end
-
-  __print_otto_step "Builtin via manpages"
-  fish_update_completions
 
 end

@@ -1,6 +1,5 @@
-laughedelic/fish_logo@508826dd4c7b597bade75e1955b447930111e8e6
 jorgebucaran/fisher@eab5c67f0b709dee051ac3e9ca0d51c071f712e0
-patrickf3139/colored_man_pages.fish@b304841
+laughedelic/fish_logo@508826dd4c7b597bade75e1955b447930111e8e6
 ~/Git/dotfiles/fish/plugins/fzf
 ~/Git/dotfiles/fish/plugins/aws
 ~/Git/dotfiles/fish/plugins/k8s
@@ -9,3 +8,5 @@ patrickf3139/colored_man_pages.fish@b304841
 ~/Git/dotfiles/fish/plugins/sindhu
 ~/Git/dotfiles/fish/plugins/direnv
 ~/Git/dotfiles/fish/plugins/starship
+PatrickF1/colored_man_pages.fish@9b7833388298b5376506189bf8fc5b735a38f874
+~/Git/dotfiles/fish/plugins/themes

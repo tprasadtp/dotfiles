@@ -126,9 +126,6 @@
   "workbench.colorTheme": "Gruvbox Dark Hard",
   "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
   "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
-  "material-icon-theme.files.associations": {
-    "*.ts": "typescript",
-  },
   "material-icon-theme.folders.associations": {
     "generate.*.*": "generator",
     "generate": "generator",
@@ -156,4 +153,7 @@
   "dotfiles.installCommand": "~/dotfiles/install.sh --codespaces",
   //Disable GitHub auth
   "github.gitAuthentication": false,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.autoComplete.addBrackets": true,
 }
