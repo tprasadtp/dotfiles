@@ -22,12 +22,17 @@ jobs:
       - uses: actions/checkout@v2
       - name: Shellcheck
         run: make shellcheck
-      - name: Test Install script
+      - name: Verify Checksums
         run: |
           ./checksum.sh -v -G
-          # Modify after verification
-          sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
-          make test-install
-          ./install --codespaces
-          ./install --cloudshell
-          ./install --profile sindhu --install --wallpapers
+      - name: Modify for CI
+        # Modify after verification
+        run:  sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
+      - name: Default Install
+        run:  make test-install
+      - name: Codespaces
+        run:  ./install --codespaces
+      - name: CS
+        run:  ./install --cloudshell
+      - name: Custom profile
+        run:  ./install --profile hpc --install --bin
