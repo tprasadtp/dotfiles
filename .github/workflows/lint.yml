@@ -31,8 +31,8 @@ jobs:
       - name: Default Install
         run:  make test-install
       - name: Codespaces
-        run:  ./install --codespaces
+        run:  ./install.sh --codespaces
       - name: CS
-        run:  ./install --cloudshell
+        run:  ./install.sh --cloudshell
       - name: Custom profile
-        run:  ./install --profile hpc --install --bin
+        run:  ./install.sh --profile hpc --install --bin
