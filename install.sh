@@ -74,10 +74,10 @@ ${NC}
 ---------------- Exclusive ------------------${PINK}
 [-C | --only-config]    [Only install configs]
 [-F | --only-fish]      [Only install fish configs]
-[-M | --minimal]        [Only install Bash, GPG, Git]
 [-B | --only-bash]      [Only install Bash and starship]
-[-X | --bin]            [Only install scripts to ~/bin]
+[-X | --only-bin]       [Only install scripts to ~/bin]
 [-W | --only-walls]     [Only install wallpapers]
+[-M | --minimal]        [Only install Bash, GPG, Git]
 [-t | --tools]          [Install Tools necessary]
                           - direnv, starship
                           - bat,fd and fzf${NC}
@@ -722,13 +722,14 @@ function main()
       -i | --install)         flag_install="true";;
       --codespaces)           flag_codespaces="true";;
       --cloudshell)           flag_cloudshell="true";DOT_PROFILE_ID="cloudshell";;
+      # Only modes
       -C | --only-config)     flag_only_config="true";;
       -F | --only-fish)       flag_only_fish="true";;
-      -M | --minimal)         flag_only_minimal="true";;
-      -B | --bash)            flag_only_bash="true";;
-      -X | --bin)             flag_only_bin="true";bool_install_bin="true";;
-      -t | --tools)           flag_only_tools="true";;
+      -B | --only-bash)       flag_only_bash="true";;
+      -X | --only-bin)        flag_only_bin="true";bool_install_bin="true";;
       -W | --only-walls)      flag_only_walls="true";bool_install_walls="true";;
+      -M | --minimal)         flag_only_minimal="true";;
+      -t | --tools)           flag_only_tools="true";;
       # Skip modes
       -c | --no-config)       readonly bool_skip_config="true";;
       # Minimal config profile. This is different than minimal profile.
@@ -769,11 +770,19 @@ function main()
     exit 20
   fi
 
+  if [[ $OVERRIDE_DOT_PROFILE_ID == "true" ]] && [[ -z $DOT_PROFILE_ID ]]; then
+    log_error "Profile specified is empty!"
+    exit 10
+  else
+    log_notice "Using profile ($DOT_PROFILE_ID)"
+  fi
+
+
   # install with anything should raise error
   if [[ $flag_install == "true" ]]; then
-    if [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
-    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_codespaces ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
+    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
       exit 10
     else
@@ -786,9 +795,9 @@ function main()
 
   # Exclusive codespaces check
   if [[ $flag_codespaces == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
-    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
+    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
       exit 10
     else
@@ -801,9 +810,9 @@ function main()
 
   # Exclusive cloudshell check
   if [[ $flag_cloudshell == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
-    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
+    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, --cloudshell cannot be used with other exclusive actions!"
       exit 10
     else
@@ -816,9 +825,9 @@ function main()
 
   # Exclusive config check
   if [[ $flag_only_config == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_fish ]] \
-    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_fish ]] \
+    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
       exit 10
     else
@@ -831,9 +840,9 @@ function main()
 
   # Exclusive fish check
   if [[ $flag_only_fish == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
       exit 10
     else
@@ -846,17 +855,13 @@ function main()
 
   # Exclusive minimal check
   if [[ $flag_only_minimal == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
       exit 10
     else
       log_debug "Setting install mode to minimal"
-      if [[ $OVERRIDE_DOT_PROFILE_ID != "true" ]]; then
-        log_debug "No profile overrides selected, choosing minimal profile"
-        DOT_PROFILE_ID="minimal"
-      fi
       action_install_mode="minimal"
     fi
   else
@@ -865,9 +870,9 @@ function main()
 
   # Exclusive bash check
   if [[ $flag_only_bash == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bin ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bin ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
       exit 10
     else
@@ -880,9 +885,9 @@ function main()
 
   # Exclusive bin check
   if [[ $flag_only_bin == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
       exit 10
     else
@@ -895,9 +900,9 @@ function main()
 
   # Exclusive tools check
   if [[ $flag_only_tools == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
       exit 10
     else
@@ -910,9 +915,9 @@ function main()
 
   # Exclusive tools check
   if [[ $flag_only_walls == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
-    || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
-    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_tools ]]; then
+    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
+    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
+    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_tools ]]; then
       log_error "Incompatible Flags!, -W/--only-wallpapers cannot be used with other exclusive actions!"
       exit 10
     else
@@ -925,7 +930,7 @@ function main()
 
 
 
-  if [[ ! -z $action_install_mode ]]; then
+  if [[ -n $action_install_mode ]]; then
     log_debug "Install mode is set to ${action_install_mode}"
     # Handle install modes
     case ${action_install_mode} in

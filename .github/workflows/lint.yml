@@ -28,4 +28,6 @@ jobs:
           # Modify after verification
           sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
           make test-install
-          make test-install-minimal
+          ./install --codespaces
+          ./install --cloudshell
+          ./install --profile sindhu --install --wallpapers
