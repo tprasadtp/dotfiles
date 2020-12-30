@@ -32,11 +32,12 @@ readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91
 "
 
 # Define direnv, bat, fzf, fd versions
-readonly FZF_VERSION="0.23.1"
-readonly BAT_VERSION="0.16.0"
+readonly FZF_VERSION="0.24.4"
+readonly BAT_VERSION="0.17.1"
 readonly DIRENV_VERSION="2.23.1"
 readonly STARSHIP_VERSION="0.46.2"
-readonly FD_VERSION="8.1.1"
+readonly FD_VERSION="8.2.1"
+# MUST USE HASH
 readonly FISHER_VERSION="eab5c67f0b709dee051ac3e9ca0d51c071f712e0"
 
 # Default settings
@@ -65,11 +66,10 @@ ${YELLOW}
                          direnv, starship, docker,
                          VSCode, Fonts and Poetry. Also,
                          invokes --tools installation.
-[--remote-code]         [Instal in remote-code mode]
-                         Bash, Git, GPG, Fish,
-                         direnv, starship, docker,
-                         VSCode, and Poetry. Also,
-                         invokes --tools installation.
+[--cloudshell]          [Installs minmal bash, direnv, starship,
+                         python and git configs. Also installs
+                         direnv and starship with cloudshell profile.
+                         This flag cannot be used with custom profiles]
 ${NC}
 ---------------- Exclusive ------------------${PINK}
 [-C | --only-config]    [Only install configs]
@@ -111,62 +111,62 @@ ${ORANGE}
 EOF
 }
 
-function print_info()
+function log_info()
 {
   printf "➜ %s \n" "$@"
 }
 
-function print_success()
+function log_success()
 {
   printf "%s✔ %s %s\n" "${GREEN}" "$@" "${NC}"
 }
 
-function print_warning()
+function log_warning()
 {
   printf "%s⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
 }
 
-function print_error()
+function log_error()
 {
    printf "%s✖ %s %s\n" "${RED}" "$@" "${NC}"
 }
 
 
-function print_debug()
+function log_debug()
 {
   if [[ $LOG_LVL -gt 0  ]]; then
     printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
   fi
 }
 
-function print_notice()
+function log_notice()
 {
   printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
 }
 
-function print_step_notice()
+function log_step_notice()
 {
   printf "%s  • %s %s\n" "${TEAL}" "$@" "${NC}"
 }
 
-function print_step_error()
+function log_step_error()
 {
   printf "%s  ✖ %s %s\n" "${RED}" "$@" "${NC}"
 }
 
-function print_step_success()
+function log_step_success()
 {
   printf "%s  ✔ %s %s\n" "${GREEN}" "$@" "${NC}"
 }
 
-function print_step_debug()
+function log_step_debug()
 {
   if [[ $LOG_LVL -gt 0  ]]; then
     printf "%s  • %s %s\n" "${GRAY}" "$@" "${NC}"
   fi
 }
 
-function print_step_info()
+function log_step_info()
 {
   printf "%s  - %s %s\n" "${VIOLET}" "$@" "${NC}"
 }
@@ -195,15 +195,15 @@ function __link_files()
       while IFS= read -r -d '' file
       do
         f="$(basename "$file")"
-        # print_step_debug "${dest%/}/${f}"
+        # log_step_debug "${dest%/}/${f}"
         __link_single_item_magic_action "$file" "${dest%/}/${f}"
       done< <(find "$CURDIR/${src}" -maxdepth 1 -type f -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name '.editorconfig' -print0)
 
     else
-      print_step_error "Failed to create destination : $dest"
+      log_step_error "Failed to create destination : $dest"
     fi # mkdir
     else
-      print_step_error "Directory ${src} not found!"
+      log_step_error "Directory ${src} not found!"
   fi # src check
 
 }
@@ -214,9 +214,9 @@ function __link_single_item_magic_action()
   local src="${1}"
   local dest="${2}"
   if ln -sfn "${src}" "${dest}"; then
-    print_step_debug "${src} ⇢⇢ ${dest}"
+    log_step_debug "${src} ⇢⇢ ${dest}"
   else
-    print_step_error "Linking ${src} to ${dest} failed!"
+    log_step_error "Linking ${src} to ${dest} failed!"
   fi
 }
 
@@ -232,18 +232,18 @@ function __link_single_item()
   dest_dir="$(dirname "${INSTALL_PREFIX}/${2}")"
   dest_item="$(basename "${2}")"
 
-  # print_debug "SRC : $src"
-  # print_debug "DEST: $dest_dir/$dest_item"
+  # log_debug "SRC : $src"
+  # log_debug "DEST: $dest_dir/$dest_item"
 
   # Item to be linked is a file
   if [[ -d ${CURDIR}/${src} ]] || [[ -f ${CURDIR}/${src} ]]; then
     if mkdir -p "${dest_dir}"; then
       __link_single_item_magic_action "${CURDIR}/${src}" "${dest_dir}/${dest_item}"
     else
-      print_step_error "Failed to create destination : $dest_dir"
+      log_step_error "Failed to create destination : $dest_dir"
     fi # mkdir
   else
-    print_step_error "File/directory ${src} not found!"
+    log_step_error "File/directory ${src} not found!"
   fi # src check
 
 }
@@ -252,7 +252,7 @@ function __link_single_item()
 function __install_config_files()
 {
   if [[ $# -lt 2 ]]; then
-    print_step_error "Invalid number of arguments "
+    log_step_error "Invalid number of arguments "
     exit 21;
   fi
 
@@ -261,14 +261,14 @@ function __install_config_files()
 
   # First check for config specific directory
   if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]];then
-    print_step_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
+    log_step_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
 
     cfg_dir="${cfg_dir}-${DOT_PROFILE_ID}"
   # If no config specific dirs are found, use default config
   elif [[ -d $CURDIR/config/$cfg_dir ]];then
-    print_step_info "config/${cfg_dir}"
+    log_step_info "config/${cfg_dir}"
   else
-    print_step_error "No configs found for ${cfg_dir}"
+    log_step_error "No configs found for ${cfg_dir}"
   fi
 
 
@@ -276,53 +276,98 @@ function __install_config_files()
     # destination path is prefixed with INSTALL_PREFIX automatically
     __link_files "config/$cfg_dir" "$dest_dir"
   else
-    print_step_error "Failed to create $dest_dir directory."
-    print_step_error "$cfg_dir will not be installed!"
+    log_step_error "Failed to create $dest_dir directory."
+    log_step_error "$cfg_dir will not be installed!"
   fi
 }
 
-function install_tools_handler()
+function __install_tools_subtask_prepare_dirs()
 {
-  print_info "Installing Required Tools"
+  log_debug "Ensuring dirs are present for tools install"
   mkdir -p "${INSTALL_PREFIX}/bin"
   mkdir -p vendor/cache
 
-  print_info "Download and Install Starship"
-  print_step_info "download"
-  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz" --output vendor/cache/starship.tar.gz
-  print_step_info "checksum"
-  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
-  print_step_info "verify"
-  echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -
-  print_step_info "install"
-  tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+}
 
-  print_info "Download and Install direnv"
+function __install_tools_subtask_starship()
+{
+  # MUST have required dirs already
+  log_info "Download and Install Starship"
+  log_step_info "download (binary)"
+  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz" --output vendor/cache/starship.tar.gz
+  log_step_info "download (checksum)"
+  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
+  log_step_info "verify (checksum)"
+  if echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -; then
+    log_step_success "checksums verified"
+    log_step_info "install"
+    tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+
+    log_step_info "permissions"
+    chmod 700 "${INSTALL_PREFIX}/bin/starship"
+  else
+    log_step_error "cecksum verification failed!"
+  fi
+}
+
+function __install_tools_subtask_direnv()
+{
+  __install_tools_subtask_starship
+  log_info "Download and Install direnv"
+  log_step_info "download"
   curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" \
     -o "${INSTALL_PREFIX}/bin/direnv"
+  log_step_info "permissions"
+  chmod 700 "${INSTALL_PREFIX}/bin/direnv"
 
-  print_info "Download and Install sharkdp/bat"
-  print_step_info "download"
+}
+
+function __install_tools_subtask_bat()
+{
+  log_info "Download and Install sharkdp/bat"
+  log_step_info "download"
   curl -sSfL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  print_step_info "extract"
+  log_step_info "extract"
   tar --extract --strip=1 --gzip \
     --file="vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --directory="${INSTALL_PREFIX}/bin" \
     --wildcards "*bat"
 
-  print_info "Download and Install unegunn/fzf"
-  print_step_info "download"
-  curl -sSfL "https://github.com/junegunn/fzf-bin/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tgz" \
-    --output vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tgz
-  print_step_info "extract"
-  tar --extract --gzip \
-    --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tgz" \
-    --directory="${INSTALL_PREFIX}/bin" \
-    fzf
+  log_step_info "permissions"
+  chmod 700 "${INSTALL_PREFIX}/bin/bat"
+}
 
-  print_info "Download and Install sharkdp/fzf"
-  print_step_info "download binary"
+function __install_tools_subtask_fzf()
+{
+  log_info "Download and Install junegunn/fzf"
+  log_step_info "download (binary)"
+  curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
+    --output "vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
+  log_step_info "download (checksum)"
+  curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" \
+    --output "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"
+  if (cd vendor/cache && sha256sum -c --status --ignore-missing "fzf_${FZF_VERSION}_checksums.txt"); then
+    log_step_success "checksums verified"
+    log_step_info "extract"
+    tar --extract --gzip \
+      --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
+      --directory="${INSTALL_PREFIX}/bin" \
+      fzf
+
+    log_step_info "permissions"
+    chmod 700 "${INSTALL_PREFIX}/bin/fzf"
+
+  else
+    log_step_error "checksum verification failed!"
+    log_error "Failed to install fzf"
+  fi
+}
+
+function __install_tools_subtask_fd()
+{
+  log_info "Download and Install sharkdp/fd"
+  log_step_info "download binary"
   curl -sSfL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
   tar --extract --strip=1 --gzip \
@@ -330,33 +375,36 @@ function install_tools_handler()
     --directory="${INSTALL_PREFIX}/bin" \
     --wildcards "*fd"
 
-  print_info "Set Permissions"
-  print_step_info "direnv"
-  chmod 700 "${INSTALL_PREFIX}/bin/direnv"
-  print_step_info "starship"
-  chmod 700 "${INSTALL_PREFIX}/bin/starship"
-  print_step_info "sharkdp/bat"
-  chmod 700 "${INSTALL_PREFIX}/bin/bat"
-  print_step_info "unegunn/fzf"
-  chmod 700 "${INSTALL_PREFIX}/bin/fzf"
-  print_step_info "sharkdp/fd"
+  log_step_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/fd"
+}
+
+function install_tools_handler()
+{
+  log_info "Installing Required Tools"
+  __install_tools_subtask_prepare_dirs
+
+  __install_tools_subtask_direnv
+  __install_tools_subtask_starship
+  __install_tools_subtask_bat
+  __install_tools_subtask_fd
+  __install_tools_subtask_fzf
 }
 
 function install_fonts_handler()
 {
   if [[ $bool_skip_fonts == "true" ]]; then
-    print_notice "Skipped installing templates"
+    log_notice "Skipped installing templates"
   else
-    print_notice "Installing fonts"
+    log_notice "Installing fonts"
     if mkdir -p "$INSTALL_PREFIX"/.local/share; then
       if ln -snf "$CURDIR"/fonts "$INSTALL_PREFIX"/.local/share/fonts; then
-        print_success "Done"
+        log_success "Done"
       else
-        print_error "Failed to link fonts to .local/share/fonts"
+        log_error "Failed to link fonts to .local/share/fonts"
       fi
     else
-      print_error "Failed to create fonts directory. Fonts will not be linked!"
+      log_error "Failed to create fonts directory. Fonts will not be linked!"
     fi
   fi
 }
@@ -365,16 +413,16 @@ function install_fonts_handler()
 function install_templates_handler()
 {
   if [[ $bool_skip_templates == "true" ]]; then
-    print_notice "Skipped installing templates"
+    log_notice "Skipped installing templates"
   else
-    print_notice "Installing templates"
+    log_notice "Installing templates"
     if mkdir -p "${INSTALL_PREFIX}"/Templates; then
       __link_files "templates" "Templates"
     else
-      print_error "Failed to create ~/Templates directory."
-      print_error "Templates will not be installed"
+      log_error "Failed to create ~/Templates directory."
+      log_error "Templates will not be installed"
     fi
-    print_success "Done"
+    log_success "Done"
   fi
 }
 
@@ -385,24 +433,24 @@ function __download_and_install_fisher()
   fisher_plugin_file="${INSTALL_PREFIX}/.config/fish/functions/fisher.fish"
   fish_config_dir="${INSTALL_PREFIX}/.config/fish"
 
-  print_step_info "install fisher@${FISHER_VERSION}"
+  log_step_info "install fisher@${FISHER_VERSION}"
 
-  print_step_debug "create base functions directory"
+  log_step_debug "create base functions directory"
   if mkdir -p "${fish_config_dir}/functions"; then
-    print_step_debug "done"
+    log_step_debug "done"
   else
-    print_step_error "failed to create ${fish_config_dir}/functions"
+    log_step_error "failed to create ${fish_config_dir}/functions"
   fi
 
-  print_step_info "downloading fisher"
+  log_step_info "downloading fisher"
   if curl -sfL \
     "https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/fisher.fish" \
     --output "${fisher_plugin_file}"; then
-    print_step_success "done"
+    log_step_success "done"
   else
-    print_step_error "failed to install fisher!"
-    print_step_notice "to fix this problem by run,"
-    print_step_notice "curl -sL git.io/fisher | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
+    log_step_error "failed to install fisher!"
+    log_step_notice "to fix this problem by run,"
+    log_step_notice "curl -sL git.io/fisher | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
   fi
 }
 
@@ -413,44 +461,44 @@ function install_fish_configs_handler()
   fisher_plugin_file="${INSTALL_PREFIX}/.config/fish/functions/fisher.fish"
 
   if [[ $bool_skip_fish == "true" ]]; then
-    print_notice "Skipped installing fish configurations"
+    log_notice "Skipped installing fish configurations"
   else
 
-    print_notice "Install fish configs"
+    log_notice "Install fish configs"
 
     # Handle fisher upgrade to 4.x
     if [[ -e "${INSTALL_PREFIX}/.config/fish/fishfile" ]]; then
-      print_step_notice "upgrade to fish_plugins"
+      log_step_notice "upgrade to fish_plugins"
       if rm "${INSTALL_PREFIX}/.config/fish/fishfile"; then
-        print_step_success "removed fishfile file"
+        log_step_success "removed fishfile file"
       else
-        print_step_error "failed to delete .config/fish/fishfile"
+        log_step_error "failed to delete .config/fish/fishfile"
       fi
     else
-      print_step_debug "no need to perform fisher 3.x to 4.x upgrade fixes"
+      log_step_debug "no need to perform fisher 3.x to 4.x upgrade fixes"
     fi
 
     # Install configs and plugin settings
     __install_config_files "fish" ".config/fish/"
 
     # Fisher
-    print_step_debug "check if its necessary to install fisher"
+    log_step_debug "check if its necessary to install fisher"
 
     if [[ -f ${fisher_plugin_file} ]]; then
       # fisher file exists no need to reinstall again.
       # updating is done using fisher itself!
       # update the fish_plugins to correct version of fisher and
       # run fisher update
-      print_step_notice "fisher is already installed"
+      log_step_notice "fisher is already installed"
     elif [[ -L ${fisher_plugin_file} ]]; then
       # fisher is a symlink.
       # we used to vendor fisher but its no longer necessary.
       # remove old symlink and install fisher
-      print_step_info "remove old symlink to fisher"
+      log_step_info "remove old symlink to fisher"
       if rm "$fisher_plugin_file"; then
-        print_step_success "done"
+        log_step_success "done"
       else
-        print_step_error "Failed to remove symlink"
+        log_step_error "Failed to remove symlink"
       fi
       # install fisher
       __download_and_install_fisher
@@ -528,14 +576,14 @@ function __install_other_config_files_handler()
 function install_config_files_handler()
 {
   if [[ $bool_skip_config == "true" ]]; then
-    print_notice "Skipped installing configs"
+    log_notice "Skipped installing configs"
   else
-    print_notice "Installing config files"
+    log_notice "Installing config files"
     __install_config_files_handler
     if [[ $bool_minimal_config == "true" ]]; then
-      print_notice "skipped installing extra stuff"
+      log_notice "skipped installing extra stuff"
     else
-      print_notice "Installing 'extra' configs"
+      log_notice "Installing 'extra' configs"
       __install_other_config_files_handler
     fi
   fi
@@ -546,15 +594,16 @@ function install_bash_handler()
 {
   # Installs only bash
   # .bash_profile
-  print_notice "Installing bash configs"
+  log_notice "Bash configs"
   # First check for config specific directory
+  log_step_info "looking for profile"
   if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]];then
-    print_success "Found profile ${DOT_PROFILE_ID}"
+    log_step_success "found profile ${DOT_PROFILE_ID}"
     __link_files "bash/${DOT_PROFILE_ID}" ""
-    print_success "Done"
+    log_step_success "done"
   # If no config specific dirs are found, use default `bash`
   else
-    print_error "BASH: no config found!"
+    log_error "BASH: no config found!"
     return 2
   fi
 }
@@ -562,7 +611,7 @@ function install_bash_handler()
 
 function install_minimal_wrapper()
 {
-  print_notice "Installing minimal configs"
+  log_notice "Installing minimal configs"
   install_bash_handler
   __install_config_files "git" ""
   __install_config_files "gnupg" ".gnupg"
@@ -584,18 +633,43 @@ function install_regular_wrapper()
 }
 
 
+function install_cloudshell_wrapper()
+{
+  log_notice "Cloushell:: Tools"
+
+  __install_tools_subtask_prepare_dirs
+  __install_tools_subtask_direnv
+  __install_tools_subtask_starship
+
+  log_notice "Cloushell:: Configs"
+  # Git
+  __install_config_files "git" ""
+
+  # Direnv
+  __install_config_files "direnv" ".config/direnv"
+
+  # Poetry
+  __install_config_files "pypoetry" ".config/pypoetry"
+
+  # ansible
+  __install_config_files "ansible" ""
+
+  log_notice "Cloushell:: Bash"
+  install_bash_handler
+}
+
 function install_codespaces_wrapper()
 {
-  print_notice "Codespaces:: Tools"
+  log_notice "Codespaces:: Tools"
   install_tools_handler
-  print_notice "Codespaces:: Configs[Min]"
+  log_notice "Codespaces:: Configs[Min]"
 
   __install_config_files_handler
-  print_notice "Codespaces:: Fish"
+  log_notice "Codespaces:: Fish"
   install_fish_configs_handler
-  print_notice "Codespaces:: Fonts"
+  log_notice "Codespaces:: Fonts"
   install_fonts_handler
-  print_notice "Codespaces:: Bash"
+  log_notice "Codespaces:: Bash"
   install_bash_handler
 }
 
@@ -603,11 +677,11 @@ function install_codespaces_wrapper()
 function install_scripts_handler()
 {
   if [[ $bool_install_bin == "true" ]]; then
-    print_warning "Installing scripts to ~/bin is enabled!"
-    print_warning "Make sure your PATH is properly setup!"
+    log_warning "Installing scripts to ~/bin is enabled!"
+    log_warning "Make sure your PATH is properly setup!"
     __link_files "bin" "bin"
   else
-    print_debug "Installing scripts is not enabled"
+    log_debug "Installing scripts is not enabled"
   fi
 }
 
@@ -615,16 +689,16 @@ function install_walls_handler()
 {
   if [[ $bool_install_walls == "true" ]]; then
 
-    print_notice "Installing wallpapers"
-    print_step_info "Installig to ~/Pictures/Wallpapers"
+    log_notice "Installing wallpapers"
+    log_step_info "Installig to ~/Pictures/Wallpapers"
     __link_single_item "walls" "Pictures/Wallapers"
 
-    print_step_info "Applying GNOME wallpaper workaround!"
+    log_step_info "Applying GNOME wallpaper workaround!"
     __link_single_item "walls" ".cache/gnome-control-center/backgrounds"
 
   # walls is disabled
   else
-    print_debug "Wallpaper installation is disabled"
+    log_debug "Wallpaper installation is disabled"
   fi
 }
 
@@ -632,11 +706,11 @@ function main()
 {
   #check if no args
   if [[ ${CODESPACES} == "true" ]]; then
-    print_warning "Codespaces:: Install"
+    log_warning "Codespaces:: Install"
     action_install_mode="codespaces"
   else
     if [ $# -lt 1 ]; then
-      print_error "No arguments specified!"
+      log_error "No arguments specified!"
       option_error;
       exit 1;
     fi
@@ -647,6 +721,7 @@ function main()
       # Install Modes
       -i | --install)         flag_install="true";;
       --codespaces)           flag_codespaces="true";;
+      --cloudshell)           flag_cloudshell="true";DOT_PROFILE_ID="cloudshell";;
       -C | --only-config)     flag_only_config="true";;
       -F | --only-fish)       flag_only_fish="true";;
       -M | --minimal)         flag_only_minimal="true";;
@@ -672,15 +747,15 @@ function main()
                               OVERRIDE_DOT_PROFILE_ID="true";;
       # Debug mode
       -v | --verbose)         LOG_LVL="1";
-                              print_debug "Enabled verbose logging";;
+                              log_debug "Enabled verbose logging";;
       -d | --debug | --test)  INSTALL_PREFIX="${HOME}/Junk";
                               LOG_LVL="2";
-                              print_warning "DEBUG mode is active!";
-                              print_warning "Files will be installed to ${INSTALL_PREFIX}";
+                              log_warning "DEBUG mode is active!";
+                              log_warning "Files will be installed to ${INSTALL_PREFIX}";
                               mkdir -p "${INSTALL_PREFIX}" || exit 31;;
       # Help and unknown option handler
       -h | --help )           display_usage;exit $?;;
-      * )                     print_error "Invalid argument(s). See usage below."
+      * )                     log_error "Invalid argument(s). See usage below."
                               option_error;exit 1;;
     esac
     shift
@@ -688,49 +763,70 @@ function main()
 
   # Flag conflict checks
 
+  # cloudshell MUST use profile cloudshell
+  if [[ $flag_cloudshell == "true" ]] && [[ $DOT_PROFILE_ID != "cloudshell" ]]; then
+    log_error "--cloudshell option MUST use profile cloudshell!!"
+    exit 20
+  fi
+
   # install with anything should raise error
   if [[ $flag_install == "true" ]]; then
-    if [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
+    if [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to regular"
+      log_debug "Setting install mode to regular"
       action_install_mode="regular"
     fi
   else
-    print_debug "Unused flag [-i/--install]"
+    log_debug "Unused flag [-i/--install]"
   fi
 
   # Exclusive codespaces check
   if [[ $flag_codespaces == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to codespaces"
+      log_debug "Setting install mode to codespaces"
       action_install_mode="codespaces"
     fi
   else
-    print_debug "Unused flag [--codespaces]"
+    log_debug "Unused flag [--codespaces]"
+  fi
+
+  # Exclusive cloudshell check
+  if [[ $flag_cloudshell == "true" ]]; then
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] || [[ ! -z $flag_only_fish ]] \
+    || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
+    ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
+      log_error "Incompatible Flags!, --cloudshell cannot be used with other exclusive actions!"
+      exit 10
+    else
+      log_debug "Setting install mode to cloudshell"
+      action_install_mode="cloudshell"
+    fi
+  else
+    log_debug "Unused flag [--cloudshell]"
   fi
 
   # Exclusive config check
   if [[ $flag_only_config == "true" ]]; then
-    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_fish ]] \
+    if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_cloudshell ]] || [[ ! -z $flag_only_fish ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_config"
+      log_debug "Setting install mode to only_config"
       action_install_mode="only_config"
     fi
   else
-    print_debug "Unused flag [-C/--only-config]"
+    log_debug "Unused flag [-C/--only-config]"
   fi
 
   # Exclusive fish check
@@ -738,14 +834,14 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_fish"
+      log_debug "Setting install mode to only_fish"
       action_install_mode="only_fish"
     fi
   else
-    print_debug "Unused flag [-F/--only-fish]"
+    log_debug "Unused flag [-F/--only-fish]"
   fi
 
   # Exclusive minimal check
@@ -753,18 +849,18 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_bash ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to minimal"
+      log_debug "Setting install mode to minimal"
       if [[ $OVERRIDE_DOT_PROFILE_ID != "true" ]]; then
-        print_debug "No profile overrides selected, choosing minimal profile"
+        log_debug "No profile overrides selected, choosing minimal profile"
         DOT_PROFILE_ID="minimal"
       fi
       action_install_mode="minimal"
     fi
   else
-    print_debug "Unused flag [-M/--minimal]"
+    log_debug "Unused flag [-M/--minimal]"
   fi
 
   # Exclusive bash check
@@ -772,14 +868,14 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bin ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_bash"
+      log_debug "Setting install mode to only_bash"
       action_install_mode="only_bash"
     fi
   else
-    print_debug "Unused flag [-B/--only-bash]"
+    log_debug "Unused flag [-B/--only-bash]"
   fi
 
   # Exclusive bin check
@@ -787,14 +883,14 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_bin"
+      log_debug "Setting install mode to only_bin"
       action_install_mode="only_bin"
     fi
   else
-    print_debug "Unused flag [-X/--only-bin]"
+    log_debug "Unused flag [-X/--only-bin]"
   fi
 
   # Exclusive tools check
@@ -802,14 +898,14 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_walls ]]; then
-      print_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_tools"
+      log_debug "Setting install mode to only_tools"
       action_install_mode="only_tools"
     fi
   else
-    print_debug "Unused flag [-t/--tools]"
+    log_debug "Unused flag [-t/--tools]"
   fi
 
   # Exclusive tools check
@@ -817,25 +913,26 @@ function main()
     if [[ ! -z $flag_install ]] || [[ ! -z $flag_codespaces ]] || [[ ! -z $flag_only_config ]] \
     || [[ ! -z $flag_only_fish ]] || [[ ! -z $flag_only_minimal ]] || [[ ! -z $flag_only_bash ]] \
     ||  [[ ! -z $flag_only_bin ]] || [[ ! -z $flag_only_tools ]]; then
-      print_error "Incompatible Flags!, -W/--only-wallpapers cannot be used with other exclusive actions!"
+      log_error "Incompatible Flags!, -W/--only-wallpapers cannot be used with other exclusive actions!"
       exit 10
     else
-      print_debug "Setting install mode to only_walls"
+      log_debug "Setting install mode to only_walls"
       action_install_mode="only_walls"
     fi
   else
-    print_debug "Unused flag [-W/--only-wallpapers]"
+    log_debug "Unused flag [-W/--only-wallpapers]"
   fi
 
 
 
   if [[ ! -z $action_install_mode ]]; then
-    print_debug "Install mode is set to ${action_install_mode}"
+    log_debug "Install mode is set to ${action_install_mode}"
     # Handle install modes
     case ${action_install_mode} in
       # Install All Mode
       regular)        install_regular_wrapper;;
       codespaces)     install_codespaces_wrapper;;
+      cloudshell)     install_cloudshell_wrapper;;
       minimal)        install_minimal_wrapper;;
       only_config)    install_config_files_handler;;
       only_fish)      install_fish_configs_handler;;
@@ -843,11 +940,11 @@ function main()
       only_bin)       install_scripts_handler;;
       only_tools)     install_tools_handler;;
       only_walls)     install_walls_handler;;
-      * )             print_error "Internal Error! Unknown action_install_mode !";exit 127;;
+      * )             log_error "Internal Error! Unknown action_install_mode !";exit 127;;
     esac
   else
-    print_error "Install mode is not set!!"
-    print_error "Did you pass -i/--install or specify any other actions?"
+    log_error "Install mode is not set!!"
+    log_error "Did you pass -i/--install or specify any other actions?"
     option_error;
     exit 10
   fi # install_mode check

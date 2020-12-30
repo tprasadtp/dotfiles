@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 # Custom Binaries
 export PATH="${PATH}:~/bin:~/.local/bin"
+export DOTFILE_PROFILE_ID="cloudshell"
