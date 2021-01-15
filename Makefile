@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 .PHONY: shellcheck
 shellcheck: ## Runs the shellcheck tests on the scripts.
-	./tests/test-shell-scripts.sh
+	@./tests/test-shell-scripts.sh
 
 .PHONY: install
 install: ## Installs default profile

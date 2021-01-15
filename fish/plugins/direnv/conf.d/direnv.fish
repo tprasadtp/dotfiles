@@ -1,8 +1,7 @@
 # direnv
 if type -q direnv
-  function __direnv_export_eval --on-variable PWD
-    status --is-command-substitution; and return
-    eval (direnv export fish)
+  function __direnv_export_eval --on-event fish_postexec;
+    direnv export fish | source;
   end
 else
   echo "♺ Install direnv first! Check http://direnv.net" 2>&1

@@ -1,4 +1,8 @@
 {
+	"auths": {
+		"ghcr.io": {},
+		"https://index.docker.io/v1/": {}
+	},
 	"psFormat": "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Networks}}\t{{.Ports}}\t{{.Image}}\t{{.Command}}",
 	"imagesFormat": "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}",
 	"pluginsFormat": "table {{.ID}}\t{{.Name}}\t{{.Enabled}}",

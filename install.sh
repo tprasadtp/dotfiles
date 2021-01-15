@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#  Copyright (c) 2018-2020. Prasad Tengse
+#  Copyright (c) 2018-2021. Prasad Tengse
 #
 
 # Installs dotfiles
@@ -60,40 +60,42 @@ cat <<EOF
 $LOGO
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
-[-i --install]          [Install dotfiles]
-[--codespaces]          [Instal in codespaces mode]
-                         Bash, Git, GPG, Fish,
-                         direnv, starship, docker,
-                         VSCode, Fonts and Poetry. Also,
-                         invokes --tools installation.
-[--cloudshell]          [Installs minmal bash, direnv, starship,
-                         python and git configs. Also installs
-                         direnv and starship with cloudshell profile.
-                         This flag cannot be used with custom profiles]
+[-i --install]          Install dotfiles
+[--codespaces]          Instal in codespaces mode
+                        Includes - Bash, Git, GPG, Fish,
+                        direnv, starship, docker, VSCode,
+                        Fonts and Poetry. Also, invokes
+                        --tools installation.
+[--cloudshell]          Installs minmal bash, direnv, starship,
+                        python and git configs. Also installs
+                        direnv and starship with cloudshell
+                        profile. This flag cannot be used with
+                        custom profiles
 ${NC}
----------------- Exclusive ------------------${PINK}
-[-C | --only-config]    [Only install configs]
-[-F | --only-fish]      [Only install fish configs]
-[-B | --only-bash]      [Only install Bash and starship]
-[-X | --only-bin]       [Only install scripts to ~/bin]
-[-W | --only-walls]     [Only install wallpapers]
-[-M | --minimal]        [Only install Bash, GPG, Git]
-[-t | --tools]          [Install Tools necessary]
-                          - direnv, starship
-                          - bat,fd and fzf${NC}
------------------ Skip ----------------------${BLUE}
-[-c | --no-config]      [Skip installing all config]
-[-e | --minimal-config) [Install only base essential configs,
-                         skip extra, usually GUI stuff.]
-[-k | --no-fonts)       [Skip installing fonts]
-[-j | --no-templates)   [Skip installing templates]
-[-f | --no-fish)        [Skip installing all fish shell
-                        configs]${NC}
----------------- Addons ----------------------${TEAL}
-[-x | --bin]            [Install scripts in bin to ~/bin]
-[-w | --wallpapers]     [Install wallpaper collection]
+------------------------- Exclusive ------------------------${PINK}
+[-C | --only-config]    Only install configs
+[-F | --only-fish]      Only install fish configs
+[-B | --only-bash]      Only install Bash and starship
+[-X | --only-bin]       Only install scripts to ~/bin
+[-W | --only-walls]     Only install wallpapers
+[-M | --minimal]        Only install Bash, GPG, Git
+[-t | --tools]          Installs necessary tools
+                        - direnv, starship
+                        - bat,fd and fzf
 ${NC}
------------- Profile Selector ----------------
+----------------------- Skip ------------------------------${BLUE}
+[-c | --no-config]      Skip installing all config
+[-e | --minimal-config) Install only base essential configs,
+                        skip extra, usually GUI stuff.
+[-k | --no-fonts)       Skip installing fonts
+[-j | --no-templates)   Skip installing templates
+[-f | --no-fish)        Skip installing all fish shell configs
+${NC}
+---------------------- Addons ----------------------------${TEAL}
+[-x | --bin]            Install scripts in bin to ~/bin
+[-w | --wallpapers]     Install wallpaper collection
+${NC}
+------------------ Profile Selector ----------------------
 When a profile name is set, and if matching config is found,
 they will be used instead of default ones. Profile specific
 configs are stored in folder with suffix -{ProfileName}.
@@ -102,12 +104,12 @@ configs are stored in folder with suffix -{ProfileName}.
 - If profile specific settings are not found,
   defaults are used.
 ${ORANGE}
-[-p | --profile]        [Set Profile name]${NC}
+[-p | --profile]        Set Profile${NC}
 
------------ Debugging & Help ----------------${GRAY}
-[-v | --verbose]        [Enable verbose loggging]
-[--test]                [Installs to ~/Junk instead of ~]
-[-h --help]             [Display this help message]${NC}
+----------------- Debugging & Help ----------------------${GRAY}
+[-v | --verbose]        Enable verbose loggging
+[--test]                Installs to ~/Junk instead of ~
+[-h --help]             Display this help message]${NC}
 EOF
 }
 
