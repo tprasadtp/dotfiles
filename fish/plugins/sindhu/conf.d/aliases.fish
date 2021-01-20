@@ -35,8 +35,9 @@ alias meminfo='free -m -l -t'
 #disk space
 alias diskinfo='df -HT -t ext4 -t vfat -t btrfs -t fuseblk '
 
-#show open ports
-alias ports='netstat -tulanp'
+#show conns
+alias ports='ss --tcp --udp --sctp --raw --processes --resolve'
+alias lports='ss --tcp --udp --sctp --raw --processes --resolve --listening'
 
 # Weather and Moon
 alias weather='curl -sSf v2.wttr.in'

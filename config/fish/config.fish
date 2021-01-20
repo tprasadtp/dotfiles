@@ -27,3 +27,6 @@ set -g fish_color_valid_path --underline
 
 # Set Profile ID
 set --global --export DOT_PROFILE_ID 'sindhu'
+
+# Umask
+umask 077
