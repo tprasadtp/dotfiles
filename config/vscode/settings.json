@@ -102,7 +102,7 @@
   "material-icon-theme.activeIconPack": "vue_vuex",
   //Themes
   "window.autoDetectColorScheme": true,
-  "workbench.colorTheme": "Peacock Contrast (rainglow)",
+  "workbench.colorTheme": "GitHub Dark",
   "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
   "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
   "material-icon-theme.folders.associations": {
@@ -206,5 +206,18 @@
   "extensions.ignoreRecommendations": true,
   "editor.autoIndent": "none",
   "jupyter.themeMatplotlibPlots": true,
-  "markdown.preview.fontSize": 16
+  "markdown.preview.fontSize": 16,
+  "github.codespaces.createCodespaceInNewWindow": true,
+  "github.codespaces.defaultExtensions": [
+    "visualstudioexptteam.vscodeintellicode",
+    "tprasadtp.vscode-hcl2",
+    "redhat.vscode-yaml",
+    "ms-python.vscode-pylance",
+    "editorconfig.editorconfig",
+    "ms-azuretools.vscode-docker",
+    "pkief.material-icon-theme",
+    "github.github-vscode-theme",
+    "GitHub.codespaces",
+    "GitHub.vscode-pull-request-github"
+  ]
 }

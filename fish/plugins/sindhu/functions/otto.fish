@@ -7,7 +7,6 @@ function __print_otto_not_found -a msg -d "Wrapper to print not found"
 end
 
 function otto -d "Generate completions"
-  echo "✈ Generating..."
   if type -q gh
     __print_otto_step "gh"
     command gh completion -s fish > $HOME/.local/share/fish/generated_completions/gh.fish

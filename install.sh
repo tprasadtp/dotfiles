@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #  Copyright (c) 2018-2021. Prasad Tengse
 #
 
@@ -9,6 +9,7 @@
 # But most of them require Perl or python. Though
 # most systems have those installed by default, I wanted something
 # which was dependent only on bash
+set -o pipefail
 
 #Constants
 readonly SCRIPT=$(basename "$0")
@@ -35,8 +36,14 @@ readonly BAT_VERSION="0.17.1"
 readonly DIRENV_VERSION="2.23.1"
 readonly STARSHIP_VERSION="0.48.0"
 readonly FD_VERSION="8.2.1"
+
+if [[ -v ${FISHER_VERSION} ]]; then
+  log_error "FISHER_VERSION is a reserved variable!"
+  exit 1
+fi
+
 # MUST USE HASH
-readonly FISHER_VERSION="eab5c67f0b709dee051ac3e9ca0d51c071f712e0"
+readonly FISHER_VERSION="3f0851c5cb163cffcc1485aa1d9baa4bf881484c"
 
 # Default settings
 DOT_PROFILE_ID="sindhu"
@@ -235,7 +242,7 @@ function __link_single_item()
   # log_debug "SRC : $src"
   # log_debug "DEST: $dest_dir/$dest_item"
 
-  # Item to be linked is a file
+  # Item to be linked is a file or a dir
   if [[ -d ${CURDIR}/${src} ]] || [[ -f ${CURDIR}/${src} ]]; then
     if mkdir -p "${dest_dir}"; then
       __link_single_item_magic_action "${CURDIR}/${src}" "${dest_dir}/${dest_item}"
@@ -428,30 +435,45 @@ function install_templates_handler()
 
 function __download_and_install_fisher()
 {
-  local fisher_plugin_file fish_config_dir
-
-  fisher_plugin_file="${INSTALL_PREFIX}/.config/fish/functions/fisher.fish"
-  fish_config_dir="${INSTALL_PREFIX}/.config/fish"
+  local fisher_inst_status fisher_otto_status
+  fisher_inst_status=0
+  fisher_otto_status=0
 
   log_step_info "install fisher@${FISHER_VERSION}"
 
-  log_step_debug "create base functions directory"
-  if mkdir -p "${fish_config_dir}/functions"; then
-    log_step_debug "done"
-  else
-    log_step_error "failed to create ${fish_config_dir}/functions"
-  fi
+  if command -v fish > /dev/null; then
 
-  log_step_info "downloading fisher"
-  if curl -sfL \
-    "https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/fisher.fish" \
-    --output "${fisher_plugin_file}"; then
-    log_step_success "done"
+    if [[ $LOG_LVL -lt 2 ]]; then
+
+      log_step_info "Installing fisher"
+      FISHER_URL="https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish" \
+      fish --private -c "curl -sSfL \$FISHER_URL | source && fisher update"
+      fisher_inst_status="$?"
+
+      if [[ -f ${INSTALL_PREFIX}/.config/fish/functions/otto.fish ]]; then
+        log_step_info "Otto plugin exits!"
+        fish --private -c "otto"
+        fisher_otto_status=$?
+      else
+        log_error "Otto not found!"
+      fi # otto check
+
+      if [[ $fisher_inst_status -ne 0 ]] || [[ $fisher_otto_status -ne 0 ]]; then
+        log_step_error "failed to install fisher!"
+        log_step_notice "to fix this problem by run,"
+        log_step_notice "curl -sfL https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
+      else
+        log_step_debug "Otto: $fisher_otto_status, Fisher: $fisher_inst_status"
+      fi
+
+    else
+      log_step_notice "skipped initializing fisher plugins in debug mode"
+    fi # debug skipper
+
   else
-    log_step_error "failed to install fisher!"
-    log_step_notice "to fix this problem by run,"
-    log_step_notice "curl -sL git.io/fisher | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
-  fi
+    log_step_error "fish is not installed!"
+  fi # check for fish shell
+
 }
 
 
@@ -492,7 +514,7 @@ function install_fish_configs_handler()
       log_step_notice "fisher is already installed"
     elif [[ -L ${fisher_plugin_file} ]]; then
       # fisher is a symlink.
-      # we used to vendor fisher but its no longer necessary.
+      # we used to vendor fisher but it is no longer necessary.
       # remove old symlink and install fisher
       log_step_info "remove old symlink to fisher"
       if rm "$fisher_plugin_file"; then
@@ -678,11 +700,6 @@ function install_codespaces_wrapper()
 
   log_notice "Codespaces:: Fonts"
   install_fonts_handler
-
-  log_notice "Codespaces:: VSCode Settings"
-  __install_config_files "vscode" ".config/Code/User"
-  __install_config_files "vscode/snippets" ".config/Code/User/snippets"
-
 
   log_notice "Codespaces:: Bash"
   install_bash_handler
