@@ -10,8 +10,6 @@
 # most systems have those installed by default, I wanted something
 # which was dependent only on bash
 
-set -o pipefail
-
 #Constants
 readonly SCRIPT=$(basename "$0")
 readonly YELLOW=$'\e[38;5;221m'
@@ -32,10 +30,10 @@ readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91
 "
 
 # Define direnv, bat, fzf, fd versions
-readonly FZF_VERSION="0.24.4"
+readonly FZF_VERSION="0.25.0"
 readonly BAT_VERSION="0.17.1"
 readonly DIRENV_VERSION="2.23.1"
-readonly STARSHIP_VERSION="0.46.2"
+readonly STARSHIP_VERSION="0.48.0"
 readonly FD_VERSION="8.2.1"
 # MUST USE HASH
 readonly FISHER_VERSION="eab5c67f0b709dee051ac3e9ca0d51c071f712e0"
@@ -507,7 +505,7 @@ function install_fish_configs_handler()
 
     else
       # there is neither symlink nor fisher.fish file
-      # we will have to install fisher manaually.
+      # we will have to install fisher manually.
       # we skip installing autocomplete scripts.
       # because once we run fisher update fisher will install them anyways.
       __download_and_install_fisher
@@ -650,9 +648,6 @@ function install_cloudshell_wrapper()
   # Direnv
   __install_config_files "direnv" ".config/direnv"
 
-  # Poetry
-  __install_config_files "pypoetry" ".config/pypoetry"
-
   # ansible
   __install_config_files "ansible" ""
 
@@ -664,13 +659,31 @@ function install_codespaces_wrapper()
 {
   log_notice "Codespaces:: Tools"
   install_tools_handler
-  log_notice "Codespaces:: Configs[Min]"
 
+  log_notice "Codespaces:: Configs[Min]"
   __install_config_files_handler
+
   log_notice "Codespaces:: Fish"
+  if [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
+    log_step_success "Dotfiles symlink to ~/Git/dotfiles already exists!"
+  elif [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
+    log_step_error "There already is a node at ${INSTALL_PREFIX}/Git/dotfiles"
+  else
+    # Create a symlink from to ${INSTALL_PREFIX}/Git/dotfiles
+    # This is necessary to avoid breaking fish plugins
+    log_step_info "Fix Fish plugins relative path"
+    __link_single_item "" "Git/dotfiles"
+  fi
   install_fish_configs_handler
+
   log_notice "Codespaces:: Fonts"
   install_fonts_handler
+
+  log_notice "Codespaces:: VSCode Settings"
+  __install_config_files "vscode" ".config/Code/User"
+  __install_config_files "vscode/snippets" ".config/Code/User/snippets"
+
+
   log_notice "Codespaces:: Bash"
   install_bash_handler
 }

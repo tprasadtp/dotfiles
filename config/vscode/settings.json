@@ -206,4 +206,5 @@
   "extensions.ignoreRecommendations": true,
   "editor.autoIndent": "none",
   "jupyter.themeMatplotlibPlots": true,
+  "markdown.preview.fontSize": 16
 }

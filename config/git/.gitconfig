@@ -144,3 +144,7 @@
 [credential]
 	helper = store --file ~/.git-credentials
 	helper = cache --timeout 30000
+
+# # Use v2 protocol
+# [protocol]
+# 	version = 2
