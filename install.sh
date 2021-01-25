@@ -394,7 +394,7 @@ function install_tools_handler()
   __install_tools_subtask_direnv
   __install_tools_subtask_starship
   __install_tools_subtask_bat
-  __install_tools_subtask_fd
+  # __install_tools_subtask_fd
   __install_tools_subtask_fzf
 }
 
