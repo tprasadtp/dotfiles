@@ -5,8 +5,6 @@ if not set --query fzf_fish_custom_keybindings
     # variables' info in temporary files and pass in the filenames as arguments.
     set --local search_vars_cmd '__fzf_search_shell_variables (set --show | psub) (set --names | psub)'
 
-    # \cf is Ctrl+f
-    bind \cf '__fzf_search_current_dir'
     bind \cr '__fzf_search_history'
     bind \cv $search_vars_cmd
     # The following two key binding use Alt as an additional modifier key to avoid conflicts
@@ -15,7 +13,6 @@ if not set --query fzf_fish_custom_keybindings
 
     # set up the same key bindings for insert mode if using fish_vi_key_bindings
     if test "$fish_key_bindings" = 'fish_vi_key_bindings'
-        bind --mode insert \cf '__fzf_search_current_dir'
         bind --mode insert \cr '__fzf_search_history'
         bind --mode insert \cv $search_vars_cmd
         bind --mode insert \e\cl '__fzf_search_git_log'
