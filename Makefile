@@ -31,7 +31,7 @@ help: ## This help dialog.
 	@IFS=$$'\n' ; \
     help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
     printf "%-30s %s\n" "--------" "------------" ; \
-	printf "%-30s %s\n" " Target " "    Help " ; \
+	printf "%-30s %s\n" " Target " "   Help     " ; \
     printf "%-30s %s\n" "--------" "------------" ; \
     for help_line in $${help_lines[@]}; do \
         IFS=$$':' ; \

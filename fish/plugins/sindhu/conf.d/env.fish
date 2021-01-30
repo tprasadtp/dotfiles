@@ -11,6 +11,7 @@ set -l user_local_bin_index (contains -i -- /home/$USER/.local/bin $PATH); and s
 # Golang Tools
 if test -d $HOME/Tools/go/bin
   contains -- $HOME/Tools/go/bin $PATH; or set --append PATH $HOME/Tools/go/bin
+  set --export --global export GOVCS=private:all,public:off
 end
 
 # User Local Binaries

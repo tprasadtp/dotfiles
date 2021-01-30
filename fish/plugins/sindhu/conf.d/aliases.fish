@@ -2,11 +2,11 @@
 alias c='clear'
 alias e='exit'
 alias dl='cd ~/Private/Downloads'
-alias pinggoogle='ping google.com'
-alias pingdns='ping 1.1.1.3'
+alias pg='ping google.com'
+alias pdns='ping 1.1.1.3'
 alias greph='history | grep'
 alias t='tree -ahC -I .git'
-alias diskinfo='df -H -t ext4 -t btrfs -t vfat -t ntfs -t ecryptfs -T'
+alias disks='df -H -t ext4 -t btrfs -t vfat -t ntfs -t ecryptfs -T'
 
 #restart services
 alias nmr='sudo service network-manager restart'
@@ -22,7 +22,7 @@ alias fws='sudo ufw status numbered'
 alias update='sudo apt update'
 alias upgradable='sudo apt list --upgradable'
 alias agi='sudo apt install'
-alias apt-clean='sudo apt-get clean'
+alias aptc='sudo apt-get clean && sudo apt-get autoremove'
 
 # Colorful grep cmds
 alias grep='grep --color=auto'
@@ -40,5 +40,5 @@ alias ports='ss --tcp --udp --sctp --raw --processes --resolve'
 alias lports='ss --tcp --udp --sctp --raw --processes --resolve --listening'
 
 # Weather and Moon
-alias weather='curl -sSf v2.wttr.in'
+alias wtr='curl -sSf v2.wttr.in'
 alias moon='curl -sSf wttr.in/Moon'

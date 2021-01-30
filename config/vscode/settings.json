@@ -219,5 +219,6 @@
     "github.github-vscode-theme",
     "GitHub.codespaces",
     "GitHub.vscode-pull-request-github"
-  ]
+  ],
+  "window.zoomLevel": 0
 }
