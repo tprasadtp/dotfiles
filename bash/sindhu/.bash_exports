@@ -11,9 +11,13 @@ SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
 
 # Go
-if [ -d "$HOME/.poetry/bin" ]; then
+if [[ -d ${HOME}Tools/go ]]; then
   export GOROOT=$HOME/Tools/go
   export PATH=$PATH:$GOROOT/bin
+
+  export GOPATH="$HOME/go"
+  export GOVCS="private:all,public:off"
+
 fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/:${HOME}/.local/lib

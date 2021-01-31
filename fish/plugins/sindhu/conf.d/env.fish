@@ -11,7 +11,15 @@ set -l user_local_bin_index (contains -i -- /home/$USER/.local/bin $PATH); and s
 # Golang Tools
 if test -d $HOME/Tools/go/bin
   contains -- $HOME/Tools/go/bin $PATH; or set --append PATH $HOME/Tools/go/bin
-  set --export --global export GOVCS=private:all,public:off
+  set --export --global GOROOT $HOME/Tools/go
+end
+
+#
+if type -q go
+  set --export --global GOPATH $HOME/go
+  contains -- $GOPATH/bin $PATH; or set --append PATH $GOPATH/bin
+
+  set --export --global GOVCS private:all,public:off
 end
 
 # User Local Binaries
@@ -32,6 +40,5 @@ end
 if test -d $HOME/Android/Sdk/platform-tools
   contains -- $HOME/Android/Sdk/platform-tools $PATH; or set --append PATH $HOME/Android/Sdk/platform-tools
 end
-
 
 set --erase fish_user_paths
