@@ -102,7 +102,7 @@
   "material-icon-theme.activeIconPack": "vue_vuex",
   //Themes
   "window.autoDetectColorScheme": true,
-  "workbench.colorTheme": "GitHub Dark",
+  "workbench.colorTheme": "Rainbow Contrast (rainglow)",
   "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
   "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
   "material-icon-theme.folders.associations": {

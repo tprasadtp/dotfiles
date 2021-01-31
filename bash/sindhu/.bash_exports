@@ -11,7 +11,7 @@ SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export SSH_AUTH_SOCK
 
 # Go
-if [[ -d ${HOME}Tools/go ]]; then
+if [[ -d ${HOME}/Tools/go ]]; then
   export GOROOT=$HOME/Tools/go
   export PATH=$PATH:$GOROOT/bin
 
