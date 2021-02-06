@@ -12,11 +12,11 @@ install: ## Installs default profile
 
 .PHONY: test-install
 test-install: ## Test Installs default profile
-	./install.sh --install --debug
+	./install.sh --install --debug --verbose
 
 .PHONY: test-install-minimal
 test-install-minimal: ## Test Install minimal profile
-	./install.sh --minimal --debug
+	./install.sh --minimal --debug --verbose
 
 .PHONY: verify
 verify: ## Verifies checksums

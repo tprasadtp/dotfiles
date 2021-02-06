@@ -1,8 +1,10 @@
 #!/usr/bin/env fish
 
-# SSH stuff
-set --erase SSH_AGENT_PID
-set --global --export SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
+# SSH stuff. This is disabled on CODESPACES
+if test -n "$CODESPACES"
+  set --erase SSH_AGENT_PID
+  set --global --export SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
+end
 
 # Remove ~/.local/bin and ~/bin if present
 set -l user_bin_index (contains -i -- /home/$USER/bin $PATH); and set --erase PATH[$user_bin_index]
@@ -14,12 +16,13 @@ if test -d $HOME/Tools/go/bin
   set --export --global GOROOT $HOME/Tools/go
 end
 
-#
 if type -q go
   set --export --global GOPATH $HOME/go
   contains -- $GOPATH/bin $PATH; or set --append PATH $GOPATH/bin
 
-  set --export --global GOVCS private:all,public:off
+  set --export --global GOVCS "private:all,public:off"
+  set --export --global GOPROXY "https://proxy.golang.org"
+
 end
 
 # User Local Binaries

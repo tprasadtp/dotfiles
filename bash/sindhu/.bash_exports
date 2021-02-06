@@ -1,28 +1,47 @@
 #!/usr/bin/env bash
-#Add Custom Script paths
-export PATH="${PATH}:~/Tools/Android/Sdk/platform-tools:~/bin:~/.local/bin:~/Tools/go"
 
-#Add GPG
-GPG_TTY=$(tty)
-export GPG_TTY
+# Userpaths
+export PATH="${PATH}:~/bin:~/.local/bin:~/Tools/go"
 
-export SSH_AGENT_PID=""
-SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-export SSH_AUTH_SOCK
 
-# Go
+#Add GPG (This is skipped in codespaces)
+if [[ ${CODESPACES} == "true" ]]; then
+  GPG_TTY=$(tty)
+  export GPG_TTY
+
+  export SSH_AGENT_PID=""
+  SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export SSH_AUTH_SOCK
+fi
+
+# Go {This is only applied if Go is installed using Artemis. See go/arty}
 if [[ -d ${HOME}/Tools/go ]]; then
-  export GOROOT=$HOME/Tools/go
-  export PATH=$PATH:$GOROOT/bin
+  # Sets GOROOT
+  export GOROOT="$HOME/Tools/go"
+  # Add Go commands to PATH
+  export PATH="$PATH:$GOROOT/bin"
+fi
 
+# Go Settings {This is skipped if go is not installed}
+if command -v go > /dev/null; then
+  # sets GOPATH
   export GOPATH="$HOME/go"
-  export GOVCS="private:all,public:off"
-
+  # Allow Public from Modules Proxy only and limit private to git
+  export GOVCS="private:git,public:off"
+  # Set default module proxy
+  export GOPROXY="https://proxy.golang.org"
 fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/.local/:${HOME}/.local/lib
 export CPATH=$CPATH:${HOME}/.local/include
 
-if [ -d "$HOME/.poetry/bin" ]; then
+# Add Poetry to PATH
+if [[ -d ${HOME}/.poetry/bin ]]; then
   export PATH="${PATH}:${HOME}/.poetry/bin"
+fi
+
+
+#Adb Tools
+if [[ -d ${HOME}/Android/Sdk/platform-tools ]]; then
+  export PATH="${PATH}:${HOME}/Tools/Android/Sdk/platform-tools"
 fi

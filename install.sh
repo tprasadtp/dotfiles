@@ -776,7 +776,6 @@ function main()
       -v | --verbose)         LOG_LVL="1";
                               log_debug "Enabled verbose logging";;
       -d | --debug | --test)  INSTALL_PREFIX="${HOME}/Junk";
-                              LOG_LVL="2";
                               log_warning "DEBUG mode is active!";
                               log_warning "Files will be installed to ${INSTALL_PREFIX}";
                               mkdir -p "${INSTALL_PREFIX}" || exit 31;;
