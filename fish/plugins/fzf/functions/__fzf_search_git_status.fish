@@ -1,28 +1,29 @@
-function __fzf_search_git_status --description "Search the output of git status. Replace the current token with the selected file paths."
+function __fzf_search_git_status --description "Search the git status of the current git repository. Insert the selected file paths into the commandline at the cursor."
     if not git rev-parse --git-dir >/dev/null 2>&1
         echo '__fzf_search_git_status: Not in a git repository.' >&2
     else
+        # Fix when defualt shell is not fish
+        set --local --export SHELL (which fish)
         set selected_paths (
             # Pass configuration color.status=always to force status to use colors even though output is sent to a pipe
             git -c color.status=always status --short |
-            fzf --ansi --multi --query=(commandline --current-token)
+            fzf --ansi --multi
         )
         if test $status -eq 0
             # git status --short automatically escapes the paths of most files for us so not going to bother trying to handle
             # the few edges cases of weird file names that should be extremely rare (e.g. "this;needs;escaping")
-            set cleaned_paths
-
             for path in $selected_paths
                 if test (string sub --length 1 $path) = 'R'
                     # path has been renamed and looks like "R LICENSE -> LICENSE.md"
                     # extract the path to use from after the arrow
-                    set --append cleaned_paths (string split -- "-> " $path)[-1]
+                    set cleaned_path (string split -- "-> " $path)[-1]
                 else
-                    set --append cleaned_paths (string sub --start=4 $path)
+                    set cleaned_path (string sub --start=4 $path)
                 end
+                # add a space after each path to keep them separated when inserted
+                set cleaned_path_padded "$cleaned_path "
+                commandline --insert $cleaned_path_padded
             end
-
-            commandline --current-token --replace -- (string escape -- $cleaned_paths | string join ' ')
         end
     end
 

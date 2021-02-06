@@ -20,9 +20,7 @@ if type -q go
   set --export --global GOPATH $HOME/go
   contains -- $GOPATH/bin $PATH; or set --append PATH $GOPATH/bin
 
-  set --export --global GOVCS "private:all,public:off"
-  set --export --global GOPROXY "https://proxy.golang.org"
-
+  set --export --global GOVCS "private:git,public:off"
 end
 
 # User Local Binaries

@@ -1,7 +1,9 @@
-format = """\
+format = """
+${custom.fish}\
 $username\
 $hostname\
 $directory\
+${custom.git_remote}\
 $git_branch\
 $git_commit\
 $git_state\
@@ -21,43 +23,49 @@ $jobs\
 $line_break\
 $battery\
 $time\
+$shlvl\
 $character\
-$custom
 """
 
 # format = "$all"
 
 # Core
 [character]
-success_symbol = "[»](#FAFAFA)"
-error_symbol = "[»](red)"
+success_symbol = "[➜](bright-green)"
+error_symbol = "[»](bright-red)"
 
 [username]
-disabled = false
 show_always = false
-style_user = "#d386ff"
+style_user = "bright-yellow"
 
 [hostname]
 ssh_only = true
-symbol = " "
-style = "#E95420"
+style = "bright-purple"
 
 [cmd_duration]
 min_time = 5000
 
 [directory]
-style = "#00E676"
+# style = "#00E676"
+style = "bright-green"
+read_only = " "
+# truncate_to_repo = false
+
+[shlvl]
+disabled = false
+symbol = " "
+threshold = 2
+style = "bright-yellow"
+format = "([$symbol\\[$shlvl\\]]($style) )"
 
 # Cloud
 # ------------------------
 [aws]
-#disabled = true
 symbol = " "
 format = "[$symbol ($profile)]($style) "
 
 [gcloud]
 disabled = true
-format = "[$symbol]($style) "
 symbol = " "
 
 # Battery
@@ -71,22 +79,62 @@ discharging_symbol = " "
 [git_branch]
 symbol = " "
 style = "#FF9100"
+format = "on [$symbol$branch]($style) "
 truncation_length = 8
 
 [git_commit]
-style = "#CE93D8"
+# Tag
+tag_disabled = true
+tag_symbol = "狀 "
+
+# Commit Hash
+only_detached = false
+style = "bright-yellow"
 format = "[ $hash ]($style)"
 commit_hash_length = 7
-only_detached = false
 
 [git_status]
 style = "#F05032"
-deleted = "⎼"
+deleted = "-"
 untracked = "?"
 renamed = "»"
 ahead = "↑"
 behind = "↓"
 diverged = "↕"
+
+[custom.git_remote]
+disabled = false
+description = "Display symbol for remote Git server"
+command = """
+GIT_REMOTE=$(command git ls-remote --get-url 2> /dev/null)
+if [[ "$GIT_REMOTE" =~ "github" ]]; then
+    echo " "
+elif [[ "$GIT_REMOTE" =~ "codecommit" ]]; then
+    echo " "
+elif [[ "$GIT_REMOTE" =~ "gitlab" ]]; then
+    echo " "
+elif [[ "$GIT_REMOTE" =~ "bitbucket" ]]; then
+    echo " "
+else
+    echo " "
+fi
+"""
+style = "#FF9100"
+directories = [".git"]
+shell = ["bash", "--noprofile", "--norc"]
+format = "(at $output) "
+
+
+[custom.fish]
+description = "This is a fish shell"
+symbol = " "
+style = "#DEA584"
+when = '[ "$STARSHIP_SHELL" == "fish" ]'
+shell = ["bash", "--noprofile", "--norc"]
+
+# enable/disable
+disabled = false
+
 
 # Kubernetes
 # --------------------
@@ -108,21 +156,20 @@ python_binary = "python3"
 symbol = " "
 style = "#FFD43B"
 
-[ruby]
-symbol = " "
-
-[rust]
-symbol = " "
-style = "#DEA584"
+[package]
+# symbol = " "
+symbol = " "
+disabled = false
 
 [time]
 disabled = false
 format = "[\\[$time\\]]($style) "
 use_12hr = true
-style = "#4FC3F7"
+style = "bold #4FC3F7"
+# style = "bright-green"
 
 [terraform]
-disabled = false
+disabled = true
 symbol = " "
 format = "[$symbol\\[$workspace\\]]($style)"
 style = "#735686"
@@ -137,7 +184,11 @@ disabled = true
 symbol = " "
 disabled = true
 
+[cmake]
+disabled = true
+
 [dotnet]
+symbol = " "
 disabled = true
 
 [dart]
@@ -148,8 +199,8 @@ disabled = true
 disabled = true
 
 [elixir]
-disabled = true
 symbol = " "
+disabled = true
 
 [elm]
 symbol = " "
@@ -171,6 +222,13 @@ disabled = true
 symbol = " "
 disabled = true
 
+[kotlin]
+disabled = true
+
+[lua]
+symbol = " "
+disabled = true
+
 [memory_usage]
 symbol = " "
 disabled = true
@@ -190,8 +248,8 @@ disabled = true
 [ocaml]
 disabled = true
 
-[package]
-symbol = " "
+[openstack]
+symbol = "  "
 disabled = true
 
 [perl]
@@ -202,7 +260,16 @@ disabled = true
 symbol = " "
 disabled = true
 
-[shlvl]
+[purescript]
+disabled = true
+
+[ruby]
+symbol = " "
+disabled = true
+
+[rust]
+symbol = " "
+style = "#DEA584"
 disabled = true
 
 [singularity]
@@ -210,6 +277,12 @@ disabled = true
 
 [swift]
 symbol = "ﯣ "
+disabled = true
+
+[status]
+disabled = true
+
+[vagrant]
 disabled = true
 
 [zig]
