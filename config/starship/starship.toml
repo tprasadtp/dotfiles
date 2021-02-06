@@ -1,5 +1,4 @@
 format = """
-${custom.fish}\
 $username\
 $hostname\
 $directory\
@@ -19,10 +18,11 @@ $kubernetes\
 $terraform \
 $helm\
 $cmd_duration\
-$jobs\
 $line_break\
+${custom.fish}\
 $battery\
 $time\
+$jobs\
 $shlvl\
 $character\
 """
@@ -57,6 +57,12 @@ symbol = " "
 threshold = 2
 style = "bright-yellow"
 format = "([$symbol\\[$shlvl\\]]($style) )"
+
+[jobs]
+symbol = "羽"
+format = "([$symbol\\[$number\\]]($style) )"
+# This will force it to show 1
+threshold = 0
 
 # Cloud
 # ------------------------
@@ -128,7 +134,7 @@ format = "(at $output) "
 [custom.fish]
 description = "This is a fish shell"
 symbol = " "
-style = "#DEA584"
+style = ""
 when = '[ "$STARSHIP_SHELL" == "fish" ]'
 shell = ["bash", "--noprofile", "--norc"]
 
