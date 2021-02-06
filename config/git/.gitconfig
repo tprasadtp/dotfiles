@@ -139,7 +139,7 @@
 [gpg]
 	program = gpg
   # rsign wrapper is currently disabled
-	# program = rsign-gpg-shim
+	# program = rsign-gpg
 
 [credential]
 	helper = store --file ~/.git-credentials
@@ -148,3 +148,7 @@
 # # Use v2 protocol
 # [protocol]
 # 	version = 2
+
+# Pull
+[pull]
+	rebase = false
