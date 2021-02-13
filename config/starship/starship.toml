@@ -69,17 +69,18 @@ threshold = 0
 [aws]
 # symbol = " "
 symbol = " "
-# format = "[$symbol ($profile)]($style) "
 format = "[$symbol$profile(\\($region\\))]($style) "
+
 
 [aws.region_aliases]
 us-east-1 = "us"
 eu-west-1 = "eu"
 
 [gcloud]
-disabled = true
 # symbol = " "
 symbol = " "
+style = "blue"
+format = "[$symbol$account(\\($region\\))]($style) "
 
 [azure]
 symbol = " "
