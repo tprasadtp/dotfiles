@@ -114,12 +114,12 @@ style = "#F05032"
 deleted = "-"
 untracked = "?"
 renamed = "»"
-# ahead = "↑"
-# behind = "↓"
-# diverged = "↕"
-ahead = "⇡${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-behind = "⇣${count}"
+ahead = "↑"
+behind = "↓"
+diverged = "↕"
+# ahead = "↑${count}"
+# diverged = "↕ ↑${ahead_count} ↓${behind_count}"
+# behind = "↓${count}"
 
 # Format
 # ahead_count behind_count
@@ -213,7 +213,7 @@ style = "bold #4FC3F7"
 # style = "bright-green"
 
 [terraform]
-disabled = true
+disabled = false
 symbol = " "
 format = "[$symbol\\[$workspace\\]]($style)"
 style = "#735686"
