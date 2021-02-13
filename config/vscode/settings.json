@@ -219,7 +219,7 @@
     "GitHub.codespaces",
     "GitHub.vscode-pull-request-github"
   ],
-  "window.zoomLevel": 1,
+  "window.zoomLevel": 0,
   "aws.samcli.location": "",
   "files.trimTrailingWhitespace": true
 }
