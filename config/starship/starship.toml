@@ -155,8 +155,8 @@ else
     printf " ${GIT_HOST}"
 fi
 """
+when = "git rev-parse --is-inside-work-tree 2> /dev/null"
 style = "#FF6090"
-directories = [".git"]
 shell = ["bash", "--noprofile", "--norc"]
 format = "(at [$output ]($style))"
 
@@ -215,8 +215,8 @@ style = "bold #4FC3F7"
 [terraform]
 disabled = false
 symbol = " "
-format = "[$symbol\\[$workspace\\]]($style)"
-style = "#735686"
+format = "[$symbol$version\\($workspace\\)]($style) "
+style = "#9a67ea"
 
 # Disable not needed
 # --------------------
