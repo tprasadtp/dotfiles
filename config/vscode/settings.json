@@ -12,7 +12,7 @@
   ],
   "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.renderSideBySide": true,
-  "editor.fontFamily": "'FiraCode Nerd Font', 'Droid Sans Fallback'",
+  "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Droid Sans Fallback'",
   "editor.fontLigatures": true,
   "editor.fontSize": 18,
   "editor.formatOnPaste": true,
@@ -30,7 +30,6 @@
   },
   "files.autoSave": "onFocusChange",
   "files.trimFinalNewlines": true,
-  "files.trimTrailingWhitespace": true,
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
@@ -220,6 +219,7 @@
     "GitHub.codespaces",
     "GitHub.vscode-pull-request-github"
   ],
-  "window.zoomLevel": 0,
-  "aws.samcli.location": ""
+  "window.zoomLevel": 1,
+  "aws.samcli.location": "",
+  "files.trimTrailingWhitespace": true
 }
