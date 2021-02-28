@@ -133,24 +133,26 @@ description = "Display symbol for remote Git server"
 command = """
 GIT_REMOTE=$(command git ls-remote --get-url 2> /dev/null)
 GIT_HOST=$(printf "%s" "$GIT_REMOTE" | sed -e 's/[^/]*\\/\\/\\([^@]*@\\)\\?\\([^:/]*\\).*/\\2/')
-if [[ "$GIT_HOST" =~ "github" ]]; then
+if [[ "$GIT_HOST" =~ (^github.com|^github*) ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "aws" ]]; then
+elif [[ "$GIT_HOST" =~ git-codecommit.*.amazonaws.com ]]; then
     printf  "  ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "gitlab" ]]; then
+elif [[ "$GIT_HOST" =~ ^gitlab.com|^gitlab* ]]; then
     printf  "  ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "bitbucket" ]]; then
+elif [[ "$GIT_HOST" =~ "bitbucket.com" ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "gitea" ]]; then
+elif [[ "$GIT_HOST" =~ ^gitea* ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "launchpad" ]]; then
+elif [[ "$GIT_HOST" =~ "git.launchpad.net" ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "azure" ]]; then
+elif [[ "$GIT_HOST" =~ ^(ssh.dev.azure.com|dev.azure.com|vs-ssh.visualstudio.com|visualstudio.com) ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ "developers.google.com" ]]; then
+elif [[ "$GIT_HOST" =~ ^developers.google.com* ]]; then
     printf  " ${GIT_HOST}"
 elif [[ "$GIT_HOST" == "aur.archlinux.org" ]]; then
     printf  " ${GIT_HOST}"
+elif [[ "$GIT_HOST" == "salsa.debian.org" ]]; then
+    printf  " ${GIT_HOST}"
 elif [[ "$GIT_HOST" == "" ]]; then
     printf  " "
 else
