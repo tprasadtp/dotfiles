@@ -2,14 +2,8 @@
 on:
   push:
     branches:
-      - master
-      - stable
-    paths-ignore:
-      - ".gitignore"
-      - ".editorconfig"
-      - ".envrc"
-      - "**.md"
-      - ".vscode/**"
+      - "*"
+
   pull_request:
     branches:
       - master
