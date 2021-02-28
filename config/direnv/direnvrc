@@ -1,45 +1,36 @@
-direnv_base_dir() {
-  echo "${direnv_layout_dir:-$PWD}"
-}
-
-layout_virtualenv() {
-  local old_env
-  local python=${1:-python3}
-  [[ $# -gt 0 ]] && shift
-  old_env=$(direnv_base_dir)/.venv
-  unset PYTHONHOME
-  if [[ -d $old_env && $python == python ]]; then
-    VIRTUAL_ENV=$old_env
-  else
-    local python_version
-    # shellcheck disable=SC2046
-    read -r python_version <<<$($python -c "import platform as p; print(p.python_version())")
-    if [[ -z $python_version ]]; then
-      log_error "Could not find python's version"
-      return 1
-    fi
-
-    VIRTUAL_ENV=$(direnv_base_dir)/.venv
-    if [[ ! -d $VIRTUAL_ENV ]]; then
-       $python -m virtualenv "$@" "$VIRTUAL_ENV"
-    fi
-  fi
-  export VIRTUAL_ENV
-  PATH_add "$VIRTUAL_ENV/bin"
-}
-
-
 # Poetry
 layout_poetry() {
+  # Check Poetry
+  if ! has poetry; then
+    log_error 'poetry not installed or not in PATH!'
+    return 2
+  fi
+
+  # Check pyproject.toml
   if [[ ! -f pyproject.toml ]]; then
     log_error 'No pyproject.toml found. Use `poetry new` or `poetry init` to create one first.'
-    exit 2
+    return 2
   fi
+
 
   # create venv if it doesn't exist
   poetry run true
 
   export VIRTUAL_ENV=$(poetry env info --path)
   export POETRY_ACTIVE=1
+  # Add Virtualenv bins to PATH
   PATH_add "$VIRTUAL_ENV/bin"
+}
+
+# Check if required env vars are undefined
+check_env()
+{
+  local ret=0
+  for var in "$@"; do
+    if [[ -n $var ]]; then
+      echo "$var is missing"
+      ret=1
+    fi
+  done
+  return $ret
 }

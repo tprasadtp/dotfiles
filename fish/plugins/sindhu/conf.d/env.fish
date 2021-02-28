@@ -1,9 +1,12 @@
 #!/usr/bin/env fish
 
 # SSH stuff. This is disabled on CODESPACES
-if test -n "$CODESPACES"
+if contains true $CODESPACES
+  set --global --export SSH_AGENT_HANDLER "default"
+else
   set --erase SSH_AGENT_PID
   set --global --export SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
+  set --global --export SSH_AGENT_HANDLER "gpg"
 end
 
 # Remove ~/.local/bin and ~/bin if present

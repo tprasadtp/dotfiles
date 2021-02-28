@@ -1,10 +1,6 @@
-
-# EditorConfig is awesome: http://EditorConfig.org
-
-# top-most EditorConfig file
 root = true
 
-# all files
+# Default
 [*]
 charset = utf-8
 end_of_line = lf
@@ -14,6 +10,34 @@ insert_final_newline = true
 max_line_length = 80
 trim_trailing_whitespace = true
 
-[{Makefile,*.mk}]
+# Makefiles and Make Templates
+[{Makefile,GNUMakefile,*.mk}]
 indent_style = tab
 indent_size = 4
+
+# YAML
+[{*.yml,*.yaml}]
+indent_size = 2
+indent_style = space
+
+# Go
+# https://golang.org/cmd/gofmt/
+[{go.mod,go.sum,*.go}]
+indent_style = tab
+indent_size = 4
+
+# Go golden test files
+[*.golden.txt]
+insert_final_newline =  false
+trim_trailing_whitespace = false
+end_of_line = unset
+indent_size = unset
+indent_size = unset
+charset = unset
+
+
+[Dockerfile]
+indent_size = 4
+
+# diana:{diana_urn_flavor}:{remote}:{source}:{version}:{remote_path}:{type}
+# diana:2:github:tprasadtp/templates::core/.editorconfig:static

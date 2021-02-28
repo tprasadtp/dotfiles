@@ -683,7 +683,7 @@ function install_codespaces_wrapper()
   if [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
     log_step_success "Dotfiles symlink to ~/Git/dotfiles already exists!"
   elif [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
-    log_step_error "There already is a node at ${INSTALL_PREFIX}/Git/dotfiles"
+    log_step_warning "There already is a link at ${INSTALL_PREFIX}/Git/dotfiles"
   else
     # Create a symlink from to ${INSTALL_PREFIX}/Git/dotfiles
     # This is necessary to avoid breaking fish plugins

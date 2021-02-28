@@ -120,8 +120,8 @@
   "terminal.integrated.fontWeight": 400,
   "go.useLanguageServer": true,
   "go.addTags": {
-    "tags": "json,yaml",
-    "options": "",
+    "tags": "json,yaml,hcl",
+    "options": "json=omitempty,yaml=omitempty,hcl=optional",
     "transform": "camelcase"
   },
   //Remote
@@ -205,7 +205,6 @@
   "extensions.ignoreRecommendations": true,
   "editor.autoIndent": "none",
   "jupyter.themeMatplotlibPlots": true,
-  "markdown.preview.fontSize": 16,
   "github.codespaces.createCodespaceInNewWindow": true,
   "github.codespaces.defaultExtensions": [
     "visualstudioexptteam.vscodeintellicode",
@@ -221,5 +220,6 @@
   ],
   "window.zoomLevel": 0,
   "aws.samcli.location": "",
-  "files.trimTrailingWhitespace": true
+  "files.trimTrailingWhitespace": true,
+  "markdown.preview.lineHeight": 1.5
 }
