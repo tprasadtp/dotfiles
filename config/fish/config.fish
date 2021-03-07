@@ -28,5 +28,10 @@ set -g fish_color_valid_path --underline
 # Set Profile ID
 set --global --export DOT_PROFILE_ID 'sindhu'
 
+# Use exa if available
+if type -q exa
+  set fzf_preview_dir_cmd exa --all --color=always
+end
+
 # Umask
 umask 077

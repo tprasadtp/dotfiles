@@ -1,7 +1,6 @@
 jorgebucaran/fisher@3f0851c5cb163cffcc1485aa1d9baa4bf881484c
-laughedelic/fish_logo@508826dd4c7b597bade75e1955b447930111e8e6
 PatrickF1/colored_man_pages.fish@9b7833388298b5376506189bf8fc5b735a38f874
-~/Git/dotfiles/fish/plugins/fzf
+PatrickF1/fzf.fish@f14a1d38a6c766184173b5f6c5b6db9750744113
 ~/Git/dotfiles/fish/plugins/aws
 ~/Git/dotfiles/fish/plugins/aws-vault
 ~/Git/dotfiles/fish/plugins/k8s
