@@ -154,7 +154,7 @@ function main()
   for file in $(find . -type f -not -iwholename '*.git*' -not -iwholename 'vendor*' -not -iwholename '**/*fetch*' -not -iwholename '**/fish/**' -not -iwholename '**/config/fish*' -executable | sort -u); do
     # ignore , double  quote strings  2086
     log_step_info "FILE : ${file}"
-    shellcheck -e SC2154 -e SC2086 "${file}"
+    shellcheck -e SC2154 -e 2034 -e SC2086 "${file}"
     res="$?"
     if [[ $res -eq 0 ]]; then
       log_step_success "OK"

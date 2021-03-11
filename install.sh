@@ -452,6 +452,7 @@ function __download_and_install_fisher()
 
       if [[ -f ${INSTALL_PREFIX}/.config/fish/functions/otto.fish ]]; then
         log_step_info "Otto plugin exits!"
+        mkdir -p $HOME/.local/share/fish/generated_completions
         fish --private -c "otto"
         fisher_otto_status=$?
       else
@@ -545,9 +546,6 @@ function __install_config_files_handler()
   # GPG
   __install_config_files "gnupg" ".gnupg"
 
-  # Docker
-  __install_config_files "docker" ".docker"
-
   # Nano
   __install_config_files "nano" ".config/nano"
 
@@ -571,6 +569,8 @@ function __install_other_config_files_handler()
   __install_config_files "vscode" ".config/Code/User"
   __install_config_files "vscode/snippets" ".config/Code/User/snippets"
 
+  # Docker
+  __install_config_files "docker" ".docker"
 
   # Font config
   __install_config_files "fonts" ""
