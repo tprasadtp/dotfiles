@@ -31,10 +31,10 @@ readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91
 "
 
 # Define direnv, bat, fzf, fd versions
-readonly FZF_VERSION="0.25.0"
+readonly FZF_VERSION="0.25.1"
 readonly BAT_VERSION="0.17.1"
-readonly DIRENV_VERSION="2.23.1"
-readonly STARSHIP_VERSION="0.49.0"
+readonly DIRENV_VERSION="2.27.0"
+readonly STARSHIP_VERSION="0.50.0"
 readonly FD_VERSION="8.2.1"
 
 if [[ -v ${FISHER_VERSION} ]]; then

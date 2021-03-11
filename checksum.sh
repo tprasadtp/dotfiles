@@ -64,14 +64,7 @@ function generate_checksums()
   : > SHA512SUMS
   find . -type f \
 			-not -path "./.git/**" \
-      -not -path "./github/**" \
-      -not -path "./.github/**" \
-      -not -name ".travis.yml" \
-      -not -name "azure-pipelines.yml" \
       -not -name "SHA512SUMS" \
-      -not -name ".gitignore" \
-      -not -name "LICENSE.md" \
-      -not -name "README.md" \
       -not -name "SHA512SUMS.asc" \
       "-print0" | xargs "-0" sha512sum \
         >> SHA512SUMS
