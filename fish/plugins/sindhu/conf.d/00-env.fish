@@ -40,6 +40,11 @@ if test -d $HOME/.poetry/bin
   contains -- $HOME/.poetry/bin $PATH; or set --append PATH $HOME/.poetry/bin
 end
 
+# Docker
+if type -q docker
+  set --export --global DOCKER_CLI_EXPERIMENTAL enabled
+end
+
 # Android Platform Tools
 if test -d $HOME/Android/Sdk/platform-tools
   contains -- $HOME/Android/Sdk/platform-tools $PATH; or set --append PATH $HOME/Android/Sdk/platform-tools
