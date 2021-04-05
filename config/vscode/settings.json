@@ -65,7 +65,7 @@
     "**/.venv": true
   },
   "settingsSync.keybindingsPerPlatform": false,
-  "terminal.integrated.fontSize": 18,
+  "terminal.integrated.fontSize": 20,
   "terminal.integrated.shell.linux": "/usr/bin/fish",
   "update.mode": "none",
   "update.showReleaseNotes": false,
@@ -116,7 +116,7 @@
     "cloudformation": "aws"
   },
   "debug.console.fontSize": 18,
-  "terminal.integrated.fontFamily": "Firacode Nerd font",
+  "terminal.integrated.fontFamily": "FantasqueSansMono Nerd Font",
   "terminal.integrated.fontWeight": 400,
   "go.useLanguageServer": true,
   "go.addTags": {

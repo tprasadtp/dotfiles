@@ -19,7 +19,7 @@ $terraform \
 $helm\
 $cmd_duration\
 $line_break\
-${custom.fish}\
+$shell\
 $battery\
 $time\
 $jobs\
@@ -85,12 +85,13 @@ threshold = 0
 [aws]
 # symbol = " "
 symbol = " "
-format = "[$symbol$profile(\\($region\\))]($style) "
-
-
+format = "[$symbol $profile(\\($region\\))]($style) "
 [aws.region_aliases]
-us-east-1 = "us"
-eu-west-1 = "eu"
+eu-west-1 = "IR"
+eu-central-1 = "DE"
+us-east-1 = "US-E"
+us-west-1 = "US-W"
+
 
 [gcloud]
 # symbol = " "
@@ -113,8 +114,8 @@ discharging_symbol = " "
 [git_branch]
 symbol = " "
 style = "#FF9100"
-format = "on [$symbol$branch]($style) "
-truncation_length = 8
+format = "[$symbol$branch]($style) "
+truncation_length = 16
 
 [git_commit]
 # Tag
@@ -149,29 +150,32 @@ description = "Display symbol for remote Git server"
 command = """
 GIT_REMOTE=$(command git ls-remote --get-url 2> /dev/null)
 GIT_HOST=$(printf "%s" "$GIT_REMOTE" | sed -e 's/[^/]*\\/\\/\\([^@]*@\\)\\?\\([^:/]*\\).*/\\2/')
-if [[ "$GIT_HOST" =~ (^github.com|^github*) ]]; then
+if [[ "$GIT_HOST" =~ ^github.com ]]; then
+    printf  " "
+elif [[ "$GIT_HOST" =~ ^github* ]]; then
     printf  " ${GIT_HOST}"
-elif [[ "$GIT_HOST" =~ git-codecommit.*.amazonaws.com ]]; then
-    printf  "  ${GIT_HOST}"
+elif [[ "$GIT_HOST" =~ git-codecommit.([^/]*).amazonaws.com ]]; then
+    printf  "  ${BASH_REMATCH[1]}"
+elif [[ "$GIT_HOST" =~ "gitlab.com" ]]; then
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^gitlab.com|^gitlab* ]]; then
     printf  "  ${GIT_HOST}"
 elif [[ "$GIT_HOST" =~ "bitbucket.com" ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^gitea* ]]; then
     printf  " ${GIT_HOST}"
 elif [[ "$GIT_HOST" =~ "git.launchpad.net" ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^(ssh.dev.azure.com|dev.azure.com|vs-ssh.visualstudio.com|visualstudio.com) ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^developers.google.com* ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" == "aur.archlinux.org" ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" == "salsa.debian.org" ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" == "src.fedoraproject.org" ]]; then
-    printf  " ${GIT_HOST}"
-
+    printf  " "
 elif [[ "$GIT_HOST" == "" ]]; then
     printf  " "
 else
@@ -215,16 +219,11 @@ style = "#FFD43B"
 # symbol = " "
 symbol = " "
 style = "#ff833a"
-disabled = false
+disabled = true
 
-[custom.fish]
-description = "This is a fish shell"
-symbol = " "
-style = ""
-when = '[ "$STARSHIP_SHELL" == "fish" ]'
-shell = ["bash", "--noprofile", "--norc"]
-
-# enable/disable
+[shell]
+fish_indicator = ""
+powershell_indicator = "_"
 disabled = false
 
 
@@ -238,7 +237,7 @@ style = "bold #4FC3F7"
 [terraform]
 disabled = false
 symbol = " "
-format = "[$symbol$version\\($workspace\\)]($style) "
+format = "[$symbol\\($workspace\\)]($style) "
 style = "#9a67ea"
 
 # Disable not needed
