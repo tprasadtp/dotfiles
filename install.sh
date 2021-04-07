@@ -912,7 +912,7 @@ function main()
   if [[ $flag_only_bin == "true" ]]; then
     if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
     || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
+    ||  [[ -n $flag_only_tools ]] || [[ -n $flag_only_walls ]]; then
       log_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
       exit 10
     else
