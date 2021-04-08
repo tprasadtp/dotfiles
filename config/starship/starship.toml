@@ -217,12 +217,13 @@ style = "#FFD43B"
 
 [package]
 # symbol = " "
-symbol = " "
+symbol = " "
 style = "#ff833a"
 disabled = true
 
 [shell]
 fish_indicator = ""
+bash_indicator = ""
 powershell_indicator = "_"
 disabled = false
 

@@ -49,7 +49,7 @@ fi
 
 
 # KubeNS and KubeCTX
-if command -v kubens > /dev/null2>&1; then
+if command -v kubens > /dev/null 2>&1; then
   _kube_namespaces()
   {
     local curr_arg;
@@ -60,7 +60,7 @@ if command -v kubens > /dev/null2>&1; then
   complete -F _kube_namespaces kubens kns
 fi
 
-if command -v kubectx > /dev/null2>&1; then
+if command -v kubectx > /dev/null 2>&1; then
   _kube_contexts()
   {
     local curr_arg;
