@@ -3,10 +3,15 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 .PHONY: shellcheck
-shellcheck: ## Runs the shellcheck tests on the scripts.
-	@./tests/test-shell-scripts.sh
+shellcheck: ## Run shellcheck
+	@./tests/shellcheck.sh $(shell find . -type f \
+		-not -iwholename '*.git*' \
+		-not -iwholename 'vendor*' \
+		-not -iwholename '**/*fetch*' \
+		-not -iwholename '**/fish/**' \
+		-not -iwholename '**/config/fish*' \
+		-executable | sort -u)
 
-.PHONY: install
 install: ## Installs default profile
 	./install.sh --install
 
@@ -20,11 +25,11 @@ test-install-minimal: ## Test Install minimal profile
 
 .PHONY: verify
 verify: ## Verifies checksums
-	./checksum.sh -v
+	./sign.sh -v
 
 .PHONY: sign
 sign: ## Sign
-	./checksum.sh -s -v
+	./sign.sh -s -v
 
 .PHONY: help
 help: ## This help dialog.

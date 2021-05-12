@@ -18,7 +18,7 @@ jobs:
         run: make shellcheck
       - name: Verify Checksums
         run: |
-          ./checksum.sh -v -G
+          ./sign.sh -v -G
       - name: Modify for CI
         # Modify after verification
         run:  sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh

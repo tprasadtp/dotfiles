@@ -1,6 +1,7 @@
 #!/bin/bash
 #  Copyright (c) 2018-2021. Prasad Tengse
 #
+# shellcheck disable=SC2155
 
 # Installs dotfiles
 # Probably this script is shitty and  specific to my setup.
@@ -12,7 +13,7 @@
 set -o pipefail
 
 #Constants
-readonly SCRIPT=$(basename "$0")
+readonly SCRIPT="$(basename "$0")"
 readonly YELLOW=$'\e[38;5;221m'
 readonly GREEN=$'\e[38;5;42m'
 readonly RED=$'\e[38;5;197m'
@@ -23,19 +24,19 @@ readonly TEAL=$'\e[38;5;192m'
 readonly VIOLET=$'\e[38;5;219m'
 readonly GRAY=$'\e[38;5;246m'
 readonly NC=$'\e[0m'
-readonly CURDIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+readonly CURDIR="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
   [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
  [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
 [0;1;32;92m/_[0;1;36;96m__[0;1;34;94m_/[0;1;35;95m\_[0;1;31;91m__[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m/[0m [0;1;35;95m/_[0;1;31;91m/_[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m__[0;1;35;95m/[0m
 "
 
-# Define direnv, bat, fzf, fd versions
-readonly FZF_VERSION="0.25.1"
-readonly BAT_VERSION="0.17.1"
-readonly DIRENV_VERSION="2.27.0"
-readonly STARSHIP_VERSION="0.50.0"
+# Define direnv, bat, fzf, fd and fisher versions
+readonly FZF_VERSION="0.27.0"
 readonly FD_VERSION="8.2.1"
+
+readonly BAT_VERSION="0.17.1"
+readonly DIRENV_VERSION="2.28.0"
 
 if [[ -v ${FISHER_VERSION} ]]; then
   log_error "FISHER_VERSION is a reserved variable!"
@@ -43,7 +44,7 @@ if [[ -v ${FISHER_VERSION} ]]; then
 fi
 
 # MUST USE HASH
-readonly FISHER_VERSION="3f0851c5cb163cffcc1485aa1d9baa4bf881484c"
+readonly FISHER_VERSION="247b58e0d97c785ef960b88cd07c734d4e92225c"
 
 # Default settings
 DOT_PROFILE_ID="sindhu"
@@ -301,9 +302,9 @@ function __install_tools_subtask_starship()
   # MUST have required dirs already
   log_info "Download and Install Starship"
   log_step_info "download (binary)"
-  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz" --output vendor/cache/starship.tar.gz
+  curl -sSfL "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz" --output vendor/cache/starship.tar.gz
   log_step_info "download (checksum)"
-  curl -sSfL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
+  curl -sSfL "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
   log_step_info "verify (checksum)"
   if echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -; then
     log_step_success "checksums verified"
@@ -313,13 +314,12 @@ function __install_tools_subtask_starship()
     log_step_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/starship"
   else
-    log_step_error "cecksum verification failed!"
+    log_step_error "checksum verification failed!"
   fi
 }
 
 function __install_tools_subtask_direnv()
 {
-  __install_tools_subtask_starship
   log_info "Download and Install direnv"
   log_step_info "download"
   curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" \
@@ -452,7 +452,7 @@ function __download_and_install_fisher()
 
       if [[ -f ${INSTALL_PREFIX}/.config/fish/functions/otto.fish ]]; then
         log_step_info "Otto plugin exits!"
-        mkdir -p $HOME/.local/share/fish/generated_completions
+        mkdir -p "$HOME/.local/share/fish/generated_completions"
         fish --private -c "otto"
         fisher_otto_status=$?
       else

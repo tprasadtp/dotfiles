@@ -146,7 +146,8 @@ if command -v direnv > /dev/null; then
   fi
 fi
 
-# Starship
+# Snippetizer:Starship:Init:Start
 if command -v starship > /dev/null; then
   eval "$(starship init bash)"
 fi
+# Snippetizer:Starship:Init:End
