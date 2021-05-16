@@ -38,6 +38,8 @@ readonly FD_VERSION="8.2.1"
 readonly BAT_VERSION="0.17.1"
 readonly DIRENV_VERSION="2.28.0"
 
+readonly GIT_CHGLOG_VERSION="0.14.2"
+
 if [[ -v ${FISHER_VERSION} ]]; then
   log_error "FISHER_VERSION is a reserved variable!"
   exit 1
@@ -91,15 +93,22 @@ ${NC}
 ${NC}
 ----------------------- Skip ------------------------------${BLUE}
 [-c | --no-config]      Skip installing all config
-[-e | --minimal-config) Install only base essential configs,
-                        skip extra, usually GUI stuff.
+[-e | --minimal-config) Install only base essentials
+                        skip extra, usually GUI stuff
 [-k | --no-fonts)       Skip installing fonts
 [-j | --no-templates)   Skip installing templates
-[-f | --no-fish)        Skip installing all fish shell configs
+[-f | --no-fish)        Skip installing all fish configs
+${NC}
+-------------------- Skip Tools ---------------------------${VIOLET}
+[--skip-<tool>]         Skip installing this tool
+
+- This only applies if --tool or --codespaces is active.
+- <tool> can be one of the following: starship,fd,fzf,
+  direnv or git-chglog
 ${NC}
 ---------------------- Addons ----------------------------${TEAL}
 [-x | --bin]            Install scripts in bin to ~/bin
-[-w | --wallpapers]     Install wallpaper collection
+[-w | --wallpapers]     Install wallpaper collectiont
 ${NC}
 ------------------ Profile Selector ----------------------
 When a profile name is set, and if matching config is found,
@@ -309,7 +318,11 @@ function __install_tools_subtask_starship()
   if echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -; then
     log_step_success "checksums verified"
     log_step_info "install"
-    tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"
+    if tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"; then
+      log_step_success "OK"
+    else
+      log_step_error "errored!"
+    fi
 
     log_step_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/starship"
@@ -336,10 +349,14 @@ function __install_tools_subtask_bat()
   curl -sSfL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
   log_step_info "extract"
-  tar --extract --strip=1 --gzip \
+  if tar --extract --strip=1 --gzip \
     --file="vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --directory="${INSTALL_PREFIX}/bin" \
-    --wildcards "*bat"
+    --wildcards "*bat"; then
+    log_step_success "OK"
+  else
+    log_step_error "errored!"
+  fi
 
   log_step_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/bat"
@@ -357,10 +374,15 @@ function __install_tools_subtask_fzf()
   if (cd vendor/cache && sha256sum -c --status --ignore-missing "fzf_${FZF_VERSION}_checksums.txt"); then
     log_step_success "checksums verified"
     log_step_info "extract"
-    tar --extract --gzip \
+    if tar --extract --gzip \
       --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
       --directory="${INSTALL_PREFIX}/bin" \
-      fzf
+      fzf; then
+      log_step_success "OK"
+    else
+      log_step_error "errored!"
+    fi
+
 
     log_step_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/fzf"
@@ -377,13 +399,46 @@ function __install_tools_subtask_fd()
   log_step_info "download binary"
   curl -sSfL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  tar --extract --strip=1 --gzip \
-    --file="vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-    --directory="${INSTALL_PREFIX}/bin" \
-    --wildcards "*fd"
+  log_step_info "extract and install"
+  if tar --extract --gzip \
+      --file vendor/cache/fd-v"${FD_VERSION}"-x86_64-unknown-linux-musl.tar.gz \
+      --directory "${INSTALL_PREFIX}"/bin/ \
+      --strip=1 \
+      --wildcards \
+      --no-anchored 'fd'; then
+    log_step_success "OK"
+  else
+    log_step_error "errored!"
+  fi
 
   log_step_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/fd"
+}
+
+
+function __install_tools_subtask_gitchglog()
+{
+  log_info "Download and Install git-chglog/git-chglog"
+  log_step_info "download binary"
+  curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" \
+    --output "vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz"
+  log_step_info "download (checksum)"
+  curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/checksums.txt" \
+    --output "vendor/cache/git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"
+  if (cd vendor/cache && sha256sum -c --status --ignore-missing "git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"); then
+    log_step_success "checksums verified"
+    log_step_info "extract"
+    tar --extract --gzip \
+      --file="vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" \
+      --directory="${INSTALL_PREFIX}/bin" \
+      --wildcards git-chglog
+    log_step_info "permissions"
+    chmod 700 "${INSTALL_PREFIX}/bin/git-chglog"
+
+  else
+    log_step_error "checksum verification failed!"
+    log_error "Failed to install git-chglog"
+  fi
 }
 
 function install_tools_handler()
@@ -391,11 +446,41 @@ function install_tools_handler()
   log_info "Installing Required Tools"
   __install_tools_subtask_prepare_dirs
 
-  __install_tools_subtask_direnv
-  __install_tools_subtask_starship
-  __install_tools_subtask_bat
-  # __install_tools_subtask_fd
-  __install_tools_subtask_fzf
+  if [[ $bool_tools_skip_direnv != "true" ]]; then
+    __install_tools_subtask_direnv
+  else
+    log_debug "Skipped installing direnv/direnv"
+  fi
+
+  if [[ $bool_tools_skip_starship != "true" ]]; then
+      __install_tools_subtask_starship
+  else
+    log_debug "Skipped installing starship/starship"
+  fi
+
+  if [[ $bool_tools_skip_bat != "true" ]]; then
+    __install_tools_subtask_bat
+  else
+    log_debug "Skipped installing sharkdp/bat"
+  fi
+
+  if [[ $bool_tools_skip_fd != "true" ]]; then
+    __install_tools_subtask_fd
+  else
+    log_debug "Skipped installing sharkdp/fd"
+  fi
+
+  if [[ $bool_tools_skip_fzf != "true" ]]; then
+    __install_tools_subtask_fzf
+  else
+    log_debug "Skipped installing junegunn/fzf"
+  fi
+
+  if [[ $bool_tools_skip_gitchglog != "true" ]]; then
+    __install_tools_subtask_gitchglog
+  else
+    log_debug "Skipped installing git-chglog/git-chglog"
+  fi
 }
 
 function install_fonts_handler()
@@ -758,6 +843,13 @@ function main()
       -t | --tools)           flag_only_tools="true";;
       # Skip modes
       -c | --no-config)       readonly bool_skip_config="true";;
+      --skip-starship)        readonly bool_tools_skip_starship="true";;
+      --skip-direnv)          readonly bool_tools_skip_direnv="true";;
+      --skip-bat)             readonly bool_tools_skip_bat="true";;
+      --skip-fzf)             readonly bool_tools_skip_fzf="true";;
+      --skip-fd)              readonly bool_tools_skip_fd="true";;
+      --skip-gitchglog)       readonly bool_tools_skip_gitchglog="true";;
+
       # Minimal config profile. This is different than minimal profile.
       # this *ONLY* applies to configs *NOTHING* else. Mostly used to skip
       # GUI stuff which are not used on HPC and headless systems

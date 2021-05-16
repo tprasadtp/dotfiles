@@ -211,6 +211,7 @@ function generate_checksums()
   : > SHA512SUMS
   find . -type f \
 			-not -path "./.git/**" \
+			-not -path "./vendor/**" \
       -not -name "SHA512SUMS" \
       -not -name "SHA512SUMS.asc" \
       "-print0" | xargs "-0" sha512sum \
