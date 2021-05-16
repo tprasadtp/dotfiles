@@ -77,8 +77,6 @@ format = "([$symbol\\[$shlvl\\]]($style) )"
 [jobs]
 symbol = "羽"
 format = "([$symbol\\[$number\\]]($style) )"
-# This will force it to show 1
-threshold = 0
 
 # Cloud
 # ------------------------
@@ -100,8 +98,9 @@ symbol = " "
 style = "blue"
 format = "[$symbol$account(\\($region\\))]($style) "
 
-[azure]
-symbol = " "
+# Uncomment after az module is available
+# [azure]
+# symbol = " "
 
 # Battery
 [battery]
@@ -196,10 +195,6 @@ symbol = " "
 format = '(on [$symbol$context( \($namespace\))]($style)) '
 style = "#5e92f3"
 
-[openshift]
-disabled = true
-symbol = " "
-
 [helm]
 # symbol = "⚙"
 symbol = " "
@@ -271,10 +266,6 @@ disabled = true
 
 [elm]
 symbol = " "
-disabled = true
-
-[haskell]
-symbol = " "
 disabled = true
 
 [hg_branch]

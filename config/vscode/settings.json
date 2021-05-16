@@ -221,5 +221,6 @@
   "window.zoomLevel": 0,
   "aws.samcli.location": "",
   "files.trimTrailingWhitespace": true,
-  "markdown.preview.lineHeight": 1.5
+  "markdown.preview.lineHeight": 1.5,
+  "git.autofetch": true
 }
