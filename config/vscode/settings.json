@@ -222,5 +222,6 @@
   "aws.samcli.location": "",
   "files.trimTrailingWhitespace": true,
   "markdown.preview.lineHeight": 1.5,
-  "git.autofetch": true
+  "git.autofetch": true,
+  "docker.showStartPage": false
 }
