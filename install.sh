@@ -737,13 +737,13 @@ function install_regular_wrapper()
 
 function install_cloudshell_wrapper()
 {
-  log_notice "Cloushell:: Tools"
+  log_notice "Cloudshell:: Tools"
 
   __install_tools_subtask_prepare_dirs
   __install_tools_subtask_direnv
   __install_tools_subtask_starship
 
-  log_notice "Cloushell:: Configs"
+  log_notice "Cloudshell:: Configs"
   # Git
   __install_config_files "git" ""
 
@@ -753,13 +753,18 @@ function install_cloudshell_wrapper()
   # ansible
   __install_config_files "ansible" ""
 
-  log_notice "Cloushell:: Bash"
+  log_notice "Cloudshell:: Bash"
   install_bash_handler
 }
 
 function install_hpc_wrapper()
 {
   log_notice "Installing minimal configs"
+  # Disable because centos 7 sha256sum has no --ignore mising
+  # plus fish version is too old.
+  bool_tools_skip_fzf="true"
+  bool_tools_skip_gitchglog="true"
+
   install_bash_handler
   if [[ $bool_skip_config != "true" ]]; then
     __install_config_files_handler
