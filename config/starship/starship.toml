@@ -62,7 +62,7 @@ style = "bright-purple"
 min_time = 5000
 
 [directory]
-style = "bold #99d066"
+style = "#99d066"
 # style = "bright-green"
 read_only = " "
 # truncate_to_repo = false
@@ -77,6 +77,7 @@ format = "([$symbol\\[$shlvl\\]]($style) )"
 [jobs]
 symbol = "羽"
 format = "([$symbol\\[$number\\]]($style) )"
+style = "blue"
 threshold = 0
 
 # Cloud
@@ -228,7 +229,7 @@ disabled = false
 disabled = false
 format = "[\\[$time\\]]($style) "
 use_12hr = true
-style = "bold #4FC3F7"
+style = "#4FC3F7"
 # style = "bright-green"
 
 [terraform]
