@@ -134,7 +134,7 @@ if [ -f ~/.bash_completion ]; then
   source ~/.bash_completion
 fi
 
-# direnv
+# Snippetizer:DirEnv:Init:Start
 if command -v direnv > /dev/null; then
   _direnv_hook() {
     local previous_exit_status=$?;
@@ -145,9 +145,13 @@ if command -v direnv > /dev/null; then
     PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
   fi
 fi
+# Snippetizer:DirEnv:Init:End
 
 # Snippetizer:Starship:Init:Start
 if command -v starship > /dev/null; then
   eval "$(starship init bash)"
 fi
 # Snippetizer:Starship:Init:End
+
+# Umask
+umask 077

@@ -14,5 +14,6 @@
 	"secretFormat": "table {{.ID}}\t{{.Name}}\t{{.CreatedAt}}\t{{.UpdatedAt}}",
 	"configFormat": "table {{.ID}}\t{{.Name}}\t{{.CreatedAt}}\t{{.UpdatedAt}}",
 	"nodesFormat": "table {{.ID}}\t{{.Hostname}}\t{{.Availability}}",
-	"experimental": "enabled"
+	"experimental": "enabled",
+	"currentContext": "rootless"
 }

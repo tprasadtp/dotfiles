@@ -1,0 +1,11 @@
+### Credentials and Tokens ###
+*.env
+.env
+!sample.env
+**/.aws/credentials
+**/.aws/*
+**/.password-store/**
+.git-credentials
+credentials
+credentials.csv
+credentials.json

@@ -320,7 +320,6 @@ function main()
       file_basename="$(basename "${file}")"
       log_info "$file"
       docker run \
-        --userns=host \
         --rm \
         --workdir=/app/ \
         --network=none \

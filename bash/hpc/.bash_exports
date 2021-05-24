@@ -1,13 +1,38 @@
 #!/usr/bin/env bash
-# Custom Binaries
+
+# Userpaths
 export PATH="${PATH}:~/bin:~/.local/bin"
 
-#Add GPG
-GPG_TTY=$(tty)
-export GPG_TTY
+# Add GPG Agent config
+# This is skipped in codespaces
+# for NEMO, set DOT_PROFILE_USE_HOST_SSH_AGENT=true
+if [[ ${CODESPACES} != "true" ]] && \
+  [[ $CLOUD_SHELL != "true" ]] && \
+  [[ ${DOT_PROFILE_USE_HOST_SSH_AGENT} != "true" ]]; then
+  GPG_TTY=$(tty)
+  export GPG_TTY
+  export SSH_AGENT_PID=""
+  SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export SSH_AUTH_SOCK
+fi
 
-export SSH_AGENT_PID=""
-SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-export SSH_AUTH_SOCK
+# Go {This is only applied if Go is installed using Artemis. See go/arty}
+if [[ -d ${HOME}/Tools/go ]]; then
+  # Sets GOROOT
+  export GOROOT="$HOME/Tools/go"
+  # Add Go commands to PATH
+  export PATH="$PATH:$GOROOT/bin"
+fi
 
-export DOTFILE_PROFILE_ID="hpc"
+# Go Settings {This is skipped if go is not installed}
+if command -v go > /dev/null; then
+  # sets GOPATH
+  export GOPATH="$HOME/go"
+  # Allow Public from Modules Proxy only and limit private to git
+  export GOVCS="private:git,public:off"
+fi
+
+# If installed, Add Poetry to PATH
+if [[ -d ${HOME}/.poetry/bin ]]; then
+  export PATH="${PATH}:${HOME}/.poetry/bin"
+fi

@@ -79,6 +79,8 @@ ${YELLOW}
                         direnv and starship with cloudshell
                         profile. This flag cannot be used with
                         custom profiles
+[--hpc]                 HPC mode. Used on HPC clusters.
+                        Skipes all GUI stuff.
 ${NC}
 ------------------------- Exclusive ------------------------${PINK}
 [-C | --only-config]    Only install configs
@@ -528,7 +530,7 @@ function __download_and_install_fisher()
 
   if command -v fish > /dev/null; then
 
-    if [[ $LOG_LVL -lt 2 ]]; then
+    if [[ $INSTALLER_TEST_MODE != "true" ]]; then
 
       log_step_info "Installing fisher"
       FISHER_URL="https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish" \
@@ -546,14 +548,14 @@ function __download_and_install_fisher()
 
       if [[ $fisher_inst_status -ne 0 ]] || [[ $fisher_otto_status -ne 0 ]]; then
         log_step_error "failed to install fisher!"
-        log_step_notice "to fix this problem by run,"
+        log_step_notice "to fix this problem run,"
         log_step_notice "curl -sfL https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
       else
         log_step_debug "Otto: $fisher_otto_status, Fisher: $fisher_inst_status"
       fi
 
     else
-      log_step_notice "skipped initializing fisher plugins in debug mode"
+      log_step_notice "skipped initializing fisher plugins in test/debug mode"
     fi # debug skipper
 
   else
@@ -730,7 +732,6 @@ function install_regular_wrapper()
   install_templates_handler
   install_scripts_handler
   install_walls_handler
-
 }
 
 
@@ -754,6 +755,33 @@ function install_cloudshell_wrapper()
 
   log_notice "Cloushell:: Bash"
   install_bash_handler
+}
+
+function install_hpc_wrapper()
+{
+  log_notice "Installing minimal configs"
+  install_bash_handler
+  if [[ $bool_skip_config != "true" ]]; then
+    __install_config_files_handler
+  else
+    log_debug "Skipped config install"
+  fi
+
+  if [[ $bool_skip_fish != "true" ]]; then
+    install_fish_configs_handler
+  else
+    log_debug "Skipped fish configs"
+  fi
+
+  if [[ $bool_install_bin == "true" ]]; then
+    log_warning "Installing scripts to ~/bin is enabled!"
+    log_warning "Make sure your PATH is properly setup!"
+    __link_files "bin" "bin"
+    __link_files "bin-hpc" "bin"
+  else
+    log_debug "Installing scripts is not enabled"
+  fi
+
 }
 
 function install_codespaces_wrapper()
@@ -830,19 +858,56 @@ function main()
   while [ "${1}" != "" ]; do
     case ${1} in
       # Install Modes
-      -i | --install)         flag_install="true";;
-      --codespaces)           flag_codespaces="true";;
-      --cloudshell)           flag_cloudshell="true";DOT_PROFILE_ID="cloudshell";;
-      # Only modes
-      -C | --only-config)     flag_only_config="true";;
-      -F | --only-fish)       flag_only_fish="true";;
-      -B | --only-bash)       flag_only_bash="true";;
-      -X | --only-bin)        flag_only_bin="true";bool_install_bin="true";;
-      -W | --only-walls)      flag_only_walls="true";bool_install_walls="true";;
-      -M | --minimal)         flag_only_minimal="true";;
-      -t | --tools)           flag_only_tools="true";;
+      -i | --install)         action_install_mode="default";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      --codespaces)           action_install_mode="codespaces";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      --cloudshell)           action_install_mode="cloudshell";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      --hpc)                  action_install_mode="hpc";
+                              DOT_PROFILE_ID="hpc";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -C | --only-config)     action_install_mode="only-config";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -F | --only-fish)       action_install_mode="only-fish";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -B | --only-bash)       action_install_mode="only-bash";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -X | --only-scripts)    action_install_mode="only-scripts";
+                              bool_install_bin="true";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -W | --only-walls)      action_install_mode="only-walls";
+                              bool_install_walls="true";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -M | --minimal)         action_install_mode="minimal";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
+      -t | --tools)           action_install_mode="onlytoolsscripts";
+                              bool_install_bin="true";
+                              log_info "Using mode: ${action_install_mode}";
+                              ((++exclusive_conflicts));
+                              ;;
       # Skip modes
-      -c | --no-config)       readonly bool_skip_config="true";;
+      -c | --skip-config)     readonly bool_skip_config="true";;
       --skip-starship)        readonly bool_tools_skip_starship="true";;
       --skip-direnv)          readonly bool_tools_skip_direnv="true";;
       --skip-bat)             readonly bool_tools_skip_bat="true";;
@@ -854,9 +919,10 @@ function main()
       # this *ONLY* applies to configs *NOTHING* else. Mostly used to skip
       # GUI stuff which are not used on HPC and headless systems
       -e | --minimal-config)  readonly bool_minimal_config="true";;
-      -k | --no-fonts)        readonly bool_skip_fonts="true";;
-      -j | --no-templates)    readonly bool_skip_templates="true";;
-      -f | --no-fish)         readonly bool_skip_fish="true";;
+      -k | --skip-fonts)      readonly bool_skip_fonts="true";;
+      -j | --skip-templates)  readonly bool_skip_templates="true";;
+      -f | --skip-fish)       readonly bool_skip_fish="true";;
+
       # ENABLE Extra,
       # These are special as they are inverted bool comapred to other bools
       -x | --bin)             bool_install_bin="true";;
@@ -868,6 +934,7 @@ function main()
       -v | --verbose)         LOG_LVL="1";
                               log_debug "Enabled verbose logging";;
       -d | --debug | --test)  INSTALL_PREFIX="${HOME}/Junk";
+                              INSTALLER_TEST_MODE="true";
                               log_warning "DEBUG mode is active!";
                               log_warning "Files will be installed to ${INSTALL_PREFIX}";
                               mkdir -p "${INSTALL_PREFIX}" || exit 31;;
@@ -880,10 +947,17 @@ function main()
   done
 
   # Flag conflict checks
+  if [[ $exclusive_conflicts -gt 1 ]]; then
+    log_error "Exclusive flag conflict!"
+    log_error "More than one exclusive flag is used!"
+    exit 1
+  else
+    log_debug "No command conflicts"
+  fi
 
-  # cloudshell MUST use profile cloudshell
-  if [[ $flag_cloudshell == "true" ]] && [[ $DOT_PROFILE_ID != "cloudshell" ]]; then
-    log_error "--cloudshell option MUST use profile cloudshell!!"
+  # hpc MUST use profile cloudshell
+  if [[ $action_install_mode == "hpc" ]] && [[ $DOT_PROFILE_ID != "hpc" ]]; then
+    log_error "--hpc option MUST use profile hcp!!"
     exit 20
   fi
 
@@ -894,174 +968,22 @@ function main()
     log_notice "Using profile ($DOT_PROFILE_ID)"
   fi
 
-
-  # install with anything should raise error
-  if [[ $flag_install == "true" ]]; then
-    if [[ -n $flag_codespaces ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
-    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -i/install cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to regular"
-      action_install_mode="regular"
-    fi
-  else
-    log_debug "Unused flag [-i/--install]"
-  fi
-
-  # Exclusive codespaces check
-  if [[ $flag_codespaces == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
-    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, --codespaces cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to codespaces"
-      action_install_mode="codespaces"
-    fi
-  else
-    log_debug "Unused flag [--codespaces]"
-  fi
-
-  # Exclusive cloudshell check
-  if [[ $flag_cloudshell == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] || [[ -n $flag_only_fish ]] \
-    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, --cloudshell cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to cloudshell"
-      action_install_mode="cloudshell"
-    fi
-  else
-    log_debug "Unused flag [--cloudshell]"
-  fi
-
-  # Exclusive config check
-  if [[ $flag_only_config == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_cloudshell ]] || [[ -n $flag_only_fish ]] \
-    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -C/--only-config cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_config"
-      action_install_mode="only_config"
-    fi
-  else
-    log_debug "Unused flag [-C/--only-config]"
-  fi
-
-  # Exclusive fish check
-  if [[ $flag_only_fish == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -F/--only-fish cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_fish"
-      action_install_mode="only_fish"
-    fi
-  else
-    log_debug "Unused flag [-F/--only-fish]"
-  fi
-
-  # Exclusive minimal check
-  if [[ $flag_only_minimal == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_bash ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -M/--minimal cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to minimal"
-      action_install_mode="minimal"
-    fi
-  else
-    log_debug "Unused flag [-M/--minimal]"
-  fi
-
-  # Exclusive bash check
-  if [[ $flag_only_bash == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bin ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -B/--only-bash cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_bash"
-      action_install_mode="only_bash"
-    fi
-  else
-    log_debug "Unused flag [-B/--only-bash]"
-  fi
-
-  # Exclusive bin check
-  if [[ $flag_only_bin == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
-    ||  [[ -n $flag_only_tools ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -X/--only-bin cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_bin"
-      action_install_mode="only_bin"
-    fi
-  else
-    log_debug "Unused flag [-X/--only-bin]"
-  fi
-
-  # Exclusive tools check
-  if [[ $flag_only_tools == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_walls ]]; then
-      log_error "Incompatible Flags!, -t/--tools cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_tools"
-      action_install_mode="only_tools"
-    fi
-  else
-    log_debug "Unused flag [-t/--tools]"
-  fi
-
-  # Exclusive tools check
-  if [[ $flag_only_walls == "true" ]]; then
-    if [[ -n $flag_install ]] || [[ -n $flag_codespaces ]] || [[ -n $flag_only_config ]] \
-    || [[ -n $flag_only_fish ]] || [[ -n $flag_only_minimal ]] || [[ -n $flag_only_bash ]] \
-    ||  [[ -n $flag_only_bin ]] || [[ -n $flag_only_tools ]]; then
-      log_error "Incompatible Flags!, -W/--only-wallpapers cannot be used with other exclusive actions!"
-      exit 10
-    else
-      log_debug "Setting install mode to only_walls"
-      action_install_mode="only_walls"
-    fi
-  else
-    log_debug "Unused flag [-W/--only-wallpapers]"
-  fi
-
-
-
   if [[ -n $action_install_mode ]]; then
     log_debug "Install mode is set to ${action_install_mode}"
     # Handle install modes
     case ${action_install_mode} in
       # Install All Mode
-      regular)        install_regular_wrapper;;
+      default)        install_regular_wrapper;;
       codespaces)     install_codespaces_wrapper;;
       cloudshell)     install_cloudshell_wrapper;;
+      hpc)            install_hpc_wrapper;;
       minimal)        install_minimal_wrapper;;
-      only_config)    install_config_files_handler;;
-      only_fish)      install_fish_configs_handler;;
-      only_bash)      install_bash_handler;;
-      only_bin)       install_scripts_handler;;
-      only_tools)     install_tools_handler;;
-      only_walls)     install_walls_handler;;
+      only-config)    install_config_files_handler;;
+      only-fish)      install_fish_configs_handler;;
+      only-bash)      install_bash_handler;;
+      only-bin)       install_scripts_handler;;
+      only-tools)     install_tools_handler;;
+      only-walls)     install_walls_handler;;
       * )             log_error "Internal Error! Unknown action_install_mode !";exit 127;;
     esac
   else

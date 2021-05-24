@@ -36,8 +36,6 @@ end
 # Starship
 if type -q starship
   starship init fish | source
-else
-  echo "♺ Install starship first! Check http://starship.rs" 2>&1
 end
 
 # direnv
@@ -45,8 +43,6 @@ if type -q direnv
   function __direnv_export_eval --on-event fish_postexec;
     direnv export fish | source;
   end
-else
-  echo "♺ Install direnv first! Check http://direnv.net" 2>&1
 end
 
 # Umask

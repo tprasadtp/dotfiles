@@ -80,27 +80,15 @@ esac
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
   # shellcheck disable=SC2015
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
 fi
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -108,8 +96,8 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_aliases ]; then
-    #shellcheck source=/dev/null
-    . ~/.bash_aliases
+  # shellcheck source=/dev/null
+  . ~/.bash_aliases
 fi
 
 # enable programmable completion features (you don't need to enable
@@ -117,31 +105,46 @@ fi
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
-    # shellcheck disable=SC1091
+    # shellcheck source=/dev/null
     . /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
-    # shellcheck disable=SC1091
+    # shellcheck source=/dev/null
     . /etc/bash_completion
   fi
 fi
 
+# Disable case sentitive completion
+set completion-ignore-case On
+
 
 if [ -f ~/.bash_exports ]; then
-  #shellcheck disable=SC1090
+  #shellcheck source=/dev/null
   source ~/.bash_exports
 fi
 
-# hook
-
-# direnv hook
-_direnv_hook() {
-  local previous_exit_status=$?;
-  eval "$(direnv export bash)";
-  return $previous_exit_status;
-};
-if ! [[ "${PROMPT_COMMAND:-}" =~ _direnv_hook ]]; then
-  PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+if [ -f ~/.bash_completion ]; then
+  #shellcheck source=/dev/null
+  source ~/.bash_completion
 fi
 
-# starship hook
-eval "$(starship init bash)"
+# Snippetizer:DirEnv:Init:Start
+if command -v direnv > /dev/null; then
+  _direnv_hook() {
+    local previous_exit_status=$?;
+    eval "$(direnv export bash)";
+    return $previous_exit_status;
+  };
+  if ! [[ "${PROMPT_COMMAND:-}" =~ _direnv_hook ]]; then
+    PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+  fi
+fi
+# Snippetizer:DirEnv:Init:End
+
+# Snippetizer:Starship:Init:Start
+if command -v starship > /dev/null; then
+  eval "$(starship init bash)"
+fi
+# Snippetizer:Starship:Init:End
+
+# Umask
+umask 077

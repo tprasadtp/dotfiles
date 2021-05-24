@@ -108,6 +108,11 @@
 	# Detect copies as well as renames
 	renames = copies
 
+[http]
+  # Solves git issues on some nemo nodes
+  # we will still use system's CA bundle
+  sslCAInfo = /etc/ssl/certs/ca-bundle.crt
+
 [merge]
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
@@ -122,6 +127,8 @@
 
 [gpg]
 	program = gpg
+  # rsign wrapper is currently disabled
+	# program = rsign-git
 
 [credential]
 	helper = store --file ~/.git-credentials
