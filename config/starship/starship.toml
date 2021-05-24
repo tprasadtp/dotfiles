@@ -76,7 +76,7 @@ format = "([$symbol\\[$shlvl\\]]($style) )"
 
 [jobs]
 symbol = "羽"
-format = "([$symbol\\[$number\\]]($style) )"
+format = "[$symbol\\[($number)\\]]($style)"
 style = "blue"
 threshold = 0
 
@@ -230,7 +230,7 @@ disabled = false
 format = "[\\[$time\\]]($style) "
 use_12hr = true
 style = "#4FC3F7"
-# style = "bright-green"
+time_format = "%I:%M %p"
 
 [terraform]
 disabled = false

@@ -153,8 +153,6 @@ function main()
       -h | --help )             display_usage;
                                 exit $?
                                 ;;
-      -v | --enable-vgl)        enable_vgl="true";
-                                ;;
       -i | --info)              run_mode="info";
                                 ;;
       -m | --skip-load)         load_required_modeule="false";
