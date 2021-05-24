@@ -1,0 +1,179 @@
+#!/bin/bash
+
+readonly SCRIPT=$(basename "$0")
+WM_RESOLUTION="1920x1080"
+function run_vnc()
+{
+  # Because modules sometimes do not load variables into shell
+  load_modeules
+
+  if command -v vncserver > /dev/null; then
+
+    # Use better res, auto kill and start xfce scession properly
+    if [[ $disable_autokill == "true" ]]; then
+      AUTOKILL=""
+    else
+      AUTOKILL="-autokill"
+    fi
+
+    if [[ $enable_vgl == "true" ]]; then
+      TVNC_VGL=1
+    else
+      TVNC_VGL=0
+    fi
+
+    TVNC_VGL="${TVNC_VGL}" "${TURBOVNC_DIR}/bin/vncserver" \
+      "${AUTOKILL}" \
+      -geometry "${WM_RESOLUTION}" \
+      -fp "${HOME}/.local/share/fonts" \
+      -depth 32 \
+      -xstartup "${HOME}/.vnc/xstartup" &> /dev/null
+    exit_code="$?"
+    if [[ $exit_code -ne 0 ]]; then
+      echo "Error! something went wrong while running vnc server."
+      exit "${exit_code}"
+    else
+      echo "Successfully started VNC server."
+      echo "To see how to connect to it run the script with --info"
+    fi
+  else
+    echo "Error! Cannot find vncserver command! Allow the script to load modules!"
+    exit 1
+  fi
+}
+
+function load_modeules()
+{
+  if [[ $load_required_modeule == "false" ]]; then
+    echo "‣ Skipped loading Modules!!"
+  else
+    echo "‣ Loading Latest VNC modeule"
+    eval module load tools/turbovnc/latest &> /dev/null
+  fi
+}
+
+
+function display_info()
+{
+  node_name=$(hostname)
+  connection_count="$(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : | wc -l)"
+  if [[ connection_count -gt 0 ]];then
+    echo "There are ${connection_count} active sessions"
+
+    # for file in ${HOME}/.vnc/${node_name}\:*.pid; do
+    while read -p -r line; do
+      port=$((5900+line))
+      vnc_ports+=("$port")
+    done < <(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : )
+
+    echo ""
+    echo "‣ Linux commands"
+    echo "--------------------"
+    for p in "${vnc_ports[@]}"; do
+      echo "* ssh -fCNL ${p}:${node_name}:${p} ${USER}@login.nemo.uni-freiburg.de"
+    done
+    echo ""
+    echo "‣ Windows PuTTY"
+    echo "--------------------"
+    echo "Start another Putty session and navigate to Connection -> SSH -> Tunnels"
+    for p in "${vnc_ports[@]}"; do
+      echo "* Source Port: ${p} Destination: ${node_name}:${p}"
+    done
+
+    echo ""
+    echo "‣ VNC Viewer Address(s)"
+    echo "-------------------------"
+    for p in "${vnc_ports[@]}"; do
+      echo "* localhost:${p}"
+    done
+    echo ""
+    echo "‣ Tips"
+    echo "-----------"
+    echo "These addresses are only active after you complete Linux/Windows specific steps/commands above."
+    echo "To kill the sessions, "
+    echo "  * logout (if you did not disable autokill)"
+    echo "  * use vnc-kill command."
+  else
+    echo "It looks like there are no active vnc sessions on this node."
+  fi
+}
+
+function display_usage()
+{
+#Prints out help menu
+cat <<EOF
+
+Handy utility to run VNC server. This does a better job
+with multiple monitors, and custom resolutions.
+
+Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${NC}
+---------------------------------------------
+[-r --resolution]        [Geometry Params defaults to 1920x1080]
+[-i --info]              [Display connection info]
+[-a --disable-autokill]  [Disables passing -autokill to vnc module.
+                          This has a side effect of not killing the
+                          server, even when you click logout.
+                          Use with caution.]
+[-m --skip-load]       [Skip Loading modules]
+[-v --enable-vgl]      [Enables vgl. This uses vglrun +wm to launch
+                        xfce-session]
+[-h --help]            [Display this help message]
+
+Notes on resolution parameter
+----------------------------------
+Resolution can be of format
+
+a) W0xH0+X0+Y0[,W1xH1+X1+Y1,...,WnxHn+Xn+Yn]
+  Set multi-screen  geometry  of  the virtual X display.
+  Wi and Hi are the width and height of Screen i, and Xi and Yi.
+  specify the offset of Screen i relative to the origin.
+  The total width and height are determined by the bounding box of all screens.
+b) widthxheight
+  Set width and height of the virtual X display.
+
+Author : Prasad Tengse <prasad.tengse@venus.uni-freiburg.de>
+VCS    : https://github.com/imtek-emp/hpc-dotfiles.git
+EOF
+}
+
+function main()
+{
+
+  run_mode="run"
+
+
+  while [ "${1}" != "" ]; do
+    case ${1} in
+      -r | --resolution )       shift;WM_RESOLUTION="${1}";
+                                ;;
+      -g | --enable-vgl)        enable_vgl="true";
+                                ;;
+      -a | --disable-autokill)  disable_autokill="true";
+                                ;;
+      -h | --help )             display_usage;
+                                exit $?
+                                ;;
+      -v | --enable-vgl)        enable_vgl="true";
+                                ;;
+      -i | --info)              run_mode="info";
+                                ;;
+      -m | --skip-load)         load_required_modeule="false";
+                                ;;
+      * )                       print_error "Invalid argument(s). See usage below."
+                                usage;
+                                exit 1
+                                ;;
+    esac
+    shift
+  done
+  # Run
+  case "${run_mode}" in
+    run)        run_vnc;;
+    info)       display_info;exit $?;;
+    *)          echo "Internal Error! Invalid mode!";;
+  esac
+
+
+}
+
+main "$@"

@@ -901,7 +901,7 @@ function main()
                               log_info "Using mode: ${action_install_mode}";
                               ((++exclusive_conflicts));
                               ;;
-      -t | --tools)           action_install_mode="onlytoolsscripts";
+      -t | --tools)           action_install_mode="only-tools";
                               bool_install_bin="true";
                               log_info "Using mode: ${action_install_mode}";
                               ((++exclusive_conflicts));

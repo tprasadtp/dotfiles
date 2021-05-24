@@ -1,0 +1,35 @@
+#!/bin/bash
+connection_count="$(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : | wc -l)"
+
+if [[ $connection_count -gt 0 ]]; then
+  echo "‣ Killing ${connection_count} VNC server processes"
+
+  if command -v vncserver > /dev/null; then
+    while read -r line; do
+      read -r "Do you want to stop vncserver :${line} (y/N) " yesno
+      ans=$(echo "${yesno}" | '[:upper:]' '[:lower:]')
+      if [ "${ans}" = "y" ] 2>/dev/null; then
+          "${TURBOVNC_DIR}"/bin/vncserver -kill ":${line}"
+      fi
+    done < <(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : )
+  else
+    echo "Error! vncserver command is not available!"
+  fi
+else
+  echo "‣ No VNC servers were detected!"
+fi
+
+connection_pid_count="$(pgrep -a -u "$USER" [X]vnc | awk '{print $1}' | wc -l)"
+
+if [[ $connection_pid_count -gt 0 ]]; then
+  echo "‣ Killing ${connection_count} VNC server via PIDs"
+  while read -r line; do
+    read -r "‣ Kill via PID - ${line}: (y/N) " yesno
+    ans=$(echo "${yesno}" | tr '[:upper:]' '[:lower:]')
+    if [ "${ans}" = "y" ] 2>/dev/null; then
+      kill -9 "${line}"
+    fi
+  done < <(pgrep -a -u "$USER" [X]vnc | awk '{print $1}')
+else
+  echo "‣ No Orphaned servers were detected!"
+fi
