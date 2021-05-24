@@ -767,20 +767,10 @@ function install_hpc_wrapper()
     log_debug "Skipped config install"
   fi
 
-  if [[ $bool_skip_fish != "true" ]]; then
-    install_fish_configs_handler
-  else
-    log_debug "Skipped fish configs"
-  fi
-
-  if [[ $bool_install_bin == "true" ]]; then
-    log_warning "Installing scripts to ~/bin is enabled!"
-    log_warning "Make sure your PATH is properly setup!"
-    __link_files "bin" "bin"
-    __link_files "bin-hpc" "bin"
-  else
-    log_debug "Installing scripts is not enabled"
-  fi
+  log_warning "Installing scripts to ~/bin is enabled!"
+  log_warning "Make sure your PATH is properly setup!"
+  __link_files "bin" "bin"
+  __link_files "bin-hpc" "bin"
 
 }
 
