@@ -101,9 +101,8 @@
   "material-icon-theme.activeIconPack": "vue_vuex",
   //Themes
   "window.autoDetectColorScheme": true,
-  "workbench.colorTheme": "GitHub Dark Default",
-  "workbench.preferredDarkColorTheme": "Gruvbox Dark Hard",
-  "workbench.preferredLightColorTheme": "Gruvbox Light Hard",
+  "workbench.preferredDarkColorTheme": "GitHub Dark Default",
+  "workbench.preferredLightColorTheme": "GitHub Light Default",
   "material-icon-theme.folders.associations": {
     "generate.*.*": "generator",
     "generate": "generator",
@@ -126,7 +125,7 @@
   },
   //Remote
   "remote.SSH.enableAgentForwarding": false,
-  "dotfiles.repository": "https://github.com/tprasadtp/dotfiles",
+  "dotfiles.repository": "tprasadtp/dotfiles",
   "dotfiles.installCommand": "~/dotfiles/install.sh --codespaces",
   //Disable GitHub auth
   "github.gitAuthentication": false,
@@ -218,10 +217,10 @@
     "GitHub.codespaces",
     "GitHub.vscode-pull-request-github"
   ],
-  "window.zoomLevel": 0,
   "aws.samcli.location": "",
   "files.trimTrailingWhitespace": true,
   "markdown.preview.lineHeight": 1.5,
   "git.autofetch": true,
-  "docker.showStartPage": false
+  "docker.showStartPage": false,
+  "workbench.colorTheme": "GitHub Dark Default"
 }

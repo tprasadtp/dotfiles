@@ -1,0 +1,393 @@
+#!/usr/bin/env bash
+# Copyright (c) 2021. Prasad Tengse
+#
+# shellcheck disable=SC2155,SC2034
+
+set -o pipefail
+
+# Script Constants
+readonly CURDIR="$(cd -P -- "$(dirname -- "")" && pwd -P)"
+readonly SCRIPT="$(basename "$0")"
+# Default log level (debug logs are disabled)
+LOG_LVL=0
+
+# Handle Signals
+# trap ctrl-c and SIGTERM
+trap ctrl_c_signal_handler INT
+trap term_signal_handler SIGTERM
+
+function ctrl_c_signal_handler() {
+  log_error "User Interrupt! CTRL-C"
+  exit 4
+}
+function term_signal_handler() {
+  log_error "Signal Interrupt! SIGTERM"
+  exit 4
+}
+
+# Logging Handlers
+
+# Define colors for logging
+function define_colors()
+{
+  declare -gr YELLOW=$'\e[38;5;214m'
+  declare -gr GREEN=$'\e[38;5;83m'
+  declare -gr RED=$'\e[38;5;197m'
+  declare -gr NC=$'\e[0m'
+
+  # Enhanced colors
+  declare -gr PINK=$'\e[38;5;212m'
+  declare -gr BLUE=$'\e[38;5;81m'
+  declare -gr ORANGE=$'\e[38;5;208m'
+  declare -gr TEAL=$'\e[38;5;192m'
+  declare -gr VIOLET=$'\e[38;5;219m'
+  declare -gr GRAY=$'\e[38;5;250m'
+  declare -gr DARK_GRAY=$'\e[38;5;246m'
+
+  # Flag
+  declare -gr COLORIZED=1
+}
+
+function undefine_colors()
+{
+  # Disable all colors
+  declare -gr YELLOW=""
+  declare -gr GREEN=""
+  declare -gr RED=""
+  declare -gr NC=""
+
+  # Enhanced colors
+  declare -gr PINK=""
+  declare -gr BLUE=""
+  declare -gr ORANGE=""
+  declare -gr TEAL=""
+  declare -gr VIOLET=""
+  declare -gr GRAY=""
+  declare -gr DARK_GRAY=""
+
+  # Flag
+  declare -gr COLORIZED=1
+}
+
+# Check for Colored output
+if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
+  # In CI/CD Forces colors
+  define_colors
+elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]] ; then
+  # Enables colors if Terminal is interactive and NOCOLOR is not empty
+  define_colors
+else
+  # Disables colors
+  undefine_colors
+fi
+
+## Check if logs should be written to stderr
+## This is useful if script generates an output which can be piped or redirected
+if [[ -z ${LOG_TO_STDERR} ]]; then
+  LOG_TO_STDERR="false"
+fi
+
+# Log functions
+function log_info()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "• %s \n" "$@" 1>&2
+  else
+    printf "• %s \n" "$@"
+  fi
+}
+
+function log_success()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}"
+  fi
+}
+
+function log_warning()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}"
+  fi
+}
+
+function log_error()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${RED}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${RED}" "$@" "${NC}"
+  fi
+}
+
+function log_debug()
+{
+  if [[ LOG_LVL -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
+    else
+      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
+    fi
+  fi
+}
+
+function log_notice()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
+  fi
+}
+
+function log_variable()
+{
+  local var
+  var="$1"
+  if [[ ${LOG_LVL} -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
+    else
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}"
+    fi
+  fi
+}
+
+# Checks if command is available
+function has_command() {
+  if command -v "$1" >/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+  return 1
+}
+
+
+
+function run_vnc()
+{
+  # Because modules sometimes do not load variables into shell
+  load_modules
+
+  if [[ -d $HOME/.vnc ]]; then
+    log_debug ".vnc directory exists!"
+  else
+    log_info "Creating ~/.vnc"
+    if mkdir -p "$HOME/.vnc"; then
+      log_success "OK"
+    else
+      log_error "Failed to create logs and config folder ~/.vnc"
+      exit 1
+    fi
+  fi
+
+  if has_command vncserver; then
+
+    # Use better res, auto kill and start xfce scession properly
+    if [[ $disable_autokill == "true" ]]; then
+      AUTOKILL=""
+    else
+      AUTOKILL="-autokill"
+    fi
+
+    if [[ $enable_vgl == "true" ]]; then
+      TVNC_VGL=1
+    else
+      TVNC_VGL=0
+    fi
+    log_info "Starting new VNC sesion"
+    TVNC_VGL="${TVNC_VGL}" "${TURBOVNC_DIR}/bin/vncserver" \
+      "${AUTOKILL}" \
+      -geometry "${WM_RESOLUTION}" \
+      -fp "${HOME}/.local/share/fonts" \
+      -log "${HOME}/.vnc/vncserver.log" \
+      -wm "startxfce4" &> /dev/null
+    exit_code="$?"
+    if [[ $exit_code -ne 0 ]]; then
+      log_error "something went wrong while running vnc server."
+      exit "${exit_code}"
+    else
+      log_success "Successfully started VNC server."
+      log_success "To see how to connect to it run the script with --info"
+    fi
+  else
+    log_error "Cannot find vncserver command! Allow the script to load modules!"
+    exit 1
+  fi
+}
+
+function load_modules()
+{
+  if [[ $load_required_modeule == "false" ]]; then
+    log_warning "Skipped loading Modules!!"
+  else
+    log_info "Loading Latest VNC module"
+    # Cant avoid eval here
+    eval module load tools/turbovnc/latest &> /dev/null
+  fi
+}
+
+function vnc_kill()
+{
+  local displays
+
+  load_modules
+
+  displays="$(ps -ef | grep $USER | grep [X]vnc | awk '{print $9}' | tr -d :)"
+
+  if [ -n "$displays" ]; then
+    for d in $(echo "$displays"); do
+      log_debug "Stopping vnc server on display:$d"
+      read -p "Do you want to stop vncserver :${d} (y/N) " yesno
+      ans=$(echo "${yesno}" | tr "A-Z" "a-z")
+      if [ "${ans}" = "y" ] 2>/dev/null;then
+        ${TURBOVNC_DIR}/bin/vncserver -kill ":${d}"
+      fi
+    done
+  else
+    log_error "No running servers were detected!"
+  fi
+}
+
+
+function display_info()
+{
+  node_name=$(hostname)
+  connection_count="$(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : | wc -l)"
+  if [[ connection_count -gt 0 ]];then
+    log_success "There are ${connection_count} active sessions"
+
+    # for file in ${HOME}/.vnc/${node_name}\:*.pid; do
+    while read -p -r line; do
+      port=$((5900+line))
+      vnc_ports+=("$port")
+    done < <(pgrep -a -u "$USER" [X]vnc | awk '{print $3}' | tr -d : )
+
+    echo ""
+    echo "Linux"
+    echo "--------------------"
+    for p in "${vnc_ports[@]}"; do
+      echo "* ssh -fCNL ${p}:${node_name}:${p} ${USER}@login.nemo.uni-freiburg.de"
+    done
+    echo ""
+    echo "Windows PuTTY"
+    echo "--------------------"
+    echo "Start another Putty session and navigate to Connection -> SSH -> Tunnels"
+    for p in "${vnc_ports[@]}"; do
+      echo "* Source Port: ${p} Destination: ${node_name}:${p}"
+    done
+
+    echo ""
+    echo "VNC Viewer Address(s)"
+    echo "-------------------------"
+    for p in "${vnc_ports[@]}"; do
+      echo "* localhost:${p}"
+    done
+    echo ""
+    echo "Tips"
+    echo "-----------"
+    echo "These addresses are only active after you complete Linux/Windows specific steps/commands above."
+    echo "To kill the sessions, "
+    echo "  * logout (if you did not disable autokill)"
+    echo "  * use vnc-session --kill command."
+  else
+    log_error "There are no active VNC sessions on this node!"
+  fi
+}
+
+function display_usage()
+{
+#Prints out help menu
+cat <<EOF
+Handy utility to run VNC server.
+
+Usage: ${GREEN}${SCRIPT} ${BLUE}  [options]${NC}
+---------------------------------------------
+[-r --resolution]        Geometry Params (default=1920x1080)
+[-i --info]              Display connection info]
+[-k --kill]              Kill all running VNC sessions
+[-a --disable-autokill]  Disables passing -autokill to vnc module.
+                          This has a side effect of not killing the
+                          server, even when you click logout.
+                          Use with caution.
+[-m --skip-load]         Skip Loading modules
+[-v --enable-vgl]        Enables vgl.
+[-h --help]              Display this help message]
+
+Notes on resolution parameter
+----------------------------------
+Resolution MUST be of format
+
+a) W0xH0+X0+Y0[,W1xH1+X1+Y1,...,WnxHn+Xn+Yn]
+  Set multi-screen  geometry  of  the virtual X display.
+  Wi and Hi are the width and height of Screen i, and Xi and Yi.
+  specify the offset of Screen i relative to the origin.
+  The total width and height are determined by the bounding box of all screens.
+b) widthxheight
+  Set width and height of the virtual X display.
+
+Author : Prasad Tengse <prasad.tengse@venus.uni-freiburg.de>
+VCS    : https://github.com/imtek-emp/hpc-dotfiles.git
+EOF
+}
+
+function main()
+{
+
+  run_mode="run"
+  WM_RESOLUTION="1920x1080"
+
+
+  while [ "${1}" != "" ]; do
+    case ${1} in
+      -r | --resolution )       shift;WM_RESOLUTION="${1}";
+                                ;;
+      -g | --enable-vgl)        enable_vgl="true";
+                                ;;
+      -a | --disable-autokill)  disable_autokill="true";
+                                ;;
+      -h | --help )             display_usage;
+                                exit $?
+                                ;;
+      -i | --info)              run_mode="info";
+                                ;;
+      -k | --kill)              run_mode="kill";
+                                ;;
+      -m | --skip-load)         load_required_modeule="false";
+                                ;;
+
+      # Debugging options
+      --stderr)               LOG_TO_STDERR="true";;
+      -d | --debug)           LOG_LVL="1";
+                              log_info "Enable verbose logging";;
+      -h | --help )           display_usage;exit 0;;
+      * )                     log_error "Invalid argument(s). See usage below.";
+                              usage; exit 1;;
+    esac
+    shift
+  done
+
+  if [[ -z $WM_RESOLUTION ]]; then
+    log_error "WM_RESOLUTION is undefined!"
+    exit 1
+  else
+    log_debug "Setting geometry params to $WM_RESOLUTION"
+  fi
+
+  # Run
+  case "${run_mode}" in
+    run)        run_vnc;;
+    kill)       vnc_kill;;
+    info)       display_info;exit $?;;
+    *)          log_error "Internal Error! Invalid mode!";exit 1;;
+  esac
+
+
+}
+
+main "$@"
