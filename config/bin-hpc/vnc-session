@@ -237,16 +237,19 @@ function vnc_kill()
   local displays
 
   load_modules
-
-  displays="$(ps -ef | grep $USER | grep [X]vnc | awk '{print $9}' | tr -d :)"
+  #shellcheck disable=SC2009
+  displays="$(ps -ef | grep "$USER" | grep '[X]vnc' | awk '{print $9}' | tr -d :)"
 
   if [ -n "$displays" ]; then
+    #shellcheck disable=SC2116
     for d in $(echo "$displays"); do
       log_debug "Stopping vnc server on display:$d"
-      read -p "Do you want to stop vncserver :${d} (y/N) " yesno
+      read -rp "Do you want to stop vncserver :${d} (y/N) " yesno
+      #Needed because bash on nemo is too old
+      #shellcheck disable=SC2019,SC2018
       ans=$(echo "${yesno}" | tr "A-Z" "a-z")
-      if [ "${ans}" = "y" ] 2>/dev/null;then
-        ${TURBOVNC_DIR}/bin/vncserver -kill ":${d}"
+      if [[ ${ans} == "y" ]];then
+        "${TURBOVNC_DIR}"/bin/vncserver -kill ":${d}"
       fi
     done
   else
@@ -351,23 +354,19 @@ function main()
                                 ;;
       -a | --disable-autokill)  disable_autokill="true";
                                 ;;
-      -h | --help )             display_usage;
-                                exit $?
-                                ;;
       -i | --info)              run_mode="info";
                                 ;;
       -k | --kill)              run_mode="kill";
                                 ;;
       -m | --skip-load)         load_required_modeule="false";
                                 ;;
-
       # Debugging options
-      --stderr)               LOG_TO_STDERR="true";;
-      -d | --debug)           LOG_LVL="1";
-                              log_info "Enable verbose logging";;
-      -h | --help )           display_usage;exit 0;;
-      * )                     log_error "Invalid argument(s). See usage below.";
-                              usage; exit 1;;
+      --stderr)                 LOG_TO_STDERR="true";;
+      -v | --verbose)           LOG_LVL="1";
+                                log_info "Enable verbose logging";;
+      -h | --help )             display_usage;exit 0;;
+      * )                       log_error "Invalid argument(s). See usage below.";
+                                usage; exit 1;;
     esac
     shift
   done
