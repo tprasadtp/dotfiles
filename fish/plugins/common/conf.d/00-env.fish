@@ -1,5 +1,6 @@
 #!/usr/bin/env fish
-
+# Disable greeting
+set fish_greeting
 
 # Add GPG Agent config
 # This is skipped in codespaces
@@ -60,11 +61,6 @@ end
 # Docker
 if type -q docker
   set --export --global DOCKER_CLI_EXPERIMENTAL enabled
-end
-
-# Android Platform Tools
-if test -d $HOME/Android/Sdk/platform-tools
-  contains -- $HOME/Android/Sdk/platform-tools $PATH; or set --append PATH $HOME/Android/Sdk/platform-tools
 end
 
 set --erase fish_user_paths

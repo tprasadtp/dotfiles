@@ -26,7 +26,7 @@ fi
 
 # Fish {This is only applied if fish is installed here}
 if [[ -d ${HOME}/opt/fish/bin ]]; then
-  # Add to PATH. This WILL OVerride fish on system!
+  # Add to PATH. This WILL Override fish on system!
   export PATH="${HOME}/opt/fish/bin:$PATH"
 fi
 
