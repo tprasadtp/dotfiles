@@ -10,7 +10,6 @@ alias dl='cd ~/Private/Downloads'
 alias pg='ping google.com'
 alias pdns='ping 1.1.1.3'
 alias greph='history | grep'
-alias t='tree -ahC -I .git'
 alias disks='df -H -t ext4 -t btrfs -t vfat -t ntfs -t ecryptfs -T'
 
 #restart services
