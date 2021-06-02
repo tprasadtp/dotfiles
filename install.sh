@@ -963,6 +963,8 @@ function install_hpc_wrapper()
   log_notice "Installing HPC configs"
   log_warning "HPC configs are optimized for NEMO"
   install_bash_handler
+  install_tools_handler
+  install_fonts_handler
   install_fish_configs_handler
   if [[ $bool_skip_config != "true" ]]; then
     __install_config_files_handler
