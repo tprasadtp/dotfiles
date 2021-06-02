@@ -10,21 +10,235 @@
 # But most of them require Perl or python. Though
 # most systems have those installed by default, I wanted something
 # which was dependent only on bash
+#!/usr/bin/env bash
+# Copyright (c) 2021. Prasad Tengse
+#
+# shellcheck disable=SC2155,SC2034
+
 set -o pipefail
 
-#Constants
+# Script Constants
+readonly CURDIR="$(cd -P -- "$(dirname -- "")" && pwd -P)"
 readonly SCRIPT="$(basename "$0")"
-readonly YELLOW=$'\e[38;5;221m'
-readonly GREEN=$'\e[38;5;42m'
-readonly RED=$'\e[38;5;197m'
-readonly PINK=$'\e[38;5;212m'
-readonly BLUE=$'\e[38;5;159m'
-readonly ORANGE=$'\e[38;5;208m'
-readonly TEAL=$'\e[38;5;192m'
-readonly VIOLET=$'\e[38;5;219m'
-readonly GRAY=$'\e[38;5;246m'
-readonly NC=$'\e[0m'
-readonly CURDIR="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+# Default log level (debug logs are disabled)
+LOG_LVL=0
+
+# Handle Signals
+# trap ctrl-c and SIGTERM
+trap ctrl_c_signal_handler INT
+trap term_signal_handler SIGTERM
+
+function ctrl_c_signal_handler() {
+  log_error "User Interrupt! CTRL-C"
+  exit 4
+}
+function term_signal_handler() {
+  log_error "Signal Interrupt! SIGTERM"
+  exit 4
+}
+
+# Logging Handlers
+
+# Define colors for logging
+function define_colors()
+{
+  declare -gr YELLOW=$'\e[38;5;214m'
+  declare -gr GREEN=$'\e[38;5;83m'
+  declare -gr RED=$'\e[38;5;197m'
+  declare -gr NC=$'\e[0m'
+
+  # Enhanced colors
+  declare -gr PINK=$'\e[38;5;212m'
+  declare -gr BLUE=$'\e[38;5;81m'
+  declare -gr ORANGE=$'\e[38;5;208m'
+  declare -gr TEAL=$'\e[38;5;192m'
+  declare -gr VIOLET=$'\e[38;5;219m'
+  declare -gr GRAY=$'\e[38;5;250m'
+  declare -gr DARK_GRAY=$'\e[38;5;246m'
+
+  # Flag
+  declare -gr COLORIZED=1
+}
+
+function undefine_colors()
+{
+  # Disable all colors
+  declare -gr YELLOW=""
+  declare -gr GREEN=""
+  declare -gr RED=""
+  declare -gr NC=""
+
+  # Enhanced colors
+  declare -gr PINK=""
+  declare -gr BLUE=""
+  declare -gr ORANGE=""
+  declare -gr TEAL=""
+  declare -gr VIOLET=""
+  declare -gr GRAY=""
+  declare -gr DARK_GRAY=""
+
+  # Flag
+  declare -gr COLORIZED=1
+}
+
+# Check for Colored output
+if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
+  # In CI/CD Forces colors
+  define_colors
+elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]] ; then
+  # Enables colors if Terminal is interactive and NOCOLOR is not empty
+  define_colors
+else
+  # Disables colors
+  undefine_colors
+fi
+
+## Check if logs should be written to stderr
+## This is useful if script generates an output which can be piped or redirected
+if [[ -z ${LOG_TO_STDERR} ]]; then
+  LOG_TO_STDERR="false"
+fi
+
+# Log functions
+function log_info()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "• %s \n" "$@" 1>&2
+  else
+    printf "• %s \n" "$@"
+  fi
+}
+
+function log_success()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}"
+  fi
+}
+
+function log_warning()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}"
+  fi
+}
+
+function log_error()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${RED}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${RED}" "$@" "${NC}"
+  fi
+}
+
+function log_debug()
+{
+  if [[ LOG_LVL -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
+    else
+      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
+    fi
+  fi
+}
+
+function log_notice()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
+  else
+    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
+  fi
+}
+
+function log_variable()
+{
+  local var
+  var="$1"
+  if [[ ${LOG_LVL} -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
+    else
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}"
+    fi
+  fi
+}
+
+# Log Step functions
+function log_step_info()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "  - %s \n" "$@" 1>&2
+  else
+    printf "  - %s \n" "$@"
+  fi
+}
+
+function log_step_success()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s  - %s %s\n" "${GREEN}" "$@" "${NC}" 1>&2
+  else
+    printf "%s  - %s %s\n" "${GREEN}" "$@" "${NC}"
+  fi
+}
+
+function log_step_warning()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s  - %s %s\n" "${YELLOW}" "$@" "${NC}" 1>&2
+  else
+    printf "%s  - %s %s\n" "${YELLOW}" "$@" "${NC}"
+  fi
+}
+
+function log_step_error()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s  - %s %s\n" "${RED}" "$@" "${NC}" 1>&2
+  else
+    printf "%s  - %s %s\n" "${RED}" "$@" "${NC}"
+  fi
+}
+
+function log_step_debug()
+{
+  if [[ LOG_LVL -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s  - %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
+    else
+      printf "%s  - %s %s\n" "${GRAY}" "$@" "${NC}"
+    fi
+  fi
+}
+
+function log_step_notice()
+{
+  if [[ $LOG_TO_STDERR == "true" ]]; then
+    printf "%s  - %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
+  else
+    printf "%s  - %s %s\n" "${TEAL}" "$@" "${NC}"
+  fi
+}
+
+function log_step_variable()
+{
+  local var
+  var="$1"
+  if [[ ${LOG_LVL} -gt 0  ]]; then
+    if [[ $LOG_TO_STDERR == "true" ]]; then
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
+    else
+      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}"
+    fi
+  fi
+}
+
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
   [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
  [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
@@ -130,65 +344,6 @@ ${ORANGE}
 EOF
 }
 
-function log_info()
-{
-  printf "➜ %s \n" "$@"
-}
-
-function log_success()
-{
-  printf "%s✔ %s %s\n" "${GREEN}" "$@" "${NC}"
-}
-
-function log_warning()
-{
-  printf "%s⚠ %s %s\n" "${YELLOW}" "$@" "${NC}"
-}
-
-function log_error()
-{
-   printf "%s✖ %s %s\n" "${RED}" "$@" "${NC}"
-}
-
-
-function log_debug()
-{
-  if [[ $LOG_LVL -gt 0  ]]; then
-    printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
-  fi
-}
-
-function log_notice()
-{
-  printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
-}
-
-function log_step_notice()
-{
-  printf "%s  • %s %s\n" "${TEAL}" "$@" "${NC}"
-}
-
-function log_step_error()
-{
-  printf "%s  ✖ %s %s\n" "${RED}" "$@" "${NC}"
-}
-
-function log_step_success()
-{
-  printf "%s  ✔ %s %s\n" "${GREEN}" "$@" "${NC}"
-}
-
-function log_step_debug()
-{
-  if [[ $LOG_LVL -gt 0  ]]; then
-    printf "%s  • %s %s\n" "${GRAY}" "$@" "${NC}"
-  fi
-}
-
-function log_step_info()
-{
-  printf "%s  - %s %s\n" "${VIOLET}" "$@" "${NC}"
-}
 
 function __link_files()
 {
@@ -300,6 +455,52 @@ function __install_config_files()
   fi
 }
 
+# sha256_verify validates a binary against a checksum.txt file
+function sha256_verify() {
+  local target target_basename checksum_file want got targetHashOutput
+  target="$1"
+  checksum_file="$2"
+
+
+  if [[ $# -ne 2 ]]; then
+    log_step_error "Internal error! Invalid number of arguments($#)"
+    return 1
+  fi
+
+  if [[ -z $checksum_file ]]; then
+    log_step_error "Checksum file not specified!"
+    return 1
+  fi
+
+  if ! [[ -r $target  ]]; then
+    log_step_error "Target file is not readable!($target)"
+    return 1
+  fi
+
+  target_basename=${target##*/}
+
+  want="$(grep "${target_basename}" "${checksum_file}" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)"
+
+  if [[ -z $want ]]; then
+    log_step_error "Unable to find checksum for '${target}' in '${checksum_file}'"
+    return 1
+  fi
+
+  # Compute hash
+  targetHashOutput=$(sha256sum "$target") || return 1
+  got="$(echo "$targetHashOutput" | cut -d ' ' -f 1)"
+
+  if [[ "$want" != "$got" ]]; then
+    log_step_error "Checksum verification for '$target'  not match! want=${want} got=$got"
+    return 1
+  else
+    return 0
+  fi
+
+  return 255
+}
+
+
 function __install_tools_subtask_prepare_dirs()
 {
   log_debug "Ensuring dirs are present for tools install"
@@ -323,7 +524,7 @@ function __install_tools_subtask_starship()
     if tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"; then
       log_step_success "OK"
     else
-      log_step_error "errored!"
+      log_step_error "extracton error!"
     fi
 
     log_step_info "permissions"
@@ -373,7 +574,7 @@ function __install_tools_subtask_fzf()
   log_step_info "download (checksum)"
   curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" \
     --output "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"
-  if (cd vendor/cache && sha256sum -c --status --ignore-missing "fzf_${FZF_VERSION}_checksums.txt"); then
+  if sha256_verify "vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"; then
     log_step_success "checksums verified"
     log_step_info "extract"
     if tar --extract --gzip \
@@ -427,7 +628,7 @@ function __install_tools_subtask_gitchglog()
   log_step_info "download (checksum)"
   curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/checksums.txt" \
     --output "vendor/cache/git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"
-  if (cd vendor/cache && sha256sum -c --status --ignore-missing "git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"); then
+  if sha256_verify "vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" "vendor/cache/git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"; then
     log_step_success "checksums verified"
     log_step_info "extract"
     tar --extract --gzip \
@@ -759,13 +960,10 @@ function install_cloudshell_wrapper()
 
 function install_hpc_wrapper()
 {
-  log_notice "Installing minimal configs"
-  # Disable because centos 7 sha256sum has no --ignore mising
-  # plus fish version is too old.
-  bool_tools_skip_fzf="true"
-  bool_tools_skip_gitchglog="true"
-
+  log_notice "Installing HPC configs"
+  log_warning "HPC configs are optimized for NEMO"
   install_bash_handler
+  install_fish_configs_handler
   if [[ $bool_skip_config != "true" ]]; then
     __install_config_files_handler
   else
@@ -944,13 +1142,16 @@ function main()
     log_error "Exclusive flag conflict!"
     log_error "More than one exclusive flag is used!"
     exit 1
+  elif [[ $exclusive_conflicts -eq 0 ]]; then
+    log_error "Install mode not specified!"
+    exit 1
   else
-    log_debug "No command conflicts"
+    log_debug "No conflicts!"
   fi
 
   # hpc MUST use profile cloudshell
   if [[ $action_install_mode == "hpc" ]] && [[ $DOT_PROFILE_ID != "hpc" ]]; then
-    log_error "--hpc option MUST use profile hcp!!"
+    log_error "--hpc option MUST use profile hpc!!"
     exit 20
   fi
 

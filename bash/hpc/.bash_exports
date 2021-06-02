@@ -24,6 +24,12 @@ if [[ -d ${HOME}/Tools/go ]]; then
   export PATH="$PATH:$GOROOT/bin"
 fi
 
+# Fish {This is only applied if fish is installed here}
+if [[ -d ${HOME}/opt/fish/bin ]]; then
+  # Add to PATH. This WILL OVerride fish on system!
+  export PATH="${HOME}/opt/fish/bin:$PATH"
+fi
+
 # Go Settings {This is skipped if go is not installed}
 if command -v go > /dev/null; then
   # sets GOPATH

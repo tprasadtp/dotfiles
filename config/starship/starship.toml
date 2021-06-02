@@ -126,7 +126,8 @@ tag_symbol = "狀 "
 # Commit Hash
 only_detached = true
 style = "#ffb04c"
-# format = "[ $hash ]($style)"
+#format = "[ $hash ]($style)"
+format = "[ $hash ($tag) ]($style)"
 commit_hash_length = 7
 
 [git_status]
@@ -213,8 +214,8 @@ format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\))]($style) '
 style = "#FFD43B"
 
 [package]
-# symbol = " "
-symbol = " "
+symbol = " "
+#symbol = " "
 style = "#ff833a"
 disabled = true
 
@@ -309,7 +310,6 @@ disabled = true
 disabled = true
 
 [openstack]
-# symbol = "  "
 symbol = " "
 disabled = true
 
@@ -334,14 +334,16 @@ style = "#DEA584"
 disabled = true
 
 [singularity]
-disabled = true
+symbol = " "
+style = "#ED1944"
+disabled = false
 
 [swift]
 symbol = "ﯣ "
 disabled = true
 
 [status]
-disabled = true
+disabled = false
 
 [vagrant]
 disabled = true
