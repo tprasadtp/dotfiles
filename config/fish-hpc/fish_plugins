@@ -1,8 +1,10 @@
 jorgebucaran/fisher@247b58e0d97c785ef960b88cd07c734d4e92225c
 PatrickF1/fzf.fish@3285c08403d56d5370788ff419549ff3f1c8e66d
-~/Git/dotfiles/fish/plugins/bat
 ~/Git/dotfiles/fish/plugins/nemo
+~/Git/dotfiles/fish/plugins/bat
 ~/Git/dotfiles/fish/plugins/common
 ~/Git/dotfiles/fish/plugins/direnv
 ~/Git/dotfiles/fish/plugins/exa
+~/Git/dotfiles/fish/plugins/license
+~/Git/dotfiles/fish/plugins/python
 ~/Git/dotfiles/fish/plugins/starship
