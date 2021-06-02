@@ -6,7 +6,6 @@ PatrickF1/fzf.fish@3285c08403d56d5370788ff419549ff3f1c8e66d
 ~/Git/dotfiles/fish/plugins/docker
 ~/Git/dotfiles/fish/plugins/k8s
 ~/Git/dotfiles/fish/plugins/license
-~/Git/dotfiles/fish/plugins/sindhu
 ~/Git/dotfiles/fish/plugins/direnv
 ~/Git/dotfiles/fish/plugins/exa
 ~/Git/dotfiles/fish/plugins/starship
