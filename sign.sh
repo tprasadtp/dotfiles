@@ -280,7 +280,7 @@ function verify_gpg_signature()
   # Checks for commands
   if has_command gpg ; then
     if gpg --verify "${checksum_sig_file}" "${CURDIR}/SHA512SUMS" 2>/dev/null; then
-      log_success "Hooray! digintal signature verified"
+      log_success "Hooray! digital signature verified"
     else
       log_error "Oh No! Signature checks failed!"
       exit 50;
