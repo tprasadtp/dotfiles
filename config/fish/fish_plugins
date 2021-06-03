@@ -11,3 +11,5 @@ PatrickF1/fzf.fish@3285c08403d56d5370788ff419549ff3f1c8e66d
 ~/Git/dotfiles/fish/plugins/license
 ~/Git/dotfiles/fish/plugins/python
 ~/Git/dotfiles/fish/plugins/starship
+~/Git/dotfiles/fish/plugins/rust
+~/Git/dotfiles/fish/plugins/themes

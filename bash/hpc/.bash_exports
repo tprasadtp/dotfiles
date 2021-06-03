@@ -38,7 +38,15 @@ if command -v go > /dev/null; then
   export GOVCS="private:git,public:off"
 fi
 
-# If installed, Add Poetry to PATH
-if [[ -d ${HOME}/.poetry/bin ]]; then
-  export PATH="${PATH}:${HOME}/.poetry/bin"
+# Python
+export POETRY_HOME="${HOME}/Tools/poetry"
+if [[ -d ${HOME}/Tools/poetry/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/poetry/bin"
+fi
+
+# Rust
+export CARGO_HOME="${HOME}/Tools/Rust/cargo"
+export RUSTUP_HOME="${HOME}/Tools/Rust/rustup"
+if [[ -d ${HOME}/Tools/Rust/cargo/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/Rust/cargo/bin"
 fi

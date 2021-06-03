@@ -32,12 +32,22 @@ if command -v go > /dev/null; then
   export GOVCS="private:git,public:off"
 fi
 
+# Python
+export POETRY_HOME="${HOME}/Tools/poetry"
 # If installed, Add Poetry to PATH
-if [[ -d ${HOME}/.poetry/bin ]]; then
-  export PATH="${PATH}:${HOME}/.poetry/bin"
+if [[ -d ${HOME}/Tools/poetry/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/poetry/bin"
+fi
+
+# Rust
+export CARGO_HOME="${HOME}/Tools/Rust/cargo"
+export RUSTUP_HOME="${HOME}/Tools/Rust/rustup"
+# If installed, add rustup proxies to PATH
+if [[ -d ${HOME}/Tools/Rust/cargo/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/Rust/cargo/bin"
 fi
 
 #If installed Add adb Tools to PATH
-if [[ -d ${HOME}/Android/Sdk/platform-tools ]]; then
+if [[ -d ${HOME}/Tools/Android/Sdk/platform-tools ]]; then
   export PATH="${PATH}:${HOME}/Tools/Android/Sdk/platform-tools"
 fi
