@@ -143,6 +143,11 @@ fi
 # Snippetizer:Starship:Init:Start
 if command -v starship > /dev/null; then
   eval "$(starship init bash)"
+  if [[ $(hostname --fqdn) == *"nemo"* ]] && [[ -z $SSH_CONNECTION ]]; then
+    # We are on NEMO but in a interactive job,
+    # appease starship by setting empty SSH_CONNECTION variable
+    export SSH_CONNECTION=""
+  fi
 fi
 # Snippetizer:Starship:Init:End
 
