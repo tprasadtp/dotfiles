@@ -190,6 +190,18 @@ function show_jobstatus()
   checkjob "${args[@]}" "${JOBCTL_ID}"
 }
 
+function get_node_name()
+{
+  local res nodelistxml
+  nodelistxml=$(/opt/moab/bin/showres --xml -n)
+  res="$?"
+  if [[ $res -ne 0 ]]; then
+    exit 1
+  else
+    echo "$nodelistxml" | xmllint --xpath 'string(/Data/node/@name)' -
+  fi
+}
+
 
 function display_usage()
 {
@@ -225,6 +237,7 @@ function main()
   while [[ ${1} != "" ]]; do
     case ${1} in
         status)                 JOBCTL_TASK="status";;
+        get-node-name)          JOBCTL_TASK="node-name";;
         --id)                   shift;JOBCTL_ID="${1}";;
         -c | --no-cache)        JOBCTL_NOCACHE="true";;
         # Debugging options
@@ -246,6 +259,7 @@ function main()
 
   case ${JOBCTL_TASK} in
     status)   show_jobstatus;;
+    node-name) get_node_name;;
     *)        log_error "Internal error! Unknown JOBCTL_TASK!"; exit 1;;
   esac
 }

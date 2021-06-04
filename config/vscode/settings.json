@@ -1,7 +1,5 @@
 {
   "breadcrumbs.enabled": true,
-  //CMake, ROS Helper stuff
-  "cmake.configureOnOpen": false,
   "cSpell.userWords": [
     "Prasad",
     "Tengse",
@@ -216,7 +214,6 @@
     "GitHub.codespaces",
     "GitHub.vscode-pull-request-github"
   ],
-  "aws.samcli.location": "",
   "files.trimTrailingWhitespace": true,
   "markdown.preview.lineHeight": 1.5,
   "git.autofetch": true,
@@ -230,5 +227,12 @@
       ]
     }
   },
-  "terminal.integrated.defaultProfile.linux": "fish"
+  "terminal.integrated.defaultProfile.linux": "fish",
+  "remote.SSH.enableX11Forwarding": false,
+  "remote.SSH.remoteServerListenOnSocket": true,
+  "remote.SSH.suppressWindowsSshWarning": true,
+  "remote.SSH.remotePlatform": {
+    "nemo": "linux",
+    "n3471.nemo.privat": "linux"
+  }
 }
