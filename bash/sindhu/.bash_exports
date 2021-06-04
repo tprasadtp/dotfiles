@@ -47,7 +47,7 @@ if [[ -d ${HOME}/Tools/Rust/cargo/bin ]]; then
   export PATH="${PATH}:${HOME}/Tools/Rust/cargo/bin"
 fi
 
-#If installed Add adb Tools to PATH
+# If installed, Add adb Tools to PATH
 if [[ -d ${HOME}/Tools/Android/Sdk/platform-tools ]]; then
   export PATH="${PATH}:${HOME}/Tools/Android/Sdk/platform-tools"
 fi

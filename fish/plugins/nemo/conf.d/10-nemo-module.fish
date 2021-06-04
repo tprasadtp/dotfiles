@@ -1,6 +1,5 @@
 # -*- fish-shell-script -*-
 if contains true $NEMO_FISH_SHELL_SUPPORTED
-
     set -gx LMOD_ROOT /usr/share/lmod
     set -gx LMOD_PKG  /usr/share/lmod/lmod
     set -gx LMOD_DIR  /usr/share/lmod/lmod/libexec
@@ -57,7 +56,8 @@ if contains true $NEMO_FISH_SHELL_SUPPORTED
         --append MODULEPATH \
         /opt/bwhpc/modulefiles/applications/info \
         /opt/bwhpc/modulefiles/applications/fr \
-        /opt/bwhpc/modulefiles/applications/common/opt/bwhpc/modulefiles/libraries/info\
+        /opt/bwhpc/modulefiles/applications/common\
+        /opt/bwhpc/modulefiles/libraries/info \
         /opt/bwhpc/modulefiles/libraries/fr \
         /opt/bwhpc/modulefiles/libraries/common \
         /opt/bwhpc/modulefiles/development/info \
@@ -65,10 +65,7 @@ if contains true $NEMO_FISH_SHELL_SUPPORTED
         /opt/bwhpc/modulefiles/development/common \
         /opt/bwhpc/modulefiles/obsolete/info \
         /opt/bwhpc/modulefiles/obsolete/fr \
-        /opt/bwhpc/modulefiles/obsolete/common \
-        /usr/share/modulefiles/Linux \
-        /usr/share/modulefiles/Core \
-        /usr/share/lmod/lmod/modulefiles/Core)
+        /opt/bwhpc/modulefiles/obsolete/common )
 
     # Module Alias
     alias ml='module'

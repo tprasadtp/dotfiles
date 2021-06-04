@@ -1,7 +1,5 @@
-# Nemo Aliases
+# ws-* Aliases. These map to corresponding ws_functions
 if contains true $NEMO_FISH_SHELL_SUPPORTED
-    # Workspace shortcuts because underscores
-    # are horrible for terminal use
     alias ws-ls='ws_list'
     alias ws-find='ws_find'
     alias ws-alloc='ws_allocate'

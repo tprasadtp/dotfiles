@@ -1,5 +1,6 @@
 # P0.Dependent: ALL
-# Self override path of fish
+# Override path of fish
+# Fish on NEMO is "ancient"
 
 if test -d $FISH_INSTALL_LOCATION
   # DO NOT USE fish_add_path here!

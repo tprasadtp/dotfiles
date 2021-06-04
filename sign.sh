@@ -32,9 +32,6 @@ function display_usage()
 cat <<EOF
 Bash script to to checksum and sign files.
 
-Note:
-Fonts and git directory are excluded.
-
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${VIOLET}
 ------------------------- Options ------------------------------${NC}
@@ -263,7 +260,6 @@ function verify_gpg_signature()
   # Assumes that you already have public key in your keyring.
   # Assumes signature file is present at same localtion,
   # with same name but with .sig or .gpg or .asc extension.
-  # Lets declare variables
   local checksum_sig_file
   # Checks if file is present
   if [ -f "${CURDIR}/SHA512SUMS.asc" ]; then
