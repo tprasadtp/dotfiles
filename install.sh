@@ -691,7 +691,7 @@ function install_fonts_handler()
   if [[ $bool_skip_fonts == "true" ]]; then
     log_notice "Skipped installing templates"
   else
-    log_notice "Installing fonts"
+    log_info "Installing fonts"
     if mkdir -p "$INSTALL_PREFIX"/.local/share; then
       if ln -snf "$CURDIR"/fonts "$INSTALL_PREFIX"/.local/share/fonts; then
         log_success "Done"
@@ -756,7 +756,7 @@ function __download_and_install_fisher()
       fi
 
     else
-      log_step_notice "skipped initializing fisher plugins in test/debug mode"
+      log_step_warning "skipped initializing fisher plugins in test/debug mode"
     fi # debug skipper
 
   else
@@ -775,45 +775,18 @@ function install_fish_configs_handler()
     log_notice "Skipped installing fish configurations"
   else
 
-    log_notice "Install fish configs"
-
-    # Handle fisher upgrade to 4.x
-    if [[ -e "${INSTALL_PREFIX}/.config/fish/fishfile" ]]; then
-      log_step_notice "upgrade to fish_plugins"
-      if rm "${INSTALL_PREFIX}/.config/fish/fishfile"; then
-        log_step_success "removed fishfile file"
-      else
-        log_step_error "failed to delete .config/fish/fishfile"
-      fi
-    else
-      log_step_debug "no need to perform fisher 3.x to 4.x upgrade fixes"
-    fi
+    log_info "Install fish configs"
 
     # Install configs and plugin settings
     __install_config_files "fish" ".config/fish/"
 
     # Fisher
-    log_step_debug "check if its necessary to install fisher"
-
     if [[ -f ${fisher_plugin_file} ]]; then
       # fisher file exists no need to reinstall again.
       # updating is done using fisher itself!
       # update the fish_plugins to correct version of fisher and
       # run fisher update
-      log_step_notice "fisher is already installed"
-    elif [[ -L ${fisher_plugin_file} ]]; then
-      # fisher is a symlink.
-      # we used to vendor fisher but it is no longer necessary.
-      # remove old symlink and install fisher
-      log_step_info "remove old symlink to fisher"
-      if rm "$fisher_plugin_file"; then
-        log_step_success "done"
-      else
-        log_step_error "Failed to remove symlink"
-      fi
-      # install fisher
-      __download_and_install_fisher
-
+      log_step_success "fisher is already installed"
     else
       # there is neither symlink nor fisher.fish file
       # we will have to install fisher manually.
