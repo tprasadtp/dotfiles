@@ -150,9 +150,9 @@ function log_debug()
 function log_notice()
 {
   if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
+    printf "%s• %s %s\n" "${BLUE}" "$@" "${NC}" 1>&2
   else
-    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
+    printf "%s• %s %s\n" "${BLUE}" "$@" "${NC}"
   fi
 }
 
@@ -220,9 +220,9 @@ function log_step_debug()
 function log_step_notice()
 {
   if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s  - %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
+    printf "%s  - %s %s\n" "${BLUE}" "$@" "${NC}" 1>&2
   else
-    printf "%s  - %s %s\n" "${TEAL}" "$@" "${NC}"
+    printf "%s  - %s %s\n" "${BLUE}" "$@" "${NC}"
   fi
 }
 
@@ -551,14 +551,14 @@ function __install_tools_subtask_bat()
   log_step_info "download"
   curl -sSfL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  log_step_info "extract"
+  log_step_info "install"
   if tar --extract --strip=1 --gzip \
     --file="vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --directory="${INSTALL_PREFIX}/bin" \
     --wildcards "*bat"; then
     log_step_success "OK"
   else
-    log_step_error "errored!"
+    log_step_error "error!"
   fi
 
   log_step_info "permissions"
@@ -575,8 +575,8 @@ function __install_tools_subtask_fzf()
   curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" \
     --output "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"
   if sha256_verify "vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"; then
-    log_step_success "checksums verified"
-    log_step_info "extract"
+    log_step_success "verified"
+    log_step_info "install"
     if tar --extract --gzip \
       --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
       --directory="${INSTALL_PREFIX}/bin" \
@@ -599,10 +599,10 @@ function __install_tools_subtask_fzf()
 function __install_tools_subtask_fd()
 {
   log_info "Download and Install sharkdp/fd"
-  log_step_info "download binary"
+  log_step_info "download"
   curl -sSfL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  log_step_info "extract and install"
+  log_step_info "install"
   if tar --extract --gzip \
       --file vendor/cache/fd-v"${FD_VERSION}"-x86_64-unknown-linux-musl.tar.gz \
       --directory "${INSTALL_PREFIX}"/bin/ \
@@ -622,7 +622,7 @@ function __install_tools_subtask_fd()
 function __install_tools_subtask_gitchglog()
 {
   log_info "Download and Install git-chglog/git-chglog"
-  log_step_info "download binary"
+  log_step_info "download (binary)"
   curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" \
     --output "vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz"
   log_step_info "download (checksum)"
@@ -972,7 +972,6 @@ function install_hpc_wrapper()
     log_debug "Skipped config install"
   fi
 
-  log_warning "Make sure your PATH is properly setup!"
   __install_config_files "bin" "bin"
 
 }
