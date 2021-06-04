@@ -11,3 +11,6 @@ alias ws-extend='ws_extend'
 alias ws-register='ws_register'
 alias ws-release='ws_release'
 alias ws-unlock='ws_unlock'
+
+# Modue
+alias ml='module'
