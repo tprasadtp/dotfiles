@@ -1,5 +1,11 @@
+# P0.Dependent: 00-fish-override.fish
+
+if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
+  status --current-filename
+end
+
 # ws-* Aliases. These map to corresponding ws_functions
-if contains true $NEMO_FISH_SHELL_SUPPORTED
+if test $NEMO_FISH_SHELL_SUPPORTED -eq 1
     alias ws-ls='ws_list'
     alias ws-find='ws_find'
     alias ws-alloc='ws_allocate'

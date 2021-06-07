@@ -1,8 +1,13 @@
 # P0.Dependent: 00-fish-override.fish
+
+if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
+  status --current-filename
+end
+
 # Golang Tools
 # This is different from golang plugin as it overrides
 # old go installed on NEMO
-if contains true $NEMO_FISH_SHELL_SUPPORTED
+if test $NEMO_FISH_SHELL_SUPPORTED -eq 1
   if test -d $HOME/Tools/go/bin
     fish_add_path "$HOME/Tools/go/bin"
   end

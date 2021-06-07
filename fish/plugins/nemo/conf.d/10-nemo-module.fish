@@ -1,5 +1,10 @@
-# -*- fish-shell-script -*-
-if contains true $NEMO_FISH_SHELL_SUPPORTED
+# P0.Dependent: 00-fish-override.fish
+
+if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
+  status --current-filename
+end
+
+if test $NEMO_FISH_SHELL_SUPPORTED -eq 1
     set -gx LMOD_ROOT /usr/share/lmod
     set -gx LMOD_PKG  /usr/share/lmod/lmod
     set -gx LMOD_DIR  /usr/share/lmod/lmod/libexec

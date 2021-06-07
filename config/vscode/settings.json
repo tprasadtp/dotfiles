@@ -234,5 +234,6 @@
   "remote.SSH.remotePlatform": {
     "nemo": "linux",
     "n3471.nemo.privat": "linux"
-  }
+  },
+  "redhat.telemetry.enabled": false
 }
