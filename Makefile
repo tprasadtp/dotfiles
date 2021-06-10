@@ -10,6 +10,7 @@ shellcheck: ## Run shellcheck
 		-not -iwholename '**/*fetch*' \
 		-not -iwholename '**/fish/**' \
 		-not -iwholename '**/config/fish*' \
+		-not -iwholename '**/ml-formatter' \
 		-executable | sort -u)
 
 install: ## Installs default profile
