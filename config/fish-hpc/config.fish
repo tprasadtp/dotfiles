@@ -26,3 +26,5 @@ alias e='exit'
 
 # Umask
 umask 077
+
+

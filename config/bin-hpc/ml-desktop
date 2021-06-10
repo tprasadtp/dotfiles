@@ -1,0 +1,4 @@
+#!/bin/bash
+module load math/matlab/R2019b
+conda activate matlab
+matlab -desktop -softwaregl

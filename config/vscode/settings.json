@@ -47,12 +47,10 @@
   "npm.fetchOnlinePackageInfo": false,
   //Python Stuff
   "python.analysis.logLevel": "Warning",
-  "python.autoUpdateLanguageServer": false,
   "python.formatting.provider": "black",
   "python.jediEnabled": false,
   "python.languageServer": "Pylance",
   "python.linting.enabled": true,
-  "python.linting.flake8Enabled": true,
   "python.linting.pycodestyleEnabled": true,
   "python.linting.pylintEnabled": false,
   "python.pythonPath": ".venv/bin/python",
@@ -118,6 +116,7 @@
   "go.addTags": {
     "tags": "json,yaml,hcl",
     "options": "json=omitempty,yaml=omitempty,hcl=optional",
+    "promptForTags": true,
     "transform": "camelcase"
   },
   //Remote
@@ -233,7 +232,17 @@
   "remote.SSH.suppressWindowsSshWarning": true,
   "remote.SSH.remotePlatform": {
     "nemo": "linux",
-    "n3471.nemo.privat": "linux"
+    "n3471.nemo.privat": "linux",
+    "nemo-2": "linux",
+    "nemo-1": "linux"
   },
-  "redhat.telemetry.enabled": false
+  "redhat.telemetry.enabled": false,
+  "python.autoUpdateLanguageServer": false,
+  "python.experiments.enabled": false,
+  "python.experiments.optOutFrom": [
+
+],
+"python.defaultInterpreterPath": "python3",
+"python.linting.flake8Enabled": true,
+"remote.SSH.localServerDownload": "off"
 }

@@ -4,25 +4,27 @@ set fish_greeting
 
 # Add GPG Agent config
 # This is skipped in codespaces
-# for NEMO, set DOT_PROFILE_USE_HOST_SSH_AGENT=true
-function check_if_gpg_ssh_is_needed -a number
-    if contains true $CODESPACES
+# for NEMO, set DOT_PROFILE_SKIP_SSH_CONFIG=true
+function enable_setup_gpg_ssh -a number
+  if contains true $CODESPACES
       return 0
   else if contains true $CLOUD_SHELL
       return 0
-  else if contains true $DOT_PROFILE_USE_HOST_SSH_AGENT
+  else if contains true $DOT_PROFILE_SKIP_SSH_CONFIG
+      return 0
+  else if contains nemo (hostname --fqdn)
       return 0
   else
       return 1
   end
 end
 
-if check_if_gpg_ssh_is_needed
-  set --global --export SSH_AGENT_HANDLER "default"
-else
+if enable_setup_gpg_ssh
   set --erase SSH_AGENT_PID
   set --global --export SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
   set --global --export SSH_AGENT_HANDLER "gpg"
+else
+  set --global --export SSH_AGENT_HANDLER "default"
 end
 
 functions --erase __check_if_gpg_ssh_is_needed

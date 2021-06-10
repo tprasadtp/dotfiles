@@ -22,6 +22,22 @@ layout_poetry() {
   PATH_add "$VIRTUAL_ENV/bin"
 }
 
+layout_anaconda() {
+  path_add "${HOME}/Tools/miniconda3/bin/"
+    
+  if [ -n "$1" ]; then
+    # Explicit environment name from layout command.
+    local env_name="$1"
+    source conda activate ${env_name}
+  elif (grep -q name: environment.yml); then
+    # Detect environment name from `environment.yml` file in `.envrc` directory
+    conda activate $(grep name: environment.yml | sed -e 's/name: //' | cut -d "'" -f 2 | cut -d '"' -f 2)
+  else
+    (>&2 echo No environment specified);
+    exit 1;
+  fi;
+}
+
 # Check if required env vars are undefined
 check_env()
 {
@@ -34,3 +50,6 @@ check_env()
   done
   return $ret
 }
+
+
+
