@@ -20,8 +20,6 @@ set -o pipefail
 # Script Constants
 readonly CURDIR="$(cd -P -- "$(dirname -- "")" && pwd -P)"
 readonly SCRIPT="$(basename "$0")"
-# Default log level (debug logs are disabled)
-LOG_LVL=0
 
 # Handle Signals
 # trap ctrl-c and SIGTERM
@@ -259,7 +257,6 @@ readonly FISHER_VERSION="247b58e0d97c785ef960b88cd07c734d4e92225c"
 # Default settings
 DOT_PROFILE_ID="sindhu"
 INSTALL_PREFIX="${HOME}"
-LOG_LVL=0
 
 function option_error()
 {
@@ -1086,7 +1083,7 @@ function main()
         ;;
       # Debug mode
       -v | --verbose)
-        LOG_LVL="1"
+        LOG_LVL="0"
         log_debug "Enabled verbose logging"
         ;;
       -d | --debug | --test)
