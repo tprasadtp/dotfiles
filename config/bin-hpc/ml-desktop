@@ -1,4 +1,15 @@
 #!/bin/bash
 module load math/matlab/R2019b
-conda activate matlab
-matlab -desktop -softwaregl
+if command -v conda > /dev/null; then
+  export MATLAB_CONDA_AVAILABLE=true
+  if conda activate matlab; then
+    export MATLAB_CONDA_ACTIVE=true
+    export MATLAB_CONDA_ENV=matlab
+  else
+      export MATLAB_CONDA_ACTIVE=false
+  fi
+else
+  export MATLAB_CONDA_AVAILABLE=false
+fi
+
+matlab -desktop -softwareopengl

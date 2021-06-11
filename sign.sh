@@ -16,20 +16,21 @@ LOG_LVL=0
 trap ctrl_c_signal_handler INT
 trap term_signal_handler SIGTERM
 
-function ctrl_c_signal_handler() {
+function ctrl_c_signal_handler()
+                                 {
   log_error "User Interrupt! CTRL-C"
   exit 4
 }
-function term_signal_handler() {
+function term_signal_handler()
+                               {
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
 
-
 function display_usage()
 {
-#Prints out help menu
-cat <<EOF
+  #Prints out help menu
+  cat << EOF
 Bash script to to checksum and sign files.
 
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
@@ -104,7 +105,7 @@ function undefine_colors()
 if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
   # In CI/CD Forces colors
   define_colors
-elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]] ; then
+elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]]; then
   # Enables colors if Terminal is interactive and NOCOLOR is not empty
   define_colors
 else
@@ -188,17 +189,16 @@ function log_variable()
   fi
 }
 
-
 # Checks if command is available
-function has_command() {
-  if command -v "$1" >/dev/null; then
+function has_command()
+{
+  if command -v "$1" > /dev/null; then
     return 0
   else
     return 1
   fi
   return 1
 }
-
 
 function generate_checksums()
 {
@@ -207,12 +207,12 @@ function generate_checksums()
 
   : > SHA512SUMS
   find . -type f \
-			-not -path "./.git/**" \
-			-not -path "./vendor/**" \
+    -not -path "./.git/**" \
+    -not -path "./vendor/**" \
       -not -name "SHA512SUMS" \
       -not -name "SHA512SUMS.asc" \
       "-print0" | xargs "-0" sha512sum \
-        >> SHA512SUMS
+    >> SHA512SUMS
   log_success "Generated SHA512 checksums"
 }
 
@@ -236,12 +236,13 @@ function sign_checksum()
   fi
 }
 
-function verify_checksums() {
+function verify_checksums()
+                            {
   log_info "Verifying SHA512SUMS"
   if [[ -f ${CURDIR}/SHA512SUMS ]]; then
-		printf "%s" "${YELLOW}"
+    printf "%s" "${YELLOW}"
     if sha512sum -c "${CURDIR}/SHA512SUMS" --strict --quiet; then
-			printf "%s" "${NC}"
+      printf "%s" "${NC}"
       log_success "Hooray! SHA512 checksums verified"
     else
       log_error "Failed! Some files failed checksum verification!"
@@ -266,7 +267,7 @@ function verify_gpg_signature()
     checksum_sig_file="${CURDIR}/SHA512SUMS.asc"
   else
     log_error "Error! signature file not found!"
-    exit 1;
+    exit 1
   fi
 
   # Check for signature files
@@ -274,24 +275,24 @@ function verify_gpg_signature()
   log_info "Signature File : ${checksum_sig_file}"
   log_info "Data File      : ${CURDIR}/SHA512SUMS"
   # Checks for commands
-  if has_command gpg ; then
-    if gpg --verify "${checksum_sig_file}" "${CURDIR}/SHA512SUMS" 2>/dev/null; then
+  if has_command gpg; then
+    if gpg --verify "${checksum_sig_file}" "${CURDIR}/SHA512SUMS" 2> /dev/null; then
       log_success "Hooray! digital signature verified"
     else
       log_error "Oh No! Signature checks failed!"
-      exit 50;
+      exit 50
     fi
   elif has_command gpgv > /dev/null; then
     if gpgv --keyring "$HOME/.gnupg/pubring.kbx" "${checksum_sig_file}" "${CURDIR}/SHA512SUMS"; then
       log_success "Signature verified"
     else
       log_error "Signature checks failed!!"
-      exit 50;
+      exit 50
     fi
   else
     log_error "Cannot perform verification. gpgv or gpg is not installed."
     log_error "This action requires gnugpg/gnupg2 or gpgv package."
-    exit 1;
+    exit 1
   fi
 }
 
@@ -300,28 +301,35 @@ function main()
   # No args just run the setup function
   if [[ $# -eq 0 ]]; then
     log_error "No Action specified!"
-    display_usage;
+    display_usage
     exit 1
   fi
 
   while [[ ${1} != "" ]]; do
     case ${1} in
-        -s | --sign)            bool_sign_checksum="true";;
-        -v | --verify)          bool_verify_checksum="true";;
-        -G | --skip-gpg-verify) bool_skip_gpg_verify="true";;
+        -s | --sign)            bool_sign_checksum="true" ;;
+        -v | --verify)          bool_verify_checksum="true" ;;
+        -G | --skip-gpg-verify) bool_skip_gpg_verify="true" ;;
         # Debugging options
-        --stderr)               LOG_TO_STDERR="true";;
-        -d | --debug)           LOG_LVL="1";
-                                log_info "Enable verbose logging";;
-        -h | --help )           display_usage;exit 0;;
-        * )                     log_error "Invalid argument(s). See usage below.";
-                                display_usage;
-                                exit 1;    esac
+        --stderr)               LOG_TO_STDERR="true" ;;
+        -d | --debug)
+                                LOG_LVL="1"
+                                log_info "Enable verbose logging"
+                                                                 ;;
+        -h | --help)
+                                display_usage
+                                              exit 0
+                                                    ;;
+        *)
+                                log_error "Invalid argument(s). See usage below."
+                                display_usage
+                                exit 1
+        ;;
+    esac
     shift
   done
 
   # Actions
-
 
   if [[ $bool_sign_checksum == "true" ]]; then
     generate_checksums

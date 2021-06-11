@@ -50,3 +50,24 @@ export RUSTUP_HOME="${HOME}/Tools/Rust/rustup"
 if [[ -d ${HOME}/Tools/Rust/cargo/bin ]]; then
   export PATH="${PATH}:${HOME}/Tools/Rust/cargo/bin"
 fi
+
+# Miniconda
+conda_ws="$(ws_find conda)"
+# shellcheck disable=SC2181
+if [[ $? -eq 0 ]]; then
+    conda_path="$conda_ws/miniconda3/bin"
+    export CONDA_ENVS_PATH="$conda_ws/env"
+    export CONDA_PKGS_DIRS="$conda_ws/pkgs"
+else
+  if [[ -d $HOME/Tools/miniconda3 ]]; then
+    conda_path="$HOME/Tools/miniconda3/bin"
+  else
+    conda_path="$HOME/miniconda3/bin"
+  fi
+fi
+
+export PATH="$PATH:$conda_path"
+if command -v conda > /dev/null; then
+  #shellcheck source=/dev/null
+  source <(conda shell.bash hook)
+fi

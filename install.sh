@@ -28,11 +28,13 @@ LOG_LVL=0
 trap ctrl_c_signal_handler INT
 trap term_signal_handler SIGTERM
 
-function ctrl_c_signal_handler() {
+function ctrl_c_signal_handler()
+{
   log_error "User Interrupt! CTRL-C"
   exit 4
 }
-function term_signal_handler() {
+function term_signal_handler()
+{
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
@@ -85,7 +87,7 @@ function undefine_colors()
 if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
   # In CI/CD Forces colors
   define_colors
-elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]] ; then
+elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]]; then
   # Enables colors if Terminal is interactive and NOCOLOR is not empty
   define_colors
 else
@@ -138,7 +140,7 @@ function log_error()
 
 function log_debug()
 {
-  if [[ LOG_LVL -gt 0  ]]; then
+  if [[ LOG_LVL -gt 0 ]]; then
     if [[ $LOG_TO_STDERR == "true" ]]; then
       printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
     else
@@ -160,7 +162,7 @@ function log_variable()
 {
   local var
   var="$1"
-  if [[ ${LOG_LVL} -gt 0  ]]; then
+  if [[ ${LOG_LVL} -gt 0 ]]; then
     if [[ $LOG_TO_STDERR == "true" ]]; then
       printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
     else
@@ -208,7 +210,7 @@ function log_step_error()
 
 function log_step_debug()
 {
-  if [[ LOG_LVL -gt 0  ]]; then
+  if [[ LOG_LVL -gt 0 ]]; then
     if [[ $LOG_TO_STDERR == "true" ]]; then
       printf "%s  - %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
     else
@@ -230,7 +232,7 @@ function log_step_variable()
 {
   local var
   var="$1"
-  if [[ ${LOG_LVL} -gt 0  ]]; then
+  if [[ ${LOG_LVL} -gt 0 ]]; then
     if [[ $LOG_TO_STDERR == "true" ]]; then
       printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
     else
@@ -269,7 +271,7 @@ LOG_LVL=0
 
 function option_error()
 {
-cat <<EOF
+  cat << EOF
 $LOGO
 ${TEAL}See ${SCRIPT} --help for more info.
 EOF
@@ -277,8 +279,8 @@ EOF
 
 function display_usage()
 {
-#Prints out help menu
-cat <<EOF
+  #Prints out help menu
+  cat << EOF
 $LOGO
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
@@ -344,7 +346,6 @@ ${ORANGE}
 EOF
 }
 
-
 function __link_files()
 {
   # Liks files inside a directory to specified destination
@@ -366,18 +367,17 @@ function __link_files()
   if [ -d "${CURDIR}/${src}" ]; then
     if mkdir -p "${dest}"; then
 
-      while IFS= read -r -d '' file
-      do
+      while IFS= read -r -d '' file; do
         f="$(basename "$file")"
         # log_step_debug "${dest%/}/${f}"
         __link_single_item_magic_action "$file" "${dest%/}/${f}"
-      done< <(find "$CURDIR/${src}" -maxdepth 1 -type f -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name '.editorconfig' -print0)
+      done < <(find "$CURDIR/${src}" -maxdepth 1 -type f -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name '.editorconfig' -print0)
 
     else
       log_step_error "Failed to create destination : $dest"
     fi # mkdir
-    else
-      log_step_error "Directory ${src} not found!"
+  else
+    log_step_error "Directory ${src} not found!"
   fi # src check
 
 }
@@ -393,7 +393,6 @@ function __link_single_item_magic_action()
     log_step_error "Linking ${src} to ${dest} failed!"
   fi
 }
-
 
 function __link_single_item()
 {
@@ -422,29 +421,27 @@ function __link_single_item()
 
 }
 
-
 function __install_config_files()
 {
   if [[ $# -lt 2 ]]; then
     log_step_error "Invalid number of arguments "
-    exit 21;
+    exit 21
   fi
 
   cfg_dir="$1"
   dest_dir="$2"
 
   # First check for config specific directory
-  if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]];then
+  if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]]; then
     log_step_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
 
     cfg_dir="${cfg_dir}-${DOT_PROFILE_ID}"
   # If no config specific dirs are found, use default config
-  elif [[ -d $CURDIR/config/$cfg_dir ]];then
+  elif [[ -d $CURDIR/config/$cfg_dir ]]; then
     log_step_info "config/${cfg_dir}"
   else
     log_step_error "No configs found for ${cfg_dir}"
   fi
-
 
   if mkdir -p "$INSTALL_PREFIX"/"$dest_dir"; then
     # destination path is prefixed with INSTALL_PREFIX automatically
@@ -456,11 +453,11 @@ function __install_config_files()
 }
 
 # sha256_verify validates a binary against a checksum.txt file
-function sha256_verify() {
+function sha256_verify()
+{
   local target target_basename checksum_file want got targetHashOutput
   target="$1"
   checksum_file="$2"
-
 
   if [[ $# -ne 2 ]]; then
     log_step_error "Internal error! Invalid number of arguments($#)"
@@ -472,14 +469,14 @@ function sha256_verify() {
     return 1
   fi
 
-  if ! [[ -r $target  ]]; then
+  if ! [[ -r $target ]]; then
     log_step_error "Target file is not readable!($target)"
     return 1
   fi
 
   target_basename=${target##*/}
 
-  want="$(grep "${target_basename}" "${checksum_file}" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)"
+  want="$(grep "${target_basename}" "${checksum_file}" 2> /dev/null | tr '\t' ' ' | cut -d ' ' -f 1)"
 
   if [[ -z $want ]]; then
     log_step_error "Unable to find checksum for '${target}' in '${checksum_file}'"
@@ -499,7 +496,6 @@ function sha256_verify() {
 
   return 255
 }
-
 
 function __install_tools_subtask_prepare_dirs()
 {
@@ -586,7 +582,6 @@ function __install_tools_subtask_fzf()
       log_step_error "errored!"
     fi
 
-
     log_step_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/fzf"
 
@@ -604,11 +599,11 @@ function __install_tools_subtask_fd()
     --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
   log_step_info "install"
   if tar --extract --gzip \
-      --file vendor/cache/fd-v"${FD_VERSION}"-x86_64-unknown-linux-musl.tar.gz \
-      --directory "${INSTALL_PREFIX}"/bin/ \
-      --strip=1 \
-      --wildcards \
-      --no-anchored 'fd'; then
+    --file vendor/cache/fd-v"${FD_VERSION}"-x86_64-unknown-linux-musl.tar.gz \
+    --directory "${INSTALL_PREFIX}"/bin/ \
+    --strip=1 \
+    --wildcards \
+    --no-anchored 'fd'; then
     log_step_success "OK"
   else
     log_step_error "errored!"
@@ -617,7 +612,6 @@ function __install_tools_subtask_fd()
   log_step_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/fd"
 }
-
 
 function __install_tools_subtask_gitchglog()
 {
@@ -656,7 +650,7 @@ function install_tools_handler()
   fi
 
   if [[ $bool_tools_skip_starship != "true" ]]; then
-      __install_tools_subtask_starship
+    __install_tools_subtask_starship
   else
     log_debug "Skipped installing starship/starship"
   fi
@@ -704,7 +698,6 @@ function install_fonts_handler()
   fi
 }
 
-
 function install_templates_handler()
 {
   if [[ $bool_skip_templates == "true" ]]; then
@@ -735,7 +728,7 @@ function __download_and_install_fisher()
 
       log_step_info "Installing fisher"
       FISHER_URL="https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish" \
-      fish --private -c "curl -sSfL \$FISHER_URL | source && fisher update"
+        fish --private -c "curl -sSfL \$FISHER_URL | source && fisher update"
       fisher_inst_status="$?"
 
       if [[ -f ${INSTALL_PREFIX}/.config/fish/functions/otto.fish ]]; then
@@ -764,7 +757,6 @@ function __download_and_install_fisher()
   fi # check for fish shell
 
 }
-
 
 function install_fish_configs_handler()
 {
@@ -798,7 +790,6 @@ function install_fish_configs_handler()
   fi # bool_skip_fish check
 }
 
-
 function __install_config_files_handler()
 {
   # Git
@@ -822,7 +813,6 @@ function __install_config_files_handler()
   # ansible
   __install_config_files "ansible" ""
 }
-
 
 function __install_other_config_files_handler()
 {
@@ -849,7 +839,6 @@ function __install_other_config_files_handler()
   __install_config_files "gedit" ".local/share/gedit/styles"
 }
 
-
 function install_config_files_handler()
 {
   if [[ $bool_skip_config == "true" ]]; then
@@ -866,7 +855,6 @@ function install_config_files_handler()
   fi
 }
 
-
 function install_bash_handler()
 {
   # Installs only bash
@@ -874,7 +862,7 @@ function install_bash_handler()
   log_notice "Bash configs"
   # First check for config specific directory
   log_step_info "looking for profile"
-  if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]];then
+  if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]]; then
     log_step_success "found profile ${DOT_PROFILE_ID}"
     __link_files "bash/${DOT_PROFILE_ID}" ""
     log_step_success "done"
@@ -884,7 +872,6 @@ function install_bash_handler()
     return 2
   fi
 }
-
 
 function install_minimal_wrapper()
 {
@@ -896,7 +883,6 @@ function install_minimal_wrapper()
   __install_config_files "direnv" ".config/direnv"
 }
 
-
 function install_regular_wrapper()
 {
   install_bash_handler
@@ -907,7 +893,6 @@ function install_regular_wrapper()
   install_scripts_handler
   install_walls_handler
 }
-
 
 function install_cloudshell_wrapper()
 {
@@ -976,7 +961,6 @@ function install_codespaces_wrapper()
   install_bash_handler
 }
 
-
 function install_scripts_handler()
 {
   if [[ $bool_install_bin == "true" ]]; then
@@ -1014,98 +998,122 @@ function main()
   else
     if [ $# -lt 1 ]; then
       log_error "No arguments specified!"
-      option_error;
-      exit 1;
+      option_error
+      exit 1
     fi
   fi
 
   while [ "${1}" != "" ]; do
     case ${1} in
       # Install Modes
-      -i | --install)         action_install_mode="default";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      --codespaces)           action_install_mode="codespaces";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      --cloudshell)           action_install_mode="cloudshell";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      --hpc)                  action_install_mode="hpc";
-                              DOT_PROFILE_ID="hpc";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -C | --only-config)     action_install_mode="only-config";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -F | --only-fish)       action_install_mode="only-fish";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -B | --only-bash)       action_install_mode="only-bash";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -X | --only-scripts)    action_install_mode="only-scripts";
-                              bool_install_bin="true";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -W | --only-walls)      action_install_mode="only-walls";
-                              bool_install_walls="true";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -M | --minimal)         action_install_mode="minimal";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
-      -t | --tools)           action_install_mode="only-tools";
-                              bool_install_bin="true";
-                              log_info "Using mode: ${action_install_mode}";
-                              ((++exclusive_conflicts));
-                              ;;
+      -i | --install)
+        action_install_mode="default"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      --codespaces)
+        action_install_mode="codespaces"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      --cloudshell)
+        action_install_mode="cloudshell"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      --hpc)
+        action_install_mode="hpc"
+        DOT_PROFILE_ID="hpc"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -C | --only-config)
+        action_install_mode="only-config"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -F | --only-fish)
+        action_install_mode="only-fish"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -B | --only-bash)
+        action_install_mode="only-bash"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -X | --only-scripts)
+        action_install_mode="only-scripts"
+        bool_install_bin="true"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -W | --only-walls)
+        action_install_mode="only-walls"
+        bool_install_walls="true"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -M | --minimal)
+        action_install_mode="minimal"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
+      -t | --tools)
+        action_install_mode="only-tools"
+        bool_install_bin="true"
+        log_info "Using mode: ${action_install_mode}"
+        ((++exclusive_conflicts))
+        ;;
       # Skip modes
-      -c | --skip-config)     readonly bool_skip_config="true";;
-      --skip-starship)        readonly bool_tools_skip_starship="true";;
-      --skip-direnv)          readonly bool_tools_skip_direnv="true";;
-      --skip-bat)             readonly bool_tools_skip_bat="true";;
-      --skip-fzf)             readonly bool_tools_skip_fzf="true";;
-      --skip-fd)              readonly bool_tools_skip_fd="true";;
-      --skip-gitchglog)       readonly bool_tools_skip_gitchglog="true";;
+      -c | --skip-config) readonly bool_skip_config="true" ;;
+      --skip-starship) readonly bool_tools_skip_starship="true" ;;
+      --skip-direnv) readonly bool_tools_skip_direnv="true" ;;
+      --skip-bat) readonly bool_tools_skip_bat="true" ;;
+      --skip-fzf) readonly bool_tools_skip_fzf="true" ;;
+      --skip-fd) readonly bool_tools_skip_fd="true" ;;
+      --skip-gitchglog) readonly bool_tools_skip_gitchglog="true" ;;
 
       # Minimal config profile. This is different than minimal profile.
       # this *ONLY* applies to configs *NOTHING* else. Mostly used to skip
       # GUI stuff which are not used on HPC and headless systems
-      -e | --minimal-config)  readonly bool_minimal_config="true";;
-      -k | --skip-fonts)      readonly bool_skip_fonts="true";;
-      -j | --skip-templates)  readonly bool_skip_templates="true";;
-      -f | --skip-fish)       readonly bool_skip_fish="true";;
+      -e | --minimal-config) readonly bool_minimal_config="true" ;;
+      -k | --skip-fonts) readonly bool_skip_fonts="true" ;;
+      -j | --skip-templates) readonly bool_skip_templates="true" ;;
+      -f | --skip-fish) readonly bool_skip_fish="true" ;;
 
       # ENABLE Extra,
       # These are special as they are inverted bool comapred to other bools
-      -x | --bin)             bool_install_bin="true";;
-      -w | --wallpapers)      bool_install_walls="true";;
+      -x | --bin) bool_install_bin="true" ;;
+      -w | --wallpapers) bool_install_walls="true" ;;
       # Custom profile [overrides defaults]
-      -p | --profile )        shift;DOT_PROFILE_ID="${1}";
-                              OVERRIDE_DOT_PROFILE_ID="true";;
+      -p | --profile)
+        shift
+        DOT_PROFILE_ID="${1}"
+        OVERRIDE_DOT_PROFILE_ID="true"
+        ;;
       # Debug mode
-      -v | --verbose)         LOG_LVL="1";
-                              log_debug "Enabled verbose logging";;
-      -d | --debug | --test)  INSTALL_PREFIX="${HOME}/Junk";
-                              INSTALLER_TEST_MODE="true";
-                              log_warning "DEBUG mode is active!";
-                              log_warning "Files will be installed to ${INSTALL_PREFIX}";
-                              mkdir -p "${INSTALL_PREFIX}" || exit 31;;
+      -v | --verbose)
+        LOG_LVL="1"
+        log_debug "Enabled verbose logging"
+        ;;
+      -d | --debug | --test)
+        INSTALL_PREFIX="${HOME}/Junk"
+        INSTALLER_TEST_MODE="true"
+        log_warning "DEBUG mode is active!"
+        log_warning "Files will be installed to ${INSTALL_PREFIX}"
+        mkdir -p "${INSTALL_PREFIX}" || exit 31
+        ;;
       # Help and unknown option handler
-      -h | --help )           display_usage;exit $?;;
-      * )                     log_error "Invalid argument(s). See usage below."
-                              option_error;exit 1;;
+      -h | --help)
+        display_usage
+        exit $?
+        ;;
+      *)
+        log_error "Invalid argument(s). See usage below."
+        option_error
+        exit 1
+        ;;
     esac
     shift
   done
@@ -1139,24 +1147,27 @@ function main()
     log_debug "Install mode is set to ${action_install_mode}"
     # Handle install modes
     case ${action_install_mode} in
-      # Install All Mode
-      default)        install_regular_wrapper;;
-      codespaces)     install_codespaces_wrapper;;
-      cloudshell)     install_cloudshell_wrapper;;
-      hpc)            install_hpc_wrapper;;
-      minimal)        install_minimal_wrapper;;
-      only-config)    install_config_files_handler;;
-      only-fish)      install_fish_configs_handler;;
-      only-bash)      install_bash_handler;;
-      only-bin)       install_scripts_handler;;
-      only-tools)     install_tools_handler;;
-      only-walls)     install_walls_handler;;
-      * )             log_error "Internal Error! Unknown action_install_mode !";exit 127;;
+      # Install All Modes
+      default) install_regular_wrapper ;;
+      codespaces) install_codespaces_wrapper ;;
+      cloudshell) install_cloudshell_wrapper ;;
+      hpc) install_hpc_wrapper ;;
+      minimal) install_minimal_wrapper ;;
+      only-config) install_config_files_handler ;;
+      only-fish) install_fish_configs_handler ;;
+      only-bash) install_bash_handler ;;
+      only-bin) install_scripts_handler ;;
+      only-tools) install_tools_handler ;;
+      only-walls) install_walls_handler ;;
+      *)
+        log_error "Internal Error! Unknown action_install_mode !"
+        exit 127
+        ;;
     esac
   else
     log_error "Install mode is not set!!"
     log_error "Did you pass -i/--install or specify any other actions?"
-    option_error;
+    option_error
     exit 10
   fi # install_mode check
 }

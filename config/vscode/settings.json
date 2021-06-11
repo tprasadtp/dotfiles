@@ -244,5 +244,6 @@
 ],
 "python.defaultInterpreterPath": "python3",
 "python.linting.flake8Enabled": true,
-"remote.SSH.localServerDownload": "off"
+"remote.SSH.localServerDownload": "off",
+"shellformat.useEditorConfig": true,
 }
