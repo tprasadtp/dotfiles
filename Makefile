@@ -11,6 +11,7 @@ shellcheck: ## Run shellcheck
 		-not -iwholename '**/fish/**' \
 		-not -iwholename '**/config/fish*' \
 		-not -iwholename '**/ml-formatter' \
+		-not -iwholename '**/*.bats' \
 		-executable | sort -u)
 
 install: ## Installs default profile
@@ -26,11 +27,11 @@ test-install-minimal: ## Test Install minimal profile
 
 .PHONY: verify
 verify: ## Verifies checksums
-	./sign.sh -v
+	./sign.sh --verify
 
 .PHONY: sign
 sign: ## Sign
-	./sign.sh -s -v
+	./sign.sh --sign --verify
 
 .PHONY: help
 help: ## This help dialog.

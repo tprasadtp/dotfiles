@@ -8,8 +8,6 @@ set -o pipefail
 # Script Constants
 readonly CURDIR="$(cd -P -- "$(dirname -- "")" && pwd -P)"
 readonly SCRIPT="$(basename "$0")"
-# Default log level (debug logs are disabled)
-LOG_LVL=0
 
 # Handle Signals
 # trap ctrl-c and SIGTERM
@@ -45,137 +43,200 @@ function get_abspath()
     fi
 }
 
-# Logging Handlers
 
-# Define colors for logging
-function define_colors()
+### BEGIN LOGGING SNIPPET ###
+# Define standard logging colors
+[[ ! -v ${DGRAY}  ]]  && declare -gr DGRAY=$'\e[38;5;246m'
+[[ ! -v ${GRAY}  ]]   && declare -gr GRAY=$'\e[38;5;250m'
+[[ ! -v ${GREEN}  ]]  && declare -gr GREEN=$'\e[38;5;83m'
+[[ ! -v ${BLUE}  ]]   && declare -gr BLUE=$'\e[38;5;81m'
+[[ ! -v ${YELLOW} ]]  && declare -gr YELLOW=$'\e[38;5;214m'
+[[ ! -v ${RED}  ]]    && declare -gr RED=$'\e[38;5;197m'
+[[ ! -v ${NC}  ]]     && declare -gr NC=$'\e[0m'
+
+# Default log level and format
+[[ -z $LOG_FMT ]] && declare -g LOG_FMT="pretty"
+[[ -z $LOG_LVL ]] && declare -g LOG_LVL="20"
+
+# Logger core
+function __logger_core()
 {
-  declare -gr YELLOW=$'\e[38;5;214m'
-  declare -gr GREEN=$'\e[38;5;83m'
-  declare -gr RED=$'\e[38;5;197m'
-  declare -gr NC=$'\e[0m'
+  local level="${1:-20}"
 
-  # Enhanced colors
-  declare -gr PINK=$'\e[38;5;212m'
-  declare -gr BLUE=$'\e[38;5;81m'
-  declare -gr ORANGE=$'\e[38;5;208m'
-  declare -gr TEAL=$'\e[38;5;192m'
-  declare -gr VIOLET=$'\e[38;5;219m'
-  declare -gr GRAY=$'\e[38;5;250m'
-  declare -gr DARK_GRAY=$'\e[38;5;246m'
+  # If no arguments were specified return now
+  # If two argumets were specified, shift left
+  case $# in
+  0)   return ;;
+  2)   shift ;;
+  esac
 
-  # Flag
-  declare -gr COLORIZED=1
+  # Immediately return if log level is not enabled or no log message is specified
+  [[ ${LOG_LVL} -gt "$level" || $# -eq 0 ]] && return
+
+  # Disable colord output by default
+  local lvl_colorized="false"
+
+  # Level string & color
+  local lvl_string="•"
+  local lvl_color=""
+  local lvl_color_reset=""
+
+  # Forces colors
+  if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
+    lvl_colorized="forced"
+  # Enables colors if terminal is interactive and NOCOLOR is not empty and TERM is not dumb
+  elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]]; then
+    lvl_colorized="true"
+  fi
+
+  # Indent
+  # For pretty logging we indent for log_step* funcs
+  # as it looks better and improves redability.
+  # Instead of specifying this during calltime, we check our funcstack
+  # to check if __logger_core was called from log_step* function.
+  # We will not do this if one of the conditions is true,
+  #   log-fmt was full
+  #   colors were disabled
+  if [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]]; then
+    local lvl_indent=""
+  elif [[ ${FUNCNAME[1]} =~ ^log_step* ]]; then
+    local lvl_indent="  "
+    lvl_string="-"
+  else
+    local lvl_indent=""
+  fi
+
+  # Define level, color and timestamp
+  # By default we do not show log level and timestamp.
+  # However, if log-fmt is set to "full" or if colors are disabled,
+  # we will enable long format with timestamps
+  case ${level} in
+  0 | 00)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [TRACE ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${DGRAY}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  10)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [DEBUG ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GRAY}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  20)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color=""
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset=""
+        ;;
+  30)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GREEN}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  35)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [NOTICE]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${BLUE}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  40)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  50)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${RED}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  *)
+        [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${NC}"
+        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+        ;;
+  esac
+
+  # Logging
+  if [[ ${LOG_TO_STDERR} == "true" ]]; then
+  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
+  else
+  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
+  fi
 }
 
-function undefine_colors()
+# Logger public functions
+function log_debug()
 {
-  # Disable all colors
-  declare -gr YELLOW=""
-  declare -gr GREEN=""
-  declare -gr RED=""
-  declare -gr NC=""
-
-  # Enhanced colors
-  declare -gr PINK=""
-  declare -gr BLUE=""
-  declare -gr ORANGE=""
-  declare -gr TEAL=""
-  declare -gr VIOLET=""
-  declare -gr GRAY=""
-  declare -gr DARK_GRAY=""
-
-  # Flag
-  declare -gr COLORIZED=1
+  __logger_core "10" "$@"
 }
 
-# Check for Colored output
-if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
-  # In CI/CD Forces colors
-  define_colors
-elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]] ; then
-  # Enables colors if Terminal is interactive and NOCOLOR is not empty
-  define_colors
-else
-  # Disables colors
-  undefine_colors
-fi
-
-## Check if logs should be written to stderr
-## This is useful if script generates an output which can be piped or redirected
-if [[ -z ${LOG_TO_STDERR} ]]; then
-  LOG_TO_STDERR="false"
-fi
-
-# Log functions
 function log_info()
 {
-  if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "• %s \n" "$@" 1>&2
-  else
-    printf "• %s \n" "$@"
-  fi
+  __logger_core "20" "$@"
 }
 
 function log_success()
 {
-  if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}" 1>&2
-  else
-    printf "%s• %s %s\n" "${GREEN}" "$@" "${NC}"
-  fi
-}
-
-function log_warning()
-{
-  if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}" 1>&2
-  else
-    printf "%s• %s %s\n" "${YELLOW}" "$@" "${NC}"
-  fi
-}
-
-function log_error()
-{
-  if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s• %s %s\n" "${RED}" "$@" "${NC}" 1>&2
-  else
-    printf "%s• %s %s\n" "${RED}" "$@" "${NC}"
-  fi
-}
-
-function log_debug()
-{
-  if [[ LOG_LVL -gt 0  ]]; then
-    if [[ $LOG_TO_STDERR == "true" ]]; then
-      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}" 1>&2
-    else
-      printf "%s• %s %s\n" "${GRAY}" "$@" "${NC}"
-    fi
-  fi
+  __logger_core "30" "$@"
 }
 
 function log_notice()
 {
-  if [[ $LOG_TO_STDERR == "true" ]]; then
-    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}" 1>&2
-  else
-    printf "%s• %s %s\n" "${TEAL}" "$@" "${NC}"
-  fi
+  __logger_core "35" "$@"
+}
+
+function log_warning()
+{
+  __logger_core "40" "$@"
+}
+
+function log_error()
+{
+  __logger_core "50" "$@"
 }
 
 function log_variable()
 {
   local var
   var="$1"
-  if [[ ${LOG_LVL} -gt 0  ]]; then
-    if [[ $LOG_TO_STDERR == "true" ]]; then
-      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}" 1>&2
-    else
-      printf "%s» %-20s - %-10s %s\n" "${GRAY}" "${var}" "${!var}" "${NC}"
-    fi
-  fi
+  __logger_core "00" "$(printf "%s=%s" "${var}" "${!var}")"
 }
+
+function log_step_debug()
+{
+  __logger_core "10" "$@"
+}
+
+function log_step_info()
+{
+  __logger_core "20" "$@"
+}
+
+function log_step_success()
+{
+  __logger_core "30" "$@"
+}
+
+function log_step_notice()
+{
+  __logger_core "35" "$@"
+}
+
+function log_step_warning()
+{
+  __logger_core "40" "$@"
+}
+
+function log_step_error()
+{
+  __logger_core "50" "$@"
+}
+
+function log_step_variable()
+{
+  local var
+  var="$1"
+  __logger_core "00" "$(printf "%s=%s" "${var}" "${!var}")"
+}
+### END LOGGING SNIPPET ###
+
 
 # Checks if command is available
 function has_command() {
@@ -225,7 +286,7 @@ function parse_options()
   while [[ ${1} != "" ]]; do
   case ${1} in
     --stderr)               LOG_TO_STDERR="true";;
-    -d | --debug)           LOG_LVL="1";
+    -v | --verbose)         LOG_LVL="0";
                             log_debug "Enabled verbose logging";;
     -h | --help )           display_usage;exit 0;;
     *)                      NON_OPTION_ARGS+=("${1}");;
