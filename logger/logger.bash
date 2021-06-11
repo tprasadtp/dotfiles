@@ -78,8 +78,6 @@ function __logger_core()
           ;;
     20)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color=""
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset=""
           ;;
     30)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
@@ -103,8 +101,6 @@ function __logger_core()
           ;;
     *)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${NC}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
           ;;
   esac
 

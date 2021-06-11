@@ -14,11 +14,13 @@ readonly SCRIPT="$(basename "$0")"
 trap ctrl_c_signal_handler INT
 trap term_signal_handler SIGTERM
 
-function ctrl_c_signal_handler() {
+function ctrl_c_signal_handler()
+                                 {
   log_error "User Interrupt! CTRL-C"
   exit 4
 }
-function term_signal_handler() {
+function term_signal_handler()
+                               {
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
@@ -30,19 +32,24 @@ function get_abspath()
   # $1     : relative filename
   if [ -d "$1" ]; then
         # dir
-        (cd "$1" || return ; pwd)
-    elif [ -f "$1" ]; then
+        (
+         cd "$1" || return
+                             pwd
+    )
+  elif   [ -f "$1" ]; then
         # file
         if [[ $1 = /* ]]; then
             printf "%s" "$1"
-        elif [[ $1 == */* ]]; then
-            printf "%s" "$(cd "${1%/*}" || return ; pwd)/${1##*/}"
-        else
+    elif     [[ $1 == */* ]]; then
+            printf "%s" "$(
+                           cd "${1%/*}" || return
+                                                    pwd
+      )/${1##*/}"
+    else
             printf "%s" "$(pwd)/$1"
-        fi
     fi
+  fi
 }
-
 
 ### BEGIN LOGGING SNIPPET ###
 # Define standard logging colors
@@ -66,8 +73,8 @@ function __logger_core()
   # If no arguments were specified return now
   # If two argumets were specified, shift left
   case $# in
-  0)   return ;;
-  2)   shift ;;
+    0) return ;;
+    2) shift ;;
   esac
 
   # Immediately return if log level is not enabled or no log message is specified
@@ -111,53 +118,49 @@ function __logger_core()
   # However, if log-fmt is set to "full" or if colors are disabled,
   # we will enable long format with timestamps
   case ${level} in
-  0 | 00)
+    0 | 00)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [TRACE ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${DGRAY}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  10)
+    10)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [DEBUG ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GRAY}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  20)
+    20)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color=""
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset=""
         ;;
-  30)
+    30)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GREEN}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  35)
+    35)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [NOTICE]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${BLUE}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  40)
+    40)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  50)
+    50)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${RED}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  *)
+    *)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${NC}"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
   esac
 
   # Logging
   if [[ ${LOG_TO_STDERR} == "true" ]]; then
-  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
   else
-  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
   fi
 }
 
@@ -237,10 +240,10 @@ function log_step_variable()
 }
 ### END LOGGING SNIPPET ###
 
-
 # Checks if command is available
-function has_command() {
-  if command -v "$1" >/dev/null; then
+function has_command()
+                       {
+  if command -v "$1" > /dev/null; then
     return 0
   else
     return 1
@@ -248,11 +251,10 @@ function has_command() {
   return 1
 }
 
-
 function display_usage()
 {
-#Prints out help menu
-cat <<EOF
+  #Prints out help menu
+  cat << EOF
 Bash script to run shellcheck usng docker on files specified.
 
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
@@ -277,25 +279,25 @@ ${BLUE}CLICOLOR_FORCE${NC}    - Set this to NON-ZERO to force colored output.
 EOF
 }
 
-
-
-
 function parse_options()
 {
   NON_OPTION_ARGS=()
   while [[ ${1} != "" ]]; do
-  case ${1} in
-    --stderr)               LOG_TO_STDERR="true";;
-    -v | --verbose)         LOG_LVL="0";
-                            log_debug "Enabled verbose logging";;
-    -h | --help )           display_usage;exit 0;;
-    *)                      NON_OPTION_ARGS+=("${1}");;
-  esac
-  shift
+    case ${1} in
+      --stderr)             LOG_TO_STDERR="true" ;;
+      -v | --verbose)
+                            LOG_LVL="0"
+                            log_debug "Enabled verbose logging"
+                                                               ;;
+      -h | --help)
+                            display_usage
+                                          exit 0
+                                                ;;
+      *)                    NON_OPTION_ARGS+=("${1}") ;;
+    esac
+    shift
   done
 }
-
-
 
 function main()
 {

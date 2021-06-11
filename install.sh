@@ -59,8 +59,8 @@ function __logger_core()
   # If no arguments were specified return now
   # If two argumets were specified, shift left
   case $# in
-  0)   return ;;
-  2)   shift ;;
+    0) return ;;
+    2) shift ;;
   esac
 
   # Immediately return if log level is not enabled or no log message is specified
@@ -104,53 +104,49 @@ function __logger_core()
   # However, if log-fmt is set to "full" or if colors are disabled,
   # we will enable long format with timestamps
   case ${level} in
-  0 | 00)
+    0 | 00)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [TRACE ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${DGRAY}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  10)
+    10)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [DEBUG ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GRAY}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  20)
+    20)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color=""
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset=""
         ;;
-  30)
+    30)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GREEN}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  35)
+    35)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [NOTICE]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${BLUE}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  40)
+    40)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  50)
+    50)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${RED}"
         [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
-  *)
+    *)
         [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${NC}"
-        [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
         ;;
   esac
 
   # Logging
   if [[ ${LOG_TO_STDERR} == "true" ]]; then
-  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
   else
-  printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
   fi
 }
 
@@ -229,7 +225,6 @@ function log_step_variable()
   __logger_core "00" "$(printf "%s=%s" "${var}" "${!var}")"
 }
 ### END LOGGING SNIPPET ###
-
 
 readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
   [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
