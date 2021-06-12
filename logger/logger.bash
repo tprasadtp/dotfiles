@@ -1,5 +1,8 @@
 #!/bin/bash
 # shellcheck disable=SC2034
+
+### BEGIN LOGGING SNIPPET ###
+
 # Define standard logging colors
 [[ ! -v ${DGRAY}  ]]  && declare -gr DGRAY=$'\e[38;5;246m'
 [[ ! -v ${GRAY}  ]]   && declare -gr GRAY=$'\e[38;5;250m'
@@ -16,17 +19,25 @@
 # Logger core
 function __logger_core()
 {
-  local level="${1:-20}"
-
   # If no arguments were specified return now
-  # If two argumets were specified, shift left
-  case $# in
-    0)   return ;;
-    2)   shift ;;
+  [[ $# -eq 0 ]] && return
+
+  # Determine level based on caller function,
+  # and return if not called form known functions.
+  # This effectively makes this function private-ish err somewhat.
+  case ${FUNCNAME[1]} in
+    log_step_variable | log_variable)   local level=0 ;;
+    log_step_debug | log_debug)         local level=10 ;;
+    log_step_info |  log_info)          local level=20 ;;
+    log_step_success |  log_success)    local level=25 ;;
+    log_step_warning |  log_warning)    local level=30 ;;
+    log_step_notice |  log_notice)      local level=35 ;;
+    log_step_error |  log_error)        local level=40 ;;
+    *)                                  return ;;
   esac
 
-  # Immediately return if log level is not enabled or no log message is specified
-  [[ ${LOG_LVL} -gt "$level" || $# -eq 0 ]] && return
+  # Immediately return if log level is not enabled
+  [[ ${LOG_LVL} -gt "$level" ]] && return
 
   # Disable colord output by default
   local lvl_colorized="false"
@@ -79,9 +90,14 @@ function __logger_core()
     20)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
           ;;
-    30)
+    25)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
           [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GREEN}"
+          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
+          ;;
+    30)
+          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
+          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
           [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
           ;;
     35)
@@ -90,11 +106,6 @@ function __logger_core()
           [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
           ;;
     40)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    50)
           [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
           [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${RED}"
           [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
@@ -115,74 +126,76 @@ function __logger_core()
 # Logger public functions
 function log_debug()
 {
-  __logger_core "10" "$@"
+  __logger_core "$@"
 }
 
 function log_info()
 {
-  __logger_core "20" "$@"
+  __logger_core "$@"
 }
 
 function log_success()
 {
-  __logger_core "30" "$@"
+  __logger_core "$@"
 }
 
 function log_notice()
 {
-  __logger_core "35" "$@"
+  __logger_core "$@"
 }
 
 function log_warning()
 {
-  __logger_core "40" "$@"
+  __logger_core "$@"
 }
 
 function log_error()
 {
-  __logger_core "50" "$@"
+  __logger_core "$@"
 }
 
 function log_variable()
 {
   local var
   var="$1"
-  __logger_core "00" "$(printf "%s=%s" "${var}" "${!var}")"
+  __logger_core "$(printf "%s=%s" "${var}" "${!var}")"
 }
 
 function log_step_debug()
 {
-  __logger_core "10" "$@"
+  __logger_core "$@"
 }
 
 function log_step_info()
 {
-  __logger_core "20" "$@"
+  __logger_core "$@"
 }
 
 function log_step_success()
 {
-  __logger_core "30" "$@"
+  __logger_core "$@"
 }
 
 function log_step_notice()
 {
-  __logger_core "35" "$@"
+  __logger_core "$@"
 }
 
 function log_step_warning()
 {
-  __logger_core "40" "$@"
+  __logger_core "$@"
 }
 
 function log_step_error()
 {
-  __logger_core "50" "$@"
+  __logger_core "$@"
 }
 
 function log_step_variable()
 {
   local var
   var="$1"
-  __logger_core "00" "$(printf "%s=%s" "${var}" "${!var}")"
+  __logger_core "$(printf "%s=%s" "${var}" "${!var}")"
 }
+
+### END LOGGING SNIPPET ###

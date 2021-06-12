@@ -7,6 +7,7 @@ set fish_greeting
 # for NEMO, set DOT_PROFILE_SKIP_SSH_CONFIG=true
 function enable_setup_gpg_ssh -a number
   if contains true $CODESPACES
+      set --expo
       return 0
   else if contains true $CLOUD_SHELL
       return 0
@@ -27,7 +28,7 @@ else
   set --global --export SSH_AGENT_HANDLER "default"
 end
 
-functions --erase __check_if_gpg_ssh_is_needed
+functions --erase enable_setup_gpg_ssh
 
 # Remove ~/.local/bin and ~/bin if present
 set -l user_bin_index (contains -i -- /home/$USER/bin $PATH); and set --erase PATH[$user_bin_index]
