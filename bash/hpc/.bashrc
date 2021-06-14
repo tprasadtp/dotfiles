@@ -122,31 +122,6 @@ if [ -f ~/.bash_aliases ]; then
   source ~/.bash_aliases
 fi
 
-# Snippetizer:DirEnv:Init:Start
-if command -v direnv > /dev/null; then
-  _direnv_hook() {
-    local previous_exit_status=$?;
-    eval "$(direnv export bash)";
-    return $previous_exit_status;
-  };
-  if ! [[ "${PROMPT_COMMAND:-}" =~ _direnv_hook ]]; then
-    PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
-  fi
-fi
-# Snippetizer:DirEnv:Init:End
-
-# Snippetizer:Starship:Init:Start
-if command -v starship > /dev/null; then
-  eval "$(starship init bash)"
-  if [[ $(hostname --fqdn) == *"nemo"* ]] && [[ -z $SSH_CONNECTION ]]; then
-    # We are on NEMO but in an interactive job,
-    # appease starship by setting empty SSH_CONNECTION variable
-    export SSH_CONNECTION=""
-  fi
-fi
-# Snippetizer:Starship:Init:End
-
-
 # Local binaries
 export PATH="${PATH}:~/bin:~/.local/bin"
 
@@ -218,6 +193,33 @@ if command -v conda > /dev/null; then
   #shellcheck source=/dev/null
   source <(conda shell.bash hook)
 fi
+
+# These MUST be after conda init because conda will modify PS1
+# If not disabled in .condarc
+
+# Snippetizer:DirEnv:Init:Start
+if command -v direnv > /dev/null; then
+  _direnv_hook() {
+    local previous_exit_status=$?;
+    eval "$(direnv export bash)";
+    return $previous_exit_status;
+  };
+  if ! [[ "${PROMPT_COMMAND:-}" =~ _direnv_hook ]]; then
+    PROMPT_COMMAND="_direnv_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+  fi
+fi
+# Snippetizer:DirEnv:Init:End
+
+# Snippetizer:Starship:Init:Start
+if command -v starship > /dev/null; then
+  eval "$(starship init bash)"
+  if [[ $(hostname --fqdn) == *"nemo"* ]] && [[ -z $SSH_CONNECTION ]]; then
+    # We are on NEMO but in an interactive job,
+    # appease starship by setting empty SSH_CONNECTION variable
+    export SSH_CONNECTION=""
+  fi
+fi
+# Snippetizer:Starship:Init:End
 
 # Umask
 umask 077
