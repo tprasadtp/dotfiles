@@ -116,6 +116,11 @@ fi
 # Disable case sentitive completion
 set completion-ignore-case On
 
+# Load aliases early
+if [ -f ~/.bash_aliases ]; then
+  # shellcheck source=/dev/null
+  source ~/.bash_aliases
+fi
 
 # Snippetizer:DirEnv:Init:Start
 if command -v direnv > /dev/null; then
@@ -197,51 +202,22 @@ fi
 conda_ws="$(ws_find conda)"
 # shellcheck disable=SC2181
 if [[ $? -eq 0 ]]; then
-    conda_path="$conda_ws/miniconda3/bin"
+    export NEMO_CONDA_PATH="$conda_ws/miniconda3/bin"
     export CONDA_ENVS_PATH="$conda_ws/env"
     export CONDA_PKGS_DIRS="$conda_ws/pkgs"
 else
   if [[ -d $HOME/Tools/miniconda3 ]]; then
-    conda_path="$HOME/Tools/miniconda3/bin"
+    export NEMO_CONDA_PATH="$HOME/Tools/miniconda3/bin"
   else
-    conda_path="$HOME/miniconda3/bin"
+    export NEMO_CONDA_PATH="$HOME/miniconda3/bin"
   fi
 fi
 
-export PATH="$PATH:$conda_path"
+export PATH="$NEMO_CONDA_PATH:$PATH"
 if command -v conda > /dev/null; then
   #shellcheck source=/dev/null
   source <(conda shell.bash hook)
 fi
-
-# Colorful grep cmds
-alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-
-#show open ports
-alias ports='netstat -tulanp'
-
-#clear time saver
-alias c=clear
-alias e=exit
-alias pinggoogle='ping google.com'
-alias pingdns='ping 1.1.1.1'
-alias greph='history |grep'
-
-alias ws-ls='ws_list'
-alias ws-find='ws_find'
-alias ws-alloc='ws_allocate'
-alias ws-extend='ws_extend'
-alias ws-register='ws_register'
-alias ws-release='ws_release'
-alias ws-unlock='ws_unlock'
-
-# filter processes
-alias pfilter='ps -faux | grep'
-
-
-export DOTFILE_PROFILE_ID="hpc"
 
 # Umask
 umask 077
