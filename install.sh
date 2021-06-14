@@ -21,6 +21,37 @@ set -o pipefail
 readonly CURDIR="$(cd -P -- "$(dirname -- "")" && pwd -P)"
 readonly SCRIPT="$(basename "$0")"
 
+readonly PINK=$'\e[38;5;212m'
+readonly ORANGE=$'\e[38;5;208m'
+readonly TEAL=$'\e[38;5;192m'
+readonly VIOLET=$'\e[38;5;219m'
+readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
+  [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
+ [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
+[0;1;32;92m/_[0;1;36;96m__[0;1;34;94m_/[0;1;35;95m\_[0;1;31;91m__[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m/[0m [0;1;35;95m/_[0;1;31;91m/_[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m__[0;1;35;95m/[0m
+"
+
+# Define direnv, bat, fzf, fd and fisher versions
+readonly FZF_VERSION="0.27.0"
+readonly FD_VERSION="8.2.1"
+
+readonly BAT_VERSION="0.17.1"
+readonly DIRENV_VERSION="2.28.0"
+
+readonly GIT_CHGLOG_VERSION="0.14.2"
+
+if [[ -v ${FISHER_VERSION} ]]; then
+  log_error "FISHER_VERSION is a reserved variable!"
+  exit 1
+fi
+
+# MUST USE HASH
+readonly FISHER_VERSION="247b58e0d97c785ef960b88cd07c734d4e92225c"
+
+# Default settings
+DOT_PROFILE_ID="sindhu"
+INSTALL_PREFIX="${HOME}"
+
 # Handle Signals
 # trap ctrl-c and SIGTERM
 trap ctrl_c_signal_handler INT
@@ -36,7 +67,6 @@ function term_signal_handler()
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
-
 
 ### BEGIN LOGGING SNIPPET ###
 
@@ -237,34 +267,6 @@ function log_step_variable()
 
 ### END LOGGING SNIPPET ###
 
-
-readonly LOGO="   [0;1;31;91m_[0;1;33;93m__[0m       [0;1;35;95m_[0;1;31;91m_[0m  [0;1;33;93m_[0;1;32;92m__[0;1;36;96m__[0m [0;1;34;94m_[0;1;35;95m_[0m
-  [0;1;33;93m/[0m [0;1;32;92m_[0m [0;1;36;96m\_[0;1;34;94m__[0m  [0;1;31;91m/[0m [0;1;33;93m/_[0;1;32;92m/[0m [0;1;36;96m__[0;1;34;94m(_[0;1;35;95m)[0m [0;1;31;91m/_[0;1;33;93m_[0m [0;1;32;92m__[0;1;36;96m_[0m
- [0;1;33;93m/[0m [0;1;32;92m/[0;1;36;96m/[0m [0;1;34;94m/[0m [0;1;35;95m_[0m [0;1;31;91m\/[0m [0;1;33;93m_[0;1;32;92m_/[0m [0;1;36;96m_[0;1;34;94m//[0m [0;1;35;95m/[0m [0;1;31;91m/[0m [0;1;33;93m-[0;1;32;92m_|[0;1;36;96m_-[0;1;34;94m<[0m
-[0;1;32;92m/_[0;1;36;96m__[0;1;34;94m_/[0;1;35;95m\_[0;1;31;91m__[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m/[0m [0;1;35;95m/_[0;1;31;91m/_[0;1;33;93m/\[0;1;32;92m__[0;1;36;96m/_[0;1;34;94m__[0;1;35;95m/[0m
-"
-
-# Define direnv, bat, fzf, fd and fisher versions
-readonly FZF_VERSION="0.27.0"
-readonly FD_VERSION="8.2.1"
-
-readonly BAT_VERSION="0.17.1"
-readonly DIRENV_VERSION="2.28.0"
-
-readonly GIT_CHGLOG_VERSION="0.14.2"
-
-if [[ -v ${FISHER_VERSION} ]]; then
-  log_error "FISHER_VERSION is a reserved variable!"
-  exit 1
-fi
-
-# MUST USE HASH
-readonly FISHER_VERSION="247b58e0d97c785ef960b88cd07c734d4e92225c"
-
-# Default settings
-DOT_PROFILE_ID="sindhu"
-INSTALL_PREFIX="${HOME}"
-
 function option_error()
 {
   cat << EOF
@@ -280,6 +282,8 @@ function display_usage()
 $LOGO
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
+------------------------- Exclusive ------------------------${NC}
+
 [-i --install]          Install dotfiles
 [--codespaces]          Instal in codespaces mode
                         Includes - Bash, Git, GPG, Fish,
@@ -293,8 +297,8 @@ ${YELLOW}
                         custom profiles
 [--hpc]                 HPC mode. Used on HPC clusters.
                         Skipes all GUI stuff.
-${NC}
-------------------------- Exclusive ------------------------${PINK}
+${PINK}
+------------------------- Exclusive ------------------------${NC}
 [-C | --only-config]    Only install configs
 [-F | --only-fish]      Only install fish configs
 [-B | --only-bash]      Only install Bash and starship
@@ -304,27 +308,29 @@ ${NC}
 [-t | --tools]          Installs necessary tools
                         - direnv, starship
                         - bat,fd and fzf
-${NC}
------------------------ Skip ------------------------------${BLUE}
+${BLUE}
+----------------------- Skip ------------------------------${NC}
 [-c | --no-config]      Skip installing all config
-[-e | --minimal-config) Install only base essentials
+[-e | --minimal-config) Install only base essentials,
                         skip extra, usually GUI stuff
+[--no-gitconfig]        Skip installing git config
+                        (Useful for HPC NEMO)
 [-k | --no-fonts)       Skip installing fonts
 [-j | --no-templates)   Skip installing templates
 [-f | --no-fish)        Skip installing all fish configs
-${NC}
--------------------- Skip Tools ---------------------------${VIOLET}
+${VIOLET}
+-------------------- Skip Tools ---------------------------${NC}
 [--skip-<tool>]         Skip installing this tool
 
-- This only applies if --tool or --codespaces is active.
+- This only applies if --tools or --codespaces is active.
 - <tool> can be one of the following: starship,fd,fzf,
   direnv or git-chglog
-${NC}
----------------------- Addons ----------------------------${TEAL}
+${TEAL}
+---------------------- Addons ----------------------------${NC}
 [-x | --bin]            Install scripts in bin to ~/bin
 [-w | --wallpapers]     Install wallpaper collectiont
-${NC}
------------------- Profile Selector ----------------------
+${ORANGE}
+------------------ Profile Selector ----------------------${NC}
 When a profile name is set, and if matching config is found,
 they will be used instead of default ones. Profile specific
 configs are stored in folder with suffix -{ProfileName}.
@@ -333,12 +339,20 @@ configs are stored in folder with suffix -{ProfileName}.
 - If profile specific settings are not found,
   defaults are used.
 ${ORANGE}
-[-p | --profile]        Set Profile${NC}
-
------------------ Debugging & Help ----------------------${GRAY}
+[-p | --profile <NAME>] Set Profile${NC}
+${GRAY}
+----------------- Debugging & Help ----------------------${NC}
 [-v | --verbose]        Enable verbose loggging
 [--test]                Installs to ~/Junk instead of ~
-[-h --help]             Display this help message]${NC}
+[-h --help]             Display this help message
+${TEAL}
+------------------ Environment Variables ----------------${NC}
+${BLUE}LOG_TO_STDERR${NC}     - Set this to 'true' to log to stderr.
+${BLUE}LOG_FMT${NC}           - Set this to 'full' to show timestamps.
+${BLUE}NO_COLOR${NC}          - Set this to NON-EMPTY to disable colors.
+${BLUE}CLICOLOR_FORCE${NC}    - Set this to NON-ZERO to force colors.
+                  - Colors are disabled by default,
+                    if output is not a TTY.
 EOF
 }
 
@@ -789,7 +803,11 @@ function install_fish_configs_handler()
 function __install_config_files_handler()
 {
   # Git
-  __install_config_files "git" ""
+  if [[ $bool_skip_gitconfig != true ]]; then
+    __install_config_files "git" ""
+  else
+    log_debug "Skipped gitconfig"
+  fi
 
   # GPG
   __install_config_files "gnupg" ".gnupg"
@@ -873,7 +891,13 @@ function install_minimal_wrapper()
 {
   log_notice "Installing minimal configs"
   install_bash_handler
-  __install_config_files "git" ""
+
+  if [[ $bool_skip_gitconfig != true ]]; then
+    __install_config_files "git" ""
+  else
+    log_debug "Skipped gitconfig"
+  fi
+
   __install_config_files "gnupg" ".gnupg"
   __install_config_files "starship" ".config"
   __install_config_files "direnv" ".config/direnv"
@@ -900,7 +924,11 @@ function install_cloudshell_wrapper()
 
   log_notice "Cloudshell:: Configs"
   # Git
-  __install_config_files "git" ""
+  if [[ $bool_skip_gitconfig != true ]]; then
+    __install_config_files "git" ""
+  else
+    log_debug "Skipped gitconfig"
+  fi
 
   # Direnv
   __install_config_files "direnv" ".config/direnv"
@@ -1062,6 +1090,7 @@ function main()
         ((++exclusive_conflicts))
         ;;
       # Skip modes
+      --no-gitconfig) readonly bool_skip_gitconfig="true" ;;
       -c | --skip-config) readonly bool_skip_config="true" ;;
       --skip-starship) readonly bool_tools_skip_starship="true" ;;
       --skip-direnv) readonly bool_tools_skip_direnv="true" ;;
