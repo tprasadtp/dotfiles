@@ -9,6 +9,7 @@ $git_state\
 $git_status\
 $package\
 $golang\
+$conda\
 $python\
 $ruby\
 $rust\
@@ -213,6 +214,10 @@ symbol = " "
 format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\))]($style) '
 style = "#FFD43B"
 
+[conda]
+symbol = " "
+format = "[$symbol$environment](dimmed green) "
+
 [package]
 symbol = " "
 #symbol = " "
@@ -243,10 +248,6 @@ style = "#9a67ea"
 # --------------------
 [docker_context]
 symbol = " "
-disabled = true
-
-[conda]
-symbol = " "
 disabled = true
 
 [cmake]
