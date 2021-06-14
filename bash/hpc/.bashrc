@@ -117,16 +117,6 @@ fi
 set completion-ignore-case On
 
 
-if [ -f ~/.bash_exports ]; then
-  #shellcheck source=/dev/null
-  source ~/.bash_exports
-fi
-
-if [ -f ~/.bash_completion ]; then
-  #shellcheck source=/dev/null
-  source ~/.bash_completion
-fi
-
 # Snippetizer:DirEnv:Init:Start
 if command -v direnv > /dev/null; then
   _direnv_hook() {
@@ -150,6 +140,108 @@ if command -v starship > /dev/null; then
   fi
 fi
 # Snippetizer:Starship:Init:End
+
+
+# Local binaries
+export PATH="${PATH}:~/bin:~/.local/bin"
+
+# Add GPG Agent config
+# This is skipped in codespaces
+# for NEMO, set DOT_PROFILE_USE_HOST_SSH_AGENT=true
+if [[ ${CODESPACES} != "true" ]] && \
+  [[ $CLOUD_SHELL != "true" ]] && \
+  [[ ${DOT_PROFILE_USE_HOST_SSH_AGENT} != "true" ]]; then
+  GPG_TTY=$(tty)
+  export GPG_TTY
+  export SSH_AGENT_PID=""
+  SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export SSH_AUTH_SOCK
+fi
+
+# Go {This is only applied if Go is installed using Artemis. See go/arty}
+if [[ -d ${HOME}/Tools/go ]]; then
+  # Sets GOROOT
+  export GOROOT="$HOME/Tools/go"
+  # Add Go commands to PATH
+  export PATH="$PATH:$GOROOT/bin"
+fi
+
+# Fish {This is only applied if fish is installed here}
+if [[ -d ${HOME}/opt/fish/bin ]]; then
+  # Add to PATH. This WILL Override fish on system!
+  export PATH="${HOME}/opt/fish/bin:$PATH"
+fi
+
+# Go Settings {This is skipped if go is not installed}
+if command -v go > /dev/null; then
+  # sets GOPATH
+  export GOPATH="$HOME/go"
+  # Allow Public from Modules Proxy only and limit private to git
+  export GOVCS="private:git,public:off"
+fi
+
+# Python
+export POETRY_HOME="${HOME}/Tools/poetry"
+if [[ -d ${HOME}/Tools/poetry/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/poetry/bin"
+fi
+
+# Rust
+export CARGO_HOME="${HOME}/Tools/Rust/cargo"
+export RUSTUP_HOME="${HOME}/Tools/Rust/rustup"
+if [[ -d ${HOME}/Tools/Rust/cargo/bin ]]; then
+  export PATH="${PATH}:${HOME}/Tools/Rust/cargo/bin"
+fi
+
+# Miniconda
+conda_ws="$(ws_find conda)"
+# shellcheck disable=SC2181
+if [[ $? -eq 0 ]]; then
+    conda_path="$conda_ws/miniconda3/bin"
+    export CONDA_ENVS_PATH="$conda_ws/env"
+    export CONDA_PKGS_DIRS="$conda_ws/pkgs"
+else
+  if [[ -d $HOME/Tools/miniconda3 ]]; then
+    conda_path="$HOME/Tools/miniconda3/bin"
+  else
+    conda_path="$HOME/miniconda3/bin"
+  fi
+fi
+
+export PATH="$PATH:$conda_path"
+if command -v conda > /dev/null; then
+  #shellcheck source=/dev/null
+  source <(conda shell.bash hook)
+fi
+
+# Colorful grep cmds
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+#show open ports
+alias ports='netstat -tulanp'
+
+#clear time saver
+alias c=clear
+alias e=exit
+alias pinggoogle='ping google.com'
+alias pingdns='ping 1.1.1.1'
+alias greph='history |grep'
+
+alias ws-ls='ws_list'
+alias ws-find='ws_find'
+alias ws-alloc='ws_allocate'
+alias ws-extend='ws_extend'
+alias ws-register='ws_register'
+alias ws-release='ws_release'
+alias ws-unlock='ws_unlock'
+
+# filter processes
+alias pfilter='ps -faux | grep'
+
+
+export DOTFILE_PROFILE_ID="hpc"
 
 # Umask
 umask 077
