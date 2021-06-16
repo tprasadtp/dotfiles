@@ -10,17 +10,6 @@ if contains nemo (hostname --fqdn)
   end
 end
 
-# Preload Modules
-if type -q module
-  if not module is-loaded math/matlab/R2019b
-      module load math/matlab/R2019b
-  end
-
-  if not module is-loaded tools/singularity/3.5
-      module load tools/singularity/3.5
-  end
-end
-
 alias c='clear'
 alias e='exit'
 
