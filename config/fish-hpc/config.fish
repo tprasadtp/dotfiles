@@ -25,4 +25,4 @@ alias c='clear'
 alias e='exit'
 
 # Umask
-umask u=rw
+umask 077
