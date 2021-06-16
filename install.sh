@@ -398,7 +398,7 @@ function __link_single_item_magic_action()
   local src="${1}"
   local dest="${2}"
   if ln -sfn "${src}" "${dest}"; then
-    log_step_debug "${src} ⇢⇢ ${dest}"
+    log_step_debug "Linking src=${src} dest=${dest}"
   else
     log_step_error "Linking ${src} to ${dest} failed!"
   fi
@@ -813,6 +813,7 @@ function __install_config_files_handler()
   __install_config_files "gnupg" ".gnupg"
 
   # XResources
+  log_info "XResources"
   __link_single_item "xresources/.Xresources" ".Xresources"
 
   # Nano

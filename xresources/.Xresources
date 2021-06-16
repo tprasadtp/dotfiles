@@ -45,11 +45,7 @@ XTerm*scaleHeight: 1.01
 #define base0F #cc6633
 
 xterm*foreground:   base05
-#ifdef background_opacity
-xterm*background:   [background_opacity]base00
-#else
 xterm*background:   base00
-#endif
 xterm*cursorColor:  base05
 
 xterm*color0:       base00
