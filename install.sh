@@ -812,6 +812,9 @@ function __install_config_files_handler()
   # GPG
   __install_config_files "gnupg" ".gnupg"
 
+  # XResources
+  __link_single_item "xresources/.Xresources" ".Xresources"
+
   # Nano
   __install_config_files "nano" ".config/nano"
 

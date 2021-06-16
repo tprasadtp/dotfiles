@@ -31,7 +31,7 @@ $character\
 # format = "$all"
 
 # Core
-
+# ﬏  ﬦ      﫟   
 # Extra OS Logos
 # Ubuntu     - 
 # Lubuntu    - 
@@ -48,8 +48,9 @@ $character\
 # Linux      - 
 
 [character]
-success_symbol = "[➜](bright-green)"
+success_symbol = "[»](bright-green)"
 error_symbol = "[»](bright-red)"
+
 
 [username]
 show_always = false
@@ -215,15 +216,15 @@ format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\))]($style) '
 style = "#FFD43B"
 
 [conda]
-symbol = " "
+symbol = " "
 style = "#44A833"
 format = "[$symbol$environment]($style) "
 
 [package]
-symbol = " "
-#symbol = " "
+#symbol = " "
+symbol = " "
 style = "#ff833a"
-disabled = true
+disabled = false
 
 [shell]
 fish_indicator = ""

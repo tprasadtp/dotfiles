@@ -53,4 +53,4 @@ if test -d $HOME/Android/Sdk/platform-tools
 end
 
 # Umask
-umask u=rw
+umask 077
