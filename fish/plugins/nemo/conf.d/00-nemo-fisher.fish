@@ -1,5 +1,6 @@
-if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
-  status --current-filename
+if test -n "$FISH_SHELL_DEBUG_LOAD"
+  printf "%s %s" "(date --rfc-3339=ns)" "(  printf "%s %s" "(date --rfc-3339=ns)" "(status --current-filename)"
+)"
 end
 
 function _nemo_install --on-event nemo_install

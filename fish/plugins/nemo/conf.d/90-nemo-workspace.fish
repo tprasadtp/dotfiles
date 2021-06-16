@@ -1,7 +1,8 @@
 # P0.Dependent: 00-fish-override.fish
 
-if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
-  status --current-filename
+if test -n "$FISH_SHELL_DEBUG_LOAD"
+    printf "%s %s" "(date --rfc-3339=ns)" "(status --current-filename)"
+
 end
 
 # ws-* Aliases. These map to corresponding ws_functions

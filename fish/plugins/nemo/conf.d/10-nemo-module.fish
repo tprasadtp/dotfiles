@@ -1,7 +1,8 @@
 # P0.Dependent: 00-fish-override.fish
 
-if test -n "$NEMO_FISH_SHELL_DEBUG_LOAD"
-  status --current-filename
+if test -n "$FISH_SHELL_DEBUG_LOAD"
+    printf "%s %s" "(date --rfc-3339=ns)" "(status --current-filename)"
+
 end
 
 if test $NEMO_FISH_SHELL_SUPPORTED -eq 1
@@ -37,21 +38,13 @@ if test $NEMO_FISH_SHELL_SUPPORTED -eq 1
     set -gx MANPATH (/usr/share/lmod/lmod/libexec/addto MANPATH /usr/share/lmod/lmod/share/man)
 
     if status -i
-    function module
-        eval $LMOD_CMD fish $argv | source -
-    end
-    else
-    function module
-        eval $LMOD_CMD --no_redirect fish $argv | source -
-    end
+      function module
+          eval $LMOD_CMD fish $argv | source -
+      end
     end
 
     function ml
-    eval $LMOD_DIR/ml_cmd $argv | source -
-    end
-
-    function clearMT
-    eval $LMOD_DIR/clearMT_cmd bash | source -
+      eval $LMOD_DIR/ml_cmd $argv | source -
     end
 
     # Module paths for fr_fr

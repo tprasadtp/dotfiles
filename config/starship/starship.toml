@@ -217,7 +217,7 @@ style = "#FFD43B"
 [conda]
 symbol = " "
 style = "#44A833"
-format = "[$symbol$environment]($style)"
+format = "[$symbol$environment]($style) "
 
 [package]
 symbol = " "

@@ -15,4 +15,4 @@ contains -- $conda_install_path $PATH; or set --prepend PATH $conda_install_path
 
 if type -q conda
   conda shell.fish hook | source
-ends
+end
