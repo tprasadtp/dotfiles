@@ -813,7 +813,7 @@ function __install_config_files_handler()
   __install_config_files "gnupg" ".gnupg"
 
   # XResources
-  log_info "XResources"
+  log_step_info "XResources"
   __link_single_item "xresources/.Xresources" ".Xresources"
 
   # Nano
