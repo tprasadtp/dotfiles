@@ -777,7 +777,7 @@ function install_fish_configs_handler()
     log_notice "Skipped installing fish configurations"
   else
 
-    log_info "Install fish configs"
+    log_notice "Install fish configs"
 
     # Install configs and plugin settings
     __install_config_files "fish" ".config/fish/"
@@ -952,6 +952,7 @@ function install_hpc_wrapper()
   install_fonts_handler
   install_fish_configs_handler
   if [[ $bool_skip_config != "true" ]]; then
+    log_notice "Install HPC essential config files"
     __install_config_files_handler
   else
     log_debug "Skipped config install"
