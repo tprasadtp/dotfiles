@@ -23,6 +23,7 @@ type Info struct {
 type NodeInfo struct {
 	Name  string `json:"name" yaml:"name" hcl:"name"`
 	Index int    `json:"index" yaml:"index" hcl:"index"`
+	PID   int    `json:"pid" yaml:"pid" hcl:"pid"`
 }
 
 // JobInfo from PBS env variables
@@ -96,6 +97,7 @@ func getJobInfo() Info {
 	return Info{
 		Node: NodeInfo{
 			Name:  getHostname(),
+			PID:   os.Getpid(),
 			Index: lookupEnvInt("PBS_NODENUM"),
 		},
 		Job: JobInfo{
@@ -114,7 +116,7 @@ func getJobInfo() Info {
 }
 
 func server(port int) {
-	log.Printf("[INFO] Running on port: %d", port)
+	log.Printf("[INFO] Running on port: %d with PID:%d", port, os.Getpid())
 	mux := http.NewServeMux()
 	s := http.Server{Addr: fmt.Sprintf(":%d", port), Handler: mux}
 	ctx, cancel := context.WithCancel(context.Background())
@@ -122,7 +124,7 @@ func server(port int) {
 
 	// SIGNAL handlers
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
+	signal.Notify(c, os.Interrupt)
 
 	go func() {
 		oscall := <-c
@@ -159,7 +161,11 @@ func server(port int) {
 	select {
 	case <-ctx.Done():
 		// Shutdown the server when the context is canceled
-		s.Shutdown(ctx)
+		if err := s.Shutdown(ctx); err == nil || err == context.Canceled {
+			log.Printf("[INFO] Metadata server cleanup is complete")
+		} else {
+			log.Fatalf("[FATAL] Failed to shutdown server: %+v", err)
+		}
 	}
 	log.Printf("[INFO] Finished")
 }

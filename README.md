@@ -8,4 +8,4 @@
 ## License
 
 Even though code is licensed under `MIT`, media assets under
-`walls` and `themes`, might be licensed under different licenses.
+`walls` might be licensed under different licenses.

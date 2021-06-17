@@ -31,7 +31,7 @@ $character\
 # format = "$all"
 
 # Core
-# ﬏  ﬦ      﫟   
+# ﬏  ﬦ      﫟  
 # Extra OS Logos
 # Ubuntu     - 
 # Lubuntu    - 
@@ -46,6 +46,9 @@ $character\
 # Qubes      - 
 # Open Suse  - 
 # Linux      - 
+
+# This is targeted for NEMO
+command_timeout = 2000
 
 [character]
 success_symbol = "[»](bright-green)"
