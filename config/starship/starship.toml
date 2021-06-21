@@ -48,7 +48,8 @@ $character\
 # Linux      - 
 
 # This is targeted for NEMO
-command_timeout = 2000
+# Because of conda on BGFS
+command_timeout = 4000
 
 [character]
 success_symbol = "[»](bright-green)"

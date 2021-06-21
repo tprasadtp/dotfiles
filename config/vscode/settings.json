@@ -231,10 +231,11 @@
   "remote.SSH.remoteServerListenOnSocket": true,
   "remote.SSH.suppressWindowsSshWarning": true,
   "remote.SSH.remotePlatform": {
+    "nemo-1": "linux",
+    "nemo-2": "linux",
     "n3471.nemo.privat": "linux",
     "n4657.nemo.privat": "linux",
-    "nemo-1": "linux",
-    "nemo-2": "linux"
+    "n4658.nemo.privat": "linux"
   },
   "redhat.telemetry.enabled": false,
   "python.autoUpdateLanguageServer": false,
