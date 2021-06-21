@@ -282,7 +282,7 @@ function display_usage()
 $LOGO
 Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
 ${YELLOW}
-------------------------- Exclusive ------------------------${NC}
+--------------------------- Modes --------------------------${NC}
 
 [-i --install]          Install dotfiles
 [--codespaces]          Instal in codespaces mode
@@ -1202,6 +1202,4 @@ function main()
   fi # install_mode check
 }
 
-#
-# install_fish_configs_handler "$@"
 main "$@"

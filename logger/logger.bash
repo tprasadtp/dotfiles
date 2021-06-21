@@ -8,7 +8,7 @@
 [[ ! -v ${GRAY}  ]]   && declare -gr GRAY=$'\e[38;5;250m'
 [[ ! -v ${GREEN}  ]]  && declare -gr GREEN=$'\e[38;5;83m'
 [[ ! -v ${BLUE}  ]]   && declare -gr BLUE=$'\e[38;5;81m'
-[[ ! -v ${YELLOW}  ]] && declare -gr YELLOW=$'\e[38;5;214m'
+[[ ! -v ${YELLOW} ]] && declare -gr YELLOW=$'\e[38;5;214m'
 [[ ! -v ${RED}  ]]    && declare -gr RED=$'\e[38;5;197m'
 [[ ! -v ${NC}  ]]     && declare -gr NC=$'\e[0m'
 
