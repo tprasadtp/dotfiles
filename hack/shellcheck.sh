@@ -15,56 +15,34 @@ trap ctrl_c_signal_handler INT
 trap term_signal_handler SIGTERM
 
 function ctrl_c_signal_handler()
-                                 {
+{
   log_error "User Interrupt! CTRL-C"
   exit 4
 }
 function term_signal_handler()
-                               {
+{
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
 
-function get_abspath()
-{
-  # Generate absolute path from relative path
-  # ARGUMENTS:
-  # $1     : relative filename
-  if [ -d "$1" ]; then
-        # dir
-        (
-         cd "$1" || return
-                             pwd
-    )
-  elif   [ -f "$1" ]; then
-        # file
-        if [[ $1 = /* ]]; then
-            printf "%s" "$1"
-    elif     [[ $1 == */* ]]; then
-            printf "%s" "$(
-                           cd "${1%/*}" || return
-                                                    pwd
-      )/${1##*/}"
-    else
-            printf "%s" "$(pwd)/$1"
-    fi
-  fi
-}
 
+#>> diana::snippet:bash-logger:begin <<#
+# shellcheck shell=bash
 
-
-### BEGIN LOGGING SNIPPET ###
+# BASH LOGGING LIBRARY
+# See https://github.com/tprasadtp/dotfiles/logger/README.md
+# If included in other files, contents between snippet markers is
+# automatically updated and all changes wil be ignored.
 
 # Define standard logging colors
-[[ ! -v ${DGRAY}  ]]  && declare -gr DGRAY=$'\e[38;5;246m'
-[[ ! -v ${GRAY}  ]]   && declare -gr GRAY=$'\e[38;5;250m'
-[[ ! -v ${GREEN}  ]]  && declare -gr GREEN=$'\e[38;5;83m'
-[[ ! -v ${BLUE}  ]]   && declare -gr BLUE=$'\e[38;5;81m'
-[[ ! -v ${YELLOW}  ]] && declare -gr YELLOW=$'\e[38;5;214m'
-[[ ! -v ${RED}  ]]    && declare -gr RED=$'\e[38;5;197m'
-[[ ! -v ${NC}  ]]     && declare -gr NC=$'\e[0m'
+[[ ! -v ${DGRAY} ]] && declare -gr DGRAY=$'\e[38;5;246m'
+[[ ! -v ${GRAY} ]] && declare -gr GRAY=$'\e[38;5;250m'
+[[ ! -v ${GREEN} ]] && declare -gr GREEN=$'\e[38;5;83m'
+[[ ! -v ${BLUE} ]] && declare -gr BLUE=$'\e[38;5;81m'
+[[ ! -v ${YELLOW} ]] && declare -gr YELLOW=$'\e[38;5;214m'
+[[ ! -v ${RED} ]] && declare -gr RED=$'\e[38;5;197m'
 
-# Default log level and format
+# Default log level and formats
 [[ -z $LOG_FMT ]] && declare -g LOG_FMT="pretty"
 [[ -z $LOG_LVL ]] && declare -g LOG_LVL="20"
 
@@ -78,33 +56,51 @@ function __logger_core()
   # and return if not called form known functions.
   # This effectively makes this function private-ish err somewhat.
   case ${FUNCNAME[1]} in
-    log_step_variable | log_variable)   local level=0 ;;
-    log_step_debug | log_debug)         local level=10 ;;
-    log_step_info |  log_info)          local level=20 ;;
-    log_step_success |  log_success)    local level=25 ;;
-    log_step_warning |  log_warning)    local level=30 ;;
-    log_step_notice |  log_notice)      local level=35 ;;
-    log_step_error |  log_error)        local level=40 ;;
-    *)                                  return ;;
+    log_step_variable | log_variable) local level=0 ;;
+    log_step_debug | log_debug) local level=10 ;;
+    log_step_info | log_info) local level=20 ;;
+    log_step_success | log_success) local level=20 ;;
+    log_step_warning | log_warning) local level=30 ;;
+    log_step_notice | log_notice) local level=35 ;;
+    log_step_error | log_error) local level=40 ;;
+    *) return ;;
   esac
 
   # Immediately return if log level is not enabled
   [[ ${LOG_LVL} -gt "$level" ]] && return
-
-  # Disable colord output by default
-  local lvl_colorized="false"
 
   # Level string & color
   local lvl_string="•"
   local lvl_color=""
   local lvl_color_reset=""
 
-  # Forces colors
+  # Detect whether to coloring is disabled based on env variables,
+  # and if output Terminal is intractive. This supports both
+  # - https://bixense.com/clicolors/ &
+  # - https://no-color.org/ standards.
+
+  # Forces colored logs
+  # - if CLICOLOR_FORCE is set and non empty
+  #
   if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
-    lvl_colorized="forced"
-  # Enables colors if terminal is interactive and NOCOLOR is not empty and TERM is not dumb
-  elif [[ -t 1 ]] && [[ -z ${NO_COLOR} ]] && [[ ${TERM} != "dumb" ]]; then
-    lvl_colorized="true"
+    local lvl_colorized="true"
+
+  # Disable colors if
+  # - CLICOLOR == 0
+  # - NO_COLOR is set to non empty value
+  #
+  elif [[ -n $NO_COLOR ]] || [[ $CLICOLOR == "0" ]]; then
+    local lvl_colorized="false"
+
+  # Enable colors
+  # - If TERM is NOT set to dumb and
+  # - Terminal is interactive
+  elif [[ -t 1 ]] && [[ $TERM != "dumb" ]]; then
+    local lvl_colorized="true"
+    local lvl_color_reset=$'\e[0m'
+  # Proably Terminal is non-interactive, disable colors
+  else
+    local lvl_colorized="false"
   fi
 
   # Indent
@@ -128,50 +124,45 @@ function __logger_core()
   # By default we do not show log level and timestamp.
   # However, if log-fmt is set to "full" or if colors are disabled,
   # we will enable long format with timestamps
-  case ${level} in
-    0 | 00)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [TRACE ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${DGRAY}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    10)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [DEBUG ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GRAY}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    20)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
-          ;;
-    25)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${GREEN}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    30)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${YELLOW}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    35)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [NOTICE]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${BLUE}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
-    40)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color="${RED}"
-          [[ $lvl_colorized =~ (true|forced) ]] && local lvl_color_reset="${NC}"
-          ;;
+  case ${FUNCNAME[1]} in
+    log_step_variable | log_variable)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [TRACE ]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${DGRAY}"
+      ;;
+    log_step_debug | log_debug)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [DEBUG ]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${GRAY}"
+      ;;
+    log_step_info | log_info)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [INFO  ]"
+      ;;
+    log_step_success | log_success)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [OK    ]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${GREEN}"
+      ;;
+    log_step_warning | log_warning)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [WARN  ]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${YELLOW}"
+      ;;
+    log_step_notice | log_notice)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [NOTICE]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${BLUE}"
+      ;;
+    log_step_error | log_error)
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [ERROR ]"
+      [[ $lvl_colorized == "true" ]] && local lvl_color="${RED}"
+      ;;
     *)
-          [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
-          ;;
+      [[ $LOG_FMT == "full" || $lvl_colorized == "false" ]] && lvl_string="$(date --rfc-3339=s) [UNKOWN]"
+      ;;
   esac
 
-  # Logging
+  # Log Event
+  local msg="$*"
   if [[ ${LOG_TO_STDERR} == "true" ]]; then
-    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}" 1>&2
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$msg" "${lvl_color_reset}" 1>&2
   else
-    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$@" "${lvl_color_reset}"
+    printf "%s%s%s %s %s\n" "${lvl_color}" "${lvl_indent}" "${lvl_string}" "$msg" "${lvl_color_reset}"
   fi
 }
 
@@ -249,13 +240,39 @@ function log_step_variable()
   var="$1"
   __logger_core "$(printf "%s=%s" "${var}" "${!var}")"
 }
+#>> diana::snippet:bash-logger:end <<#
 
-### END LOGGING SNIPPET ###
 
+
+function get_abspath()
+{
+  # Generate absolute path from relative path
+  # ARGUMENTS:
+  # $1     : relative filename
+  if [ -d "$1" ]; then
+    # dir
+    (
+      cd "$1" || return
+      pwd
+    )
+  elif [ -f "$1" ]; then
+    # file
+    if [[ $1 = /* ]]; then
+      printf "%s" "$1"
+    elif [[ $1 == */* ]]; then
+      printf "%s" "$(
+        cd "${1%/*}" || return
+        pwd
+      )/${1##*/}"
+    else
+      printf "%s" "$(pwd)/$1"
+    fi
+  fi
+}
 
 # Checks if command is available
 function has_command()
-                       {
+{
   if command -v "$1" > /dev/null; then
     return 0
   else
@@ -297,16 +314,16 @@ function parse_options()
   NON_OPTION_ARGS=()
   while [[ ${1} != "" ]]; do
     case ${1} in
-      --stderr)             LOG_TO_STDERR="true" ;;
+      --stderr) LOG_TO_STDERR="true" ;;
       -v | --verbose)
-                            LOG_LVL="0"
-                            log_debug "Enabled verbose logging"
-                                                               ;;
+        LOG_LVL="0"
+        log_debug "Enabled verbose logging"
+        ;;
       -h | --help)
-                            display_usage
-                                          exit 0
-                                                ;;
-      *)                    NON_OPTION_ARGS+=("${1}") ;;
+        display_usage
+        exit 0
+        ;;
+      *) NON_OPTION_ARGS+=("${1}") ;;
     esac
     shift
   done

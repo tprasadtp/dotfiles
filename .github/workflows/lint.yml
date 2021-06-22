@@ -14,19 +14,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          stable: false
+          go-version: 1.17
+
       - name: Shellcheck
         run: make shellcheck
+
+      - name: Go
+        run: make test-logger
+
       - name: Verify Checksums
         run: |
           ./sign.sh -v -G
+
       - name: Modify for CI
         # Modify after verification
         run:  sed -i 's/set -o pipefail/set -eo pipefail/g' ./install.sh
+
       - name: Default Install
         run:  make test-install
+
       - name: Codespaces
         run:  ./install.sh --codespaces
-      - name: CS
-        run:  ./install.sh --cloudshell
+
       - name: Custom profile
         run:  ./install.sh --profile hpc --install --bin

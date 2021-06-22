@@ -1,5 +1,8 @@
 #!/bin/bash
 #shellcheck disable=SC2164
+
+set -eo pipefail
+
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 if [[ -e $SCRIPTPATH/logger.bash ]]; then
   #shellcheck source=/dev/null

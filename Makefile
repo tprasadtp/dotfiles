@@ -1,10 +1,11 @@
 SHELL := /bin/bash
-
 .DEFAULT_GOAL := help
+export REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
 
 .PHONY: shellcheck
 shellcheck: ## Run shellcheck
-	@./tests/shellcheck.sh $(shell find . -type f \
+	@./hack/shellcheck.sh $(shell find . -type f \
 		-not -iwholename '*.git*' \
 		-not -iwholename 'vendor*' \
 		-not -iwholename '**/*fetch*' \
@@ -50,6 +51,10 @@ help: ## This help dialog.
         printf '\033[0m'; \
         printf "%s\n" $$help_info; \
     done
+
+.PHONY: test-logger
+test-logger: ## Run go test on all packages
+	go test $(REPO_ROOT)/... -count=1 -v
 
 .PHONY: install-tools
 install-tools: ## Installs extra tools used by dotfiles (starship-rs,fzf,fd and direnv)
