@@ -20,6 +20,9 @@ jobs:
         with:
           go-version: ^1.16
 
+      - name: Install faketime
+        run: sudo apt-get update && sudo apt-get -y install faketime
+
       - name: Shellcheck
         run: make shellcheck
 
