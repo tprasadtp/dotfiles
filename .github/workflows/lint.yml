@@ -18,8 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          stable: false
-          go-version: 1.17beta1
+          go-version: ^1.16
 
       - name: Shellcheck
         run: make shellcheck
