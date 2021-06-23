@@ -27,7 +27,7 @@ jobs:
         run: make shellcheck
 
       - name: Go
-        run: make test-logger
+        run: make test-libs
 
       - name: Verify Checksums
         run: |
@@ -43,5 +43,5 @@ jobs:
       - name: Codespaces
         run:  ./install.sh --codespaces
 
-      - name: Custom profile
-        run:  ./install.sh --profile hpc --install --bin
+      - name: HPC
+        run:  ./install.sh --profile hpc --hpc
