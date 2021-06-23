@@ -19,8 +19,14 @@ import (
 func TestVersionFormats(t *testing.T) {
 	t.Parallel()
 
-	_, err := exec.LookPath("faketime")
-	assert.Nil(t, err)
+	_, faketimeErr := exec.LookPath("faketime")
+	assert.Nil(t, faketimeErr)
+
+	_, zshErr := exec.LookPath("zsh")
+	assert.Nil(t, zshErr)
+
+	_, bashErr := exec.LookPath("bash")
+	assert.Nil(t, bashErr)
 
 	origNoColor, origNoColorSet := os.LookupEnv("NO_COLOR")
 	origClicolorForce, origClicolorForceSet := os.LookupEnv("CLICOLOR_FORCE")
