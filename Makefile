@@ -52,8 +52,8 @@ help: ## This help dialog.
         printf "%s\n" $$help_info; \
     done
 
-.PHONY: test-logger
-test-logger: ## Run go test on all packages
+.PHONY: test-libs
+test-libs: ## Run go test on all packages
 	go test $(REPO_ROOT)/... -count=1 -v
 
 .PHONY: install-tools

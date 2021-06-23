@@ -1,0 +1,12 @@
+2000-01-01 00:00:00+00:00 [DEBUG ] This is debug level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [OK    ] This is success level 
+2000-01-01 00:00:00+00:00 [NOTICE] This is notice level 
+2000-01-01 00:00:00+00:00 [WARN  ] This is warning level 
+2000-01-01 00:00:00+00:00 [ERROR ] This is error level 
+2000-01-01 00:00:00+00:00 [DEBUG ] This is step_debug level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is step_info level 
+2000-01-01 00:00:00+00:00 [OK    ] This is step_success level 
+2000-01-01 00:00:00+00:00 [NOTICE] This is step_notice level 
+2000-01-01 00:00:00+00:00 [WARN  ] This is step_warning level 
+2000-01-01 00:00:00+00:00 [ERROR ] This is step_error level 

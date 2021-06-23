@@ -1,0 +1,6 @@
+[38;5;81m• This is notice level [0m
+[38;5;214m• This is warning level [0m
+[38;5;197m• This is error level [0m
+[38;5;81m  - This is step_notice level [0m
+[38;5;214m  - This is step_warning level [0m
+[38;5;197m  - This is step_error level [0m

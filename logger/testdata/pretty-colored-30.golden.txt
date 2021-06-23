@@ -1,6 +1,0 @@
-[38;5;81m• This is notice level 
-[38;5;214m• This is warning level 
-[38;5;197m• This is error level 
-[38;5;81m  - This is notice level 
-[38;5;214m  - This is warning level 
-[38;5;197m  - This is error level 

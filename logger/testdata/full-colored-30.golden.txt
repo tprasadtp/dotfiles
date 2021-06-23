@@ -1,6 +1,0 @@
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is notice level 
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is warning level 
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is error level 
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is notice level 
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is warning level 
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is error level 
