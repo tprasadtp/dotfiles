@@ -10,7 +10,7 @@ fi
 logger_lead="^#>> diana::snippet:bash-logger:begin <<#$"
 logger_tail="^#>> diana::snippet:bash-logger:end <<#$"
 
-logger_files=("sign.sh" "hack/shellcheck.sh" "install.sh" "config/bin-hpc/jobctl" "config/bin-hpc/vnc-ctl")
+logger_files=("sign.sh" "install.sh" "config/bin-hpc/jobctl" "config/bin-hpc/vnc-ctl" "scripts/shellcheck.sh" "scripts/changelog.sh")
 
 for f in "${logger_files[@]}"; do
   echo "- Update $f (logger)"

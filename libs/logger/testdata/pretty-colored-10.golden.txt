@@ -1,12 +1,43 @@
+[38;5;250m• This is trace level [0m
 [38;5;250m• This is debug level [0m
 • This is info level [0m
 [38;5;83m• This is success level [0m
 [38;5;81m• This is notice level [0m
 [38;5;214m• This is warning level [0m
 [38;5;197m• This is error level [0m
-[38;5;250m  - This is step_debug level [0m
-  - This is step_info level [0m
-[38;5;83m  - This is step_success level [0m
-[38;5;81m  - This is step_notice level [0m
-[38;5;214m  - This is step_warning level [0m
-[38;5;197m  - This is step_error level [0m
+[38;5;250m  • This is indent=1 debug level With extra message filed [0m
+  • This is indent=1 info level With extra message filed [0m
+[38;5;83m  • This is indent=1 success level With extra message filed [0m
+[38;5;214m  • This is indent=1 warning level With extra message filed [0m
+[38;5;81m  • This is indent=1 notice level With extra message filed [0m
+[38;5;197m  • This is indent=1 error level With extra message filed [0m
+[38;5;250m    • This is indent=2 debug level With extra message filed [0m
+    • This is indent=2 info level With extra message filed [0m
+[38;5;83m    • This is indent=2 success level With extra message filed [0m
+[38;5;214m    • This is indent=2 warning level With extra message filed [0m
+[38;5;81m    • This is indent=2 notice level With extra message filed [0m
+[38;5;197m    • This is indent=2 error level With extra message filed [0m
+[38;5;250m      • This is indent=3 debug level With extra message filed [0m
+      • This is indent=3 info level With extra message filed [0m
+[38;5;83m      • This is indent=3 success level With extra message filed [0m
+[38;5;214m      • This is indent=3 warning level With extra message filed [0m
+[38;5;81m      • This is indent=3 notice level With extra message filed [0m
+[38;5;197m      • This is indent=3 error level With extra message filed [0m
+[38;5;250m• This is indent=reset debug level With extra message filed [0m
+• This is indent=reset info level With extra message filed [0m
+[38;5;83m• This is indent=reset success level With extra message filed [0m
+[38;5;214m• This is indent=reset warning level With extra message filed [0m
+[38;5;81m• This is indent=reset notice level With extra message filed [0m
+[38;5;197m• This is indent=reset error level With extra message filed [0m
+[38;5;250m  • This is indent=1 debug level With extra message filed [0m
+  • This is indent=1 info level With extra message filed [0m
+[38;5;83m  • This is indent=1 success level With extra message filed [0m
+[38;5;214m  • This is indent=1 warning level With extra message filed [0m
+[38;5;81m  • This is indent=1 notice level With extra message filed [0m
+[38;5;197m  • This is indent=1 error level With extra message filed [0m
+[38;5;250m          • This is indent=5 debug level With extra message filed [0m
+          • This is indent=5 info level With extra message filed [0m
+[38;5;83m          • This is indent=5 success level With extra message filed [0m
+[38;5;214m          • This is indent=5 warning level With extra message filed [0m
+[38;5;81m          • This is indent=5 notice level With extra message filed [0m
+[38;5;197m          • This is indent=5 error level With extra message filed [0m

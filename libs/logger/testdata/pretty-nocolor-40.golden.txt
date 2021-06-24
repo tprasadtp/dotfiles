@@ -1,2 +1,7 @@
 2000-01-01 00:00:00+00:00 [ERROR ] This is error level 
-2000-01-01 00:00:00+00:00 [ERROR ] This is step_error level 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=1 error level With extra message filed 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=2 error level With extra message filed 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=3 error level With extra message filed 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=reset error level With extra message filed 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=1 error level With extra message filed 
+2000-01-01 00:00:00+00:00 [ERROR ] This is indent=5 error level With extra message filed 

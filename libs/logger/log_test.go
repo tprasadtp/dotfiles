@@ -183,6 +183,72 @@ func TestVersionFormats(t *testing.T) {
 		{format: "full", shell: "zsh", sdterr: true, color: false, level: 35},
 		{format: "full", shell: "zsh", sdterr: true, color: false, level: 40},
 		{format: "full", shell: "zsh", sdterr: true, color: false, level: 50},
+
+		// SH
+
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 0},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 10},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 20},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 30},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 35},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 40},
+		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 50},
+
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 0},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 10},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 20},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 30},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 35},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 40},
+		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 50},
+
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 0},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 10},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 20},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 30},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 35},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 40},
+		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 50},
+
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 0},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 10},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 20},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 30},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 35},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 40},
+		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 50},
+
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 0},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 10},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 20},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 30},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 35},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 40},
+		{format: "full", shell: "sh", sdterr: false, color: true, level: 50},
+
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 0},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 10},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 20},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 30},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 35},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 40},
+		{format: "full", shell: "sh", sdterr: false, color: false, level: 50},
+
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 0},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 10},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 20},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 30},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 35},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 40},
+		{format: "full", shell: "sh", sdterr: true, color: true, level: 50},
+
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 0},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 10},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 20},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 30},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 35},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 40},
+		{format: "full", shell: "sh", sdterr: true, color: false, level: 50},
 	}
 	for _, tc := range tests {
 		os.Setenv("TZ", "UTC")

@@ -418,7 +418,7 @@ function main()
                                                                  ;;
         -h | --help)
                                 display_usage
-                                              exit 0
+          exit 0
                                                     ;;
         *)
                                 log_error "Invalid argument(s). See usage below."
