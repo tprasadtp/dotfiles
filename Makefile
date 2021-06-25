@@ -5,14 +5,12 @@ export REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: shellcheck
 shellcheck: ## Run shellcheck
-	@./hack/shellcheck.sh $(shell find . -type f \
+	@./scripts/shellcheck.sh $(shell find . -type f \
 		-not -iwholename '*.git*' \
-		-not -iwholename 'vendor*' \
-		-not -iwholename '**/*fetch*' \
+		-not -iwholename '**/vendor/**' \
 		-not -iwholename '**/fish/**' \
 		-not -iwholename '**/config/fish*' \
 		-not -iwholename '**/ml-formatter' \
-		-not -iwholename '**/*.bats' \
 		-executable | sort -u)
 
 install: ## Installs default profile

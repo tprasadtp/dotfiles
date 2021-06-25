@@ -1,0 +1,3 @@
+[38;5;81m[NOTICE] This is notice level [0m
+[38;5;214m[WARN  ] This is warning level [0m
+[38;5;197m[ERROR ] This is error level [0m

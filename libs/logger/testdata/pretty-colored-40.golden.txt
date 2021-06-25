@@ -1,7 +1,1 @@
 [38;5;197m• This is error level [0m
-[38;5;197m  • This is indent=1 error level With extra message filed [0m
-[38;5;197m    • This is indent=2 error level With extra message filed [0m
-[38;5;197m      • This is indent=3 error level With extra message filed [0m
-[38;5;197m• This is indent=reset error level With extra message filed [0m
-[38;5;197m  • This is indent=1 error level With extra message filed [0m
-[38;5;197m          • This is indent=5 error level With extra message filed [0m

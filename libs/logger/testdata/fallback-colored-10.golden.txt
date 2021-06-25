@@ -1,0 +1,13 @@
+[38;5;250m[DEBUG ] This is debug level [0m
+[38;5;250m[DEBUG ] This is debug level [0m
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[INFO  ] This is info level 
+[38;5;83m[OK    ] This is success level [0m
+[38;5;81m[NOTICE] This is notice level [0m
+[38;5;214m[WARN  ] This is warning level [0m
+[38;5;197m[ERROR ] This is error level [0m

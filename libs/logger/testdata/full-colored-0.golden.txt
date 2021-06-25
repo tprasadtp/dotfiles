@@ -1,49 +1,16 @@
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is trace level [0m
+[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is trace level [0m
+[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is trace level [0m
+[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is trace level [0m
 [38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is debug level [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is info level [0m
+[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is debug level [0m
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
+2000-01-01 00:00:00+00:00 [INFO  ] This is info level 
 [38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is success level [0m
 [38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is notice level [0m
 [38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is warning level [0m
 [38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is error level [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=1 trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=1 debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=1 info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=1 success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=1 warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=1 notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=1 error level With extra message filed [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=2 trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=2 debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=2 info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=2 success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=2 warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=2 notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=2 error level With extra message filed [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=3 trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=3 debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=3 info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=3 success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=3 warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=3 notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=3 error level With extra message filed [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=reset trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=reset debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=reset info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=reset success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=reset warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=reset notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=reset error level With extra message filed [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=1 trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=1 debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=1 info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=1 success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=1 warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=1 notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=1 error level With extra message filed [0m
-[38;5;246m2000-01-01 00:00:00+00:00 [TRACE ] This is indent=5 trace level With extra message filed [0m
-[38;5;250m2000-01-01 00:00:00+00:00 [DEBUG ] This is indent=5 debug level With extra message filed [0m
-2000-01-01 00:00:00+00:00 [INFO  ] This is indent=5 info level With extra message filed [0m
-[38;5;83m2000-01-01 00:00:00+00:00 [OK    ] This is indent=5 success level With extra message filed [0m
-[38;5;214m2000-01-01 00:00:00+00:00 [WARN  ] This is indent=5 warning level With extra message filed [0m
-[38;5;81m2000-01-01 00:00:00+00:00 [NOTICE] This is indent=5 notice level With extra message filed [0m
-[38;5;197m2000-01-01 00:00:00+00:00 [ERROR ] This is indent=5 error level With extra message filed [0m

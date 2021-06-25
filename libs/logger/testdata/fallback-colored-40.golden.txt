@@ -1,0 +1,1 @@
+[38;5;197m[ERROR ] This is error level [0m

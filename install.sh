@@ -69,60 +69,62 @@ function term_signal_handler()
 }
 
 #>> diana::snippet:bash-logger:begin <<#
-# shellcheck shell=bash
+# shellcheck shell=sh
+# shellcheck disable=SC3043
 
-# BASH LOGGING LIBRARY
-# See https://github.com/tprasadtp/dotfiles/logger/README.md
+# SHELL LOGGING LIBRARY
+# See https://github.com/tprasadtp/dotfiles/libs/logger/README.md
 # If included in other files, contents between snippet markers is
-# automatically updated and all changes wil be ignored.
-
-# Logging colors
-# - If set they are preserved,
-# - Otherwise initialized wit ha readonly variable.
-[[ -z ${DARK_GRAY+unset} ]] && readonly DARK_GRAY=$'\e[38;5;246m'
-[[ -z ${GRAY+unset} ]] && readonly GRAY=$'\e[38;5;250m'
-[[ -z ${GREEN+unset} ]] && readonly GREEN=$'\e[38;5;83m'
-[[ -z ${BLUE+unset} ]] && readonly BLUE=$'\e[38;5;81m'
-[[ -z ${YELLOW+unset} ]] && readonly YELLOW=$'\e[38;5;214m'
-[[ -z ${RED+unset} ]] && readonly RED=$'\e[38;5;197m'
-
-# Default log level and formats
-# We set these only if theexisting values are empty
-[[ -z $LOG_FMT ]] && declare -g LOG_FMT="pretty"
-[[ -z $LOG_LVL ]] && declare -g LOG_LVL="20"
+# automatically updated and all changes between markers wil be ignored.
 
 # Logger core
-function __logger_core()
+__logger_core_event_handler()
 {
-  # If no arguments were specified return now
-  [[ $# -eq 0 ]] && return
+  [ "$#" -lt 2 ] && return
 
-  # Determine level based on caller function,
-  # and return if not called form known functions.
-  # This effectively makes this function private-ish
-
-  if [[ -n $BASH_VERSION ]]; then
-    local -r lvl_caller="${FUNCNAME[1]}"
-  else
-    # Ughh Apple! zsh!
-    # Use offset:length as array indexing may start at 1 or 0
-    # shellcheck disable=SC2124,SC2154
-    local -r lvl_caller="${funcstack[@]:1:1}"
-  fi
+  # Caller is same as level name
+  local lvl_caller="${1:-info}"
 
   case $lvl_caller in
-    log_step_variable | log_variable) local -r level=0 ;;
-    log_step_debug | log_debug) local -r level=10 ;;
-    log_step_info | log_info) local -r level=20 ;;
-    log_step_success | log_success) local -r level=20 ;;
-    log_step_warning | log_warning) local -r level=30 ;;
-    log_step_notice | log_notice) local -r level=35 ;;
-    log_step_error | log_error) local -r level=40 ;;
-    *) return ;;
+    log_trace | trace)
+      lvl_caller="trace"
+      level="0"
+      ;;
+    log_debug | debug)
+      lvl_caller="debug"
+      level="10"
+      ;;
+    log_info | info)
+      lvl_caller="info"
+      level="20"
+      ;;
+    log_success | success | ok)
+      lvl_caller="success"
+      level="20"
+      ;;
+    log_warning | warning | warn)
+      lvl_caller="warning"
+      level="30"
+      ;;
+    log_notice | notice)
+      lvl_caller="notice"
+      level="35"
+      ;;
+    log_error | error)
+      lvl_caller="error"
+      level="40"
+      ;;
+    *)
+      level="40"
+      ;;
   esac
 
   # Immediately return if log level is not enabled
-  [[ ${LOG_LVL} -gt $level ]] && return
+  # If LOG_LVL is not set, defaults to 20 - info level
+  [ "${LOG_LVL:-20}" -gt "$level" ] && return
+
+  shift
+  local lvl_msg="$*"
 
   # Detect whether to coloring is disabled based on env variables,
   # and if output Terminal is intractive. This supports both
@@ -132,23 +134,25 @@ function __logger_core()
   # Forces colored logs
   # - if CLICOLOR_FORCE is set and non empty and not zero
   #
-  if [[ -n ${CLICOLOR_FORCE} ]] && [[ ${CLICOLOR_FORCE} != "0" ]]; then
+  if [ -n "${CLICOLOR_FORCE}" ] && [ "${CLICOLOR_FORCE}" != "0" ]; then
     local lvl_colorized="true"
-    local lvl_color_reset=$'\e[0m'
+    # shellcheck disable=SC2155
+    local lvl_color_reset="$(printf '\e[0m')"
 
   # Disable colors if one of the conditions are true
-  # - CLICOLOR == 0
+  # - CLICOLOR = 0
   # - NO_COLOR is set to non empty value
   # - TERM is set to dumb
-  elif [[ -n $NO_COLOR ]] || [[ $CLICOLOR == "0" ]] || [[ $TERM == "dumb" ]]; then
+  elif [ -n "$NO_COLOR" ] || [ "$CLICOLOR" = "0" ] || [ "$TERM" = "dumb" ]; then
     local lvl_colorized="false"
     local lvl_color=""
     local lvl_color_reset=""
 
   # Enable colors if not already disabled or forced and terminal is interactive
-  elif [[ -t 1 ]]; then
+  elif [ -t 1 ]; then
     local lvl_colorized="true"
-    local lvl_color_reset=$'\e[0m'
+    # shellcheck disable=SC2155
+    local lvl_color_reset="$(printf '\e[0m')"
 
   # Default=disable colors
   else
@@ -157,145 +161,118 @@ function __logger_core()
     local lvl_color_reset=""
   fi
 
-  # Log Format
-  if [[ $LOG_FMT == "full" || $LOG_FMT == "long" || $lvl_colorized == "false" ]]; then
-    local -r lvl_prefix="$(date --rfc-3339=s)"
-    local -r lvl_fmt="long"
-  elif [[ $lvl_caller == *"step"* ]]; then
-    local -r lvl_string="  -"
-    local -r lvl_fmt="pretty"
+  # Log and Date formatter
+  if [ "${LOG_FMT:-pretty}" = "pretty" ] && [ "$lvl_colorized" = "true" ]; then
+    local lvl_string="•"
+  elif [ "${LOG_FMT}" = "full" ] || [ "${LOG_FMT}" = "long" ]; then
+    local lvl_prefix="name+ts"
+    # shellcheck disable=SC2155
+    local lvl_ts="$(date --rfc-3339=s)"
   else
-    local -r lvl_string="•"
-    local -r lvl_fmt="pretty"
+    local lvl_prefix="name"
   fi
 
   # Define level, color and timestamp
   # By default we do not show log level and timestamp.
   # However, if LOG_FMT is set to "full" or "long" or if colors are disabled,
   # we will enable long format with timestamps
-  case $lvl_caller in
-    log_step_variable | log_variable)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [TRACE ]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${DARK_GRAY}"
+  case "$lvl_caller" in
+    trace)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[TRACE ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [TRACE ]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;246m')"
       ;;
-    log_step_debug | log_debug)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [DEBUG ]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${GRAY}"
+    debug)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[DEBUG ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [DEBUG ]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;250m')"
       ;;
-    log_step_info | log_info)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [INFO  ]"
+    info)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[INFO  ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [INFO  ]"
+      # Avoid printing color reset sequence as this level is not colored
+      [ "$lvl_colorized" = "true" ] && lvl_color_reset=""
       ;;
-    log_step_success | log_success)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [OK    ]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${GREEN}"
+    success)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[OK    ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [OK    ]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;83m')"
       ;;
-    log_step_warning | log_warning)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [WARN  ]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${YELLOW}"
+    warning)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[WARN  ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [WARN  ]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;214m')"
       ;;
-    log_step_notice | log_notice)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [NOTICE]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${BLUE}"
+    notice)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[NOTICE]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [NOTICE]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;81m')"
       ;;
-    log_step_error | log_error)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [ERROR ]"
-      [[ $lvl_colorized == "true" ]] && local lvl_color="${RED}"
+    error)
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[ERROR ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [ERROR ]"
+      # shellcheck disable=SC2155
+      [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;197m')"
       ;;
     *)
-      [[ $lvl_fmt  == "long"  ]] && local -r lvl_string="$lvl_prefix [UNKOWN] $lvl_caller"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[UNKOWN]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [UNKNOWN]"
+      # Avoid printing color reset sequence as this level is not colored
+      [ "$lvl_colorized" = "true" ] && lvl_color_reset=""
       ;;
   esac
 
-  # Log Event
-  local msg="$*"
-  if [[ ${LOG_TO_STDERR} == "true" ]]; then
-    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$msg" "${lvl_color_reset}" 1>&2
+  if [ "${LOG_TO_STDERR:-false}" = "true" ]; then
+    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$lvl_msg" "${lvl_color_reset}" 1>&2
   else
-    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$msg" "${lvl_color_reset}"
+    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$lvl_msg" "${lvl_color_reset}"
   fi
 }
 
-# Logger public functions
-function log_debug()
+# Leveled Loggers
+log_trace()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "trace" "$@"
 }
 
-function log_info()
+log_debug()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "debug" "$@"
 }
 
-function log_success()
+log_info()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "info" "$@"
 }
 
-function log_notice()
+log_success()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "ok" "$@"
 }
 
-function log_warning()
+log_warning()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "warn" "$@"
 }
 
-function log_error()
+log_warn()
 {
-  __logger_core "$@"
+  __logger_core_event_handler "warn" "$@"
 }
 
-function log_variable()
+log_notice()
 {
-  local -r var="$1"
-  if [[ -n $BASH_VERSION ]]; then
-    local -r msg="$var=${!var}"
-  else
-    local -r msg="$var=${(P)var}"
-  fi
-  __logger_core "$msg"
+  __logger_core_event_handler "notice" "$@"
 }
 
-function log_step_debug()
+log_error()
 {
-  __logger_core "$@"
-}
-
-function log_step_info()
-{
-  __logger_core "$@"
-}
-
-function log_step_success()
-{
-  __logger_core "$@"
-}
-
-function log_step_notice()
-{
-  __logger_core "$@"
-}
-
-function log_step_warning()
-{
-  __logger_core "$@"
-}
-
-function log_step_error()
-{
-  __logger_core "$@"
-}
-
-function log_step_variable()
-{
-  local -r var="$1"
-  if [[ -n $BASH_VERSION ]]; then
-    local -r msg="$var=${!var}"
-  else
-    local -r msg="$var=${(P)var}"
-  fi
-  __logger_core "$msg"
+  __logger_core_event_handler "error" "$@"
 }
 #>> diana::snippet:bash-logger:end <<#
 
@@ -411,15 +388,15 @@ function __link_files()
 
       while IFS= read -r -d '' file; do
         f="$(basename "$file")"
-        # log_step_debug "${dest%/}/${f}"
+        # log_debug "${dest%/}/${f}"
         __link_single_item_magic_action "$file" "${dest%/}/${f}"
       done < <(find "$CURDIR/${src}" -maxdepth 1 -type f -not -name '*.md' -not -name '.git' -not -name 'LICENSE' -not -name '.editorconfig' -print0)
 
     else
-      log_step_error "Failed to create destination : $dest"
+      log_error "Failed to create destination : $dest"
     fi # mkdir
   else
-    log_step_error "Directory ${src} not found!"
+    log_error "Directory ${src} not found!"
   fi # src check
 
 }
@@ -430,9 +407,9 @@ function __link_single_item_magic_action()
   local src="${1}"
   local dest="${2}"
   if ln -sfn "${src}" "${dest}"; then
-    log_step_debug "Linking src=${src} dest=${dest}"
+    log_debug "Linking src=${src} dest=${dest}"
   else
-    log_step_error "Linking ${src} to ${dest} failed!"
+    log_error "Linking ${src} to ${dest} failed!"
   fi
 }
 
@@ -455,10 +432,10 @@ function __link_single_item()
     if mkdir -p "${dest_dir}"; then
       __link_single_item_magic_action "${CURDIR}/${src}" "${dest_dir}/${dest_item}"
     else
-      log_step_error "Failed to create destination : $dest_dir"
+      log_error "Failed to create destination : $dest_dir"
     fi # mkdir
   else
-    log_step_error "File/directory ${src} not found!"
+    log_error "File/directory ${src} not found!"
   fi # src check
 
 }
@@ -466,7 +443,7 @@ function __link_single_item()
 function __install_config_files()
 {
   if [[ $# -lt 2 ]]; then
-    log_step_error "Invalid number of arguments "
+    log_error "Invalid number of arguments "
     exit 21
   fi
 
@@ -475,22 +452,22 @@ function __install_config_files()
 
   # First check for config specific directory
   if [[ -d $CURDIR/config/$cfg_dir-$DOT_PROFILE_ID ]]; then
-    log_step_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
+    log_notice "config/${cfg_dir} [${DOT_PROFILE_ID}]"
 
     cfg_dir="${cfg_dir}-${DOT_PROFILE_ID}"
   # If no config specific dirs are found, use default config
   elif [[ -d $CURDIR/config/$cfg_dir ]]; then
-    log_step_info "config/${cfg_dir}"
+    log_info "config/${cfg_dir}"
   else
-    log_step_error "No configs found for ${cfg_dir}"
+    log_error "No configs found for ${cfg_dir}"
   fi
 
   if mkdir -p "$INSTALL_PREFIX"/"$dest_dir"; then
     # destination path is prefixed with INSTALL_PREFIX automatically
     __link_files "config/$cfg_dir" "$dest_dir"
   else
-    log_step_error "Failed to create $dest_dir directory."
-    log_step_error "$cfg_dir will not be installed!"
+    log_error "Failed to create $dest_dir directory."
+    log_error "$cfg_dir will not be installed!"
   fi
 }
 
@@ -502,17 +479,17 @@ function sha256_verify()
   checksum_file="$2"
 
   if [[ $# -ne 2 ]]; then
-    log_step_error "Internal error! Invalid number of arguments($#)"
+    log_error "Internal error! Invalid number of arguments($#)"
     return 1
   fi
 
   if [[ -z $checksum_file ]]; then
-    log_step_error "Checksum file not specified!"
+    log_error "Checksum file not specified!"
     return 1
   fi
 
   if ! [[ -r $target ]]; then
-    log_step_error "Target file is not readable!($target)"
+    log_error "Target file is not readable!($target)"
     return 1
   fi
 
@@ -521,7 +498,7 @@ function sha256_verify()
   want="$(grep "${target_basename}" "${checksum_file}" 2> /dev/null | tr '\t' ' ' | cut -d ' ' -f 1)"
 
   if [[ -z $want ]]; then
-    log_step_error "Unable to find checksum for '${target}' in '${checksum_file}'"
+    log_error "Unable to find checksum for '${target}' in '${checksum_file}'"
     return 1
   fi
 
@@ -530,7 +507,7 @@ function sha256_verify()
   got="$(echo "$targetHashOutput" | cut -d ' ' -f 1)"
 
   if [[ "$want" != "$got" ]]; then
-    log_step_error "Checksum verification for '$target'  not match! want=${want} got=$got"
+    log_error "Checksum verification for '$target'  not match! want=${want} got=$got"
     return 1
   else
     return 0
@@ -551,34 +528,34 @@ function __install_tools_subtask_starship()
 {
   # MUST have required dirs already
   log_info "Download and Install Starship"
-  log_step_info "download (binary)"
+  log_info "download (binary)"
   curl -sSfL "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz" --output vendor/cache/starship.tar.gz
-  log_step_info "download (checksum)"
+  log_info "download (checksum)"
   curl -sSfL "https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz.sha256" --output vendor/cache/starship.tar.gz.sha256
-  log_step_info "verify (checksum)"
+  log_info "verify (checksum)"
   if echo "$(cat vendor/cache/starship.tar.gz.sha256) vendor/cache/starship.tar.gz" | sha256sum --quiet -c -; then
-    log_step_success "checksums verified"
-    log_step_info "install"
+    log_success "checksums verified"
+    log_info "install"
     if tar xzf vendor/cache/starship.tar.gz -C "${INSTALL_PREFIX}/bin"; then
-      log_step_success "OK"
+      log_success "OK"
     else
-      log_step_error "extracton error!"
+      log_error "extracton error!"
     fi
 
-    log_step_info "permissions"
+    log_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/starship"
   else
-    log_step_error "checksum verification failed!"
+    log_error "checksum verification failed!"
   fi
 }
 
 function __install_tools_subtask_direnv()
 {
   log_info "Download and Install direnv"
-  log_step_info "download"
+  log_info "download"
   curl -sSfL "https://github.com/direnv/direnv/releases/download/v${DIRENV_VERSION}/direnv.linux-amd64" \
     -o "${INSTALL_PREFIX}/bin/direnv"
-  log_step_info "permissions"
+  log_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/direnv"
 
 }
@@ -586,49 +563,49 @@ function __install_tools_subtask_direnv()
 function __install_tools_subtask_bat()
 {
   log_info "Download and Install sharkdp/bat"
-  log_step_info "download"
+  log_info "download"
   curl -sSfL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  log_step_info "install"
+  log_info "install"
   if tar --extract --strip=1 --gzip \
     --file="vendor/cache/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --directory="${INSTALL_PREFIX}/bin" \
     --wildcards "*bat"; then
-    log_step_success "OK"
+    log_success "OK"
   else
-    log_step_error "error!"
+    log_error "error!"
   fi
 
-  log_step_info "permissions"
+  log_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/bat"
 }
 
 function __install_tools_subtask_fzf()
 {
   log_info "Download and Install junegunn/fzf"
-  log_step_info "download (binary)"
+  log_info "download (binary)"
   curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
     --output "vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
-  log_step_info "download (checksum)"
+  log_info "download (checksum)"
   curl -sSfL "https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" \
     --output "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"
   if sha256_verify "vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" "vendor/cache/fzf_${FZF_VERSION}_checksums.txt"; then
-    log_step_success "verified"
-    log_step_info "install"
+    log_success "verified"
+    log_info "install"
     if tar --extract --gzip \
       --file="vendor/cache/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
       --directory="${INSTALL_PREFIX}/bin" \
       fzf; then
-      log_step_success "OK"
+      log_success "OK"
     else
-      log_step_error "errored!"
+      log_error "errored!"
     fi
 
-    log_step_info "permissions"
+    log_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/fzf"
 
   else
-    log_step_error "checksum verification failed!"
+    log_error "checksum verification failed!"
     log_error "Failed to install fzf"
   fi
 }
@@ -636,46 +613,46 @@ function __install_tools_subtask_fzf()
 function __install_tools_subtask_fd()
 {
   log_info "Download and Install sharkdp/fd"
-  log_step_info "download"
+  log_info "download"
   curl -sSfL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     --output "vendor/cache/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-  log_step_info "install"
+  log_info "install"
   if tar --extract --gzip \
     --file vendor/cache/fd-v"${FD_VERSION}"-x86_64-unknown-linux-musl.tar.gz \
     --directory "${INSTALL_PREFIX}"/bin/ \
     --strip=1 \
     --wildcards \
     --no-anchored 'fd'; then
-    log_step_success "OK"
+    log_success "OK"
   else
-    log_step_error "errored!"
+    log_error "errored!"
   fi
 
-  log_step_info "permissions"
+  log_info "permissions"
   chmod 700 "${INSTALL_PREFIX}/bin/fd"
 }
 
 function __install_tools_subtask_gitchglog()
 {
   log_info "Download and Install git-chglog/git-chglog"
-  log_step_info "download (binary)"
+  log_info "download (binary)"
   curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" \
     --output "vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz"
-  log_step_info "download (checksum)"
+  log_info "download (checksum)"
   curl -sSfL "https://github.com/git-chglog/git-chglog/releases/download/v${GIT_CHGLOG_VERSION}/checksums.txt" \
     --output "vendor/cache/git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"
   if sha256_verify "vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" "vendor/cache/git-chglog-${GIT_CHGLOG_VERSION}-checksums.txt"; then
-    log_step_success "checksums verified"
-    log_step_info "extract"
+    log_success "checksums verified"
+    log_info "extract"
     tar --extract --gzip \
       --file="vendor/cache/git-chglog_${GIT_CHGLOG_VERSION}_linux_amd64.tar.gz" \
       --directory="${INSTALL_PREFIX}/bin" \
       --wildcards git-chglog
-    log_step_info "permissions"
+    log_info "permissions"
     chmod 700 "${INSTALL_PREFIX}/bin/git-chglog"
 
   else
-    log_step_error "checksum verification failed!"
+    log_error "checksum verification failed!"
     log_error "Failed to install git-chglog"
   fi
 }
@@ -762,19 +739,19 @@ function __download_and_install_fisher()
   fisher_inst_status=0
   fisher_otto_status=0
 
-  log_step_info "install fisher@${FISHER_VERSION}"
+  log_info "install fisher@${FISHER_VERSION}"
 
   if command -v fish > /dev/null; then
 
     if [[ $INSTALLER_TEST_MODE != "true" ]]; then
 
-      log_step_info "Installing fisher"
+      log_info "Installing fisher"
       FISHER_URL="https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish" \
         fish --private -c "curl -sSfL \$FISHER_URL | source && fisher update"
       fisher_inst_status="$?"
 
       if [[ -f ${INSTALL_PREFIX}/.config/fish/functions/otto.fish ]]; then
-        log_step_info "Otto plugin exits!"
+        log_info "Otto plugin exits!"
         mkdir -p "$HOME/.local/share/fish/generated_completions"
         fish --private -c "otto"
         fisher_otto_status=$?
@@ -783,19 +760,19 @@ function __download_and_install_fisher()
       fi # otto check
 
       if [[ $fisher_inst_status -ne 0 ]] || [[ $fisher_otto_status -ne 0 ]]; then
-        log_step_error "failed to install fisher!"
-        log_step_notice "to fix this problem run,"
-        log_step_notice "curl -sfL https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
+        log_error "failed to install fisher!"
+        log_notice "to fix this problem run,"
+        log_notice "curl -sfL https://raw.githubusercontent.com/jorgebucaran/fisher/${FISHER_VERSION}/functions/fisher.fish | source && fisher install jorgebucaran/fisher@${FISHER_VERSION}"
       else
-        log_step_debug "Otto: $fisher_otto_status, Fisher: $fisher_inst_status"
+        log_debug "Otto: $fisher_otto_status, Fisher: $fisher_inst_status"
       fi
 
     else
-      log_step_warning "skipped initializing fisher plugins in test/debug mode"
+      log_warning "skipped initializing fisher plugins in test/debug mode"
     fi # debug skipper
 
   else
-    log_step_error "fish is not installed!"
+    log_error "fish is not installed!"
   fi # check for fish shell
 
 }
@@ -820,7 +797,7 @@ function install_fish_configs_handler()
       # updating is done using fisher itself!
       # update the fish_plugins to correct version of fisher and
       # run fisher update
-      log_step_success "fisher is already installed"
+      log_success "fisher is already installed"
     else
       # there is neither symlink nor fisher.fish file
       # we will have to install fisher manually.
@@ -845,7 +822,7 @@ function __install_config_files_handler()
   __install_config_files "gnupg" ".gnupg"
 
   # XResources
-  log_step_info "XResources"
+  log_info "XResources"
   __link_single_item "xresources/.Xresources" ".Xresources"
 
   # Nano
@@ -911,11 +888,11 @@ function install_bash_handler()
   # .bash_profile
   log_notice "Bash configs"
   # First check for config specific directory
-  log_step_info "looking for profile"
+  log_info "looking for profile"
   if [[ -d $CURDIR/bash/$DOT_PROFILE_ID ]]; then
-    log_step_success "found profile ${DOT_PROFILE_ID}"
+    log_success "found profile ${DOT_PROFILE_ID}"
     __link_files "bash/${DOT_PROFILE_ID}" ""
-    log_step_success "done"
+    log_success "done"
   # If no config specific dirs are found, use default `bash`
   else
     log_error "BASH: no config found!"
@@ -1004,13 +981,13 @@ function install_codespaces_wrapper()
 
   log_notice "Codespaces:: Fish"
   if [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
-    log_step_success "Dotfiles symlink to ~/Git/dotfiles already exists!"
+    log_success "Dotfiles symlink to ~/Git/dotfiles already exists!"
   elif [[ -L ${INSTALL_PREFIX}/Git/dotfiles ]]; then
-    log_step_warning "There already is a link at ${INSTALL_PREFIX}/Git/dotfiles"
+    log_warning "There already is a link at ${INSTALL_PREFIX}/Git/dotfiles"
   else
     # Create a symlink from to ${INSTALL_PREFIX}/Git/dotfiles
     # This is necessary to avoid breaking fish plugins
-    log_step_info "Fix Fish plugins relative path"
+    log_info "Fix Fish plugins relative path"
     __link_single_item "" "Git/dotfiles"
   fi
   install_fish_configs_handler
@@ -1038,10 +1015,10 @@ function install_walls_handler()
   if [[ $bool_install_walls == "true" ]]; then
 
     log_notice "Installing wallpapers"
-    log_step_info "Installig to ~/Pictures/Wallpapers"
+    log_info "Installig to ~/Pictures/Wallpapers"
     __link_single_item "walls" "Pictures/Wallapers"
 
-    log_step_info "Applying GNOME wallpaper workaround!"
+    log_info "Applying GNOME wallpaper workaround!"
     __link_single_item "walls" ".cache/gnome-control-center/backgrounds"
 
   # walls is disabled

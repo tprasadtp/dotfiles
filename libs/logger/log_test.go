@@ -28,6 +28,9 @@ func TestVersionFormats(t *testing.T) {
 	_, bashErr := exec.LookPath("bash")
 	assert.Nil(t, bashErr)
 
+	_, alpineShellErr := exec.LookPath("ash")
+	assert.Nil(t, alpineShellErr)
+
 	origNoColor, origNoColorSet := os.LookupEnv("NO_COLOR")
 	origClicolorForce, origClicolorForceSet := os.LookupEnv("CLICOLOR_FORCE")
 
@@ -118,6 +121,38 @@ func TestVersionFormats(t *testing.T) {
 		{format: "full", shell: "bash", sdterr: true, color: false, level: 40},
 		{format: "full", shell: "bash", sdterr: true, color: false, level: 50},
 
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 0},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 10},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 20},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 30},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 35},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 40},
+		{format: "fallback", shell: "bash", sdterr: false, color: true, level: 50},
+
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 0},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 10},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 20},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 30},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 35},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 40},
+		{format: "fallback", shell: "bash", sdterr: false, color: false, level: 50},
+
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 0},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 10},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 20},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 30},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 35},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 40},
+		{format: "fallback", shell: "bash", sdterr: true, color: true, level: 50},
+
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 0},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 10},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 20},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 30},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 35},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 40},
+		{format: "fallback", shell: "bash", sdterr: true, color: false, level: 50},
+
 		// ZSH
 
 		{format: "pretty", shell: "zsh", sdterr: false, color: true, level: 0},
@@ -184,8 +219,39 @@ func TestVersionFormats(t *testing.T) {
 		{format: "full", shell: "zsh", sdterr: true, color: false, level: 40},
 		{format: "full", shell: "zsh", sdterr: true, color: false, level: 50},
 
-		// SH
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 0},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 10},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 20},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 30},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 35},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 40},
+		{format: "fallback", shell: "zsh", sdterr: false, color: true, level: 50},
 
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 0},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 10},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 20},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 30},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 35},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 40},
+		{format: "fallback", shell: "zsh", sdterr: false, color: false, level: 50},
+
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 0},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 10},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 20},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 30},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 35},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 40},
+		{format: "fallback", shell: "zsh", sdterr: true, color: true, level: 50},
+
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 0},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 10},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 20},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 30},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 35},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 40},
+		{format: "fallback", shell: "zsh", sdterr: true, color: false, level: 50},
+
+		// SH:pretty:stdout
 		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 0},
 		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 10},
 		{format: "pretty", shell: "sh", sdterr: false, color: true, level: 20},
@@ -202,6 +268,7 @@ func TestVersionFormats(t *testing.T) {
 		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 40},
 		{format: "pretty", shell: "sh", sdterr: false, color: false, level: 50},
 
+		// SH:pretty:stderr
 		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 0},
 		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 10},
 		{format: "pretty", shell: "sh", sdterr: true, color: true, level: 20},
@@ -218,6 +285,7 @@ func TestVersionFormats(t *testing.T) {
 		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 40},
 		{format: "pretty", shell: "sh", sdterr: true, color: false, level: 50},
 
+		// SH:full:stdout
 		{format: "full", shell: "sh", sdterr: false, color: true, level: 0},
 		{format: "full", shell: "sh", sdterr: false, color: true, level: 10},
 		{format: "full", shell: "sh", sdterr: false, color: true, level: 20},
@@ -234,6 +302,7 @@ func TestVersionFormats(t *testing.T) {
 		{format: "full", shell: "sh", sdterr: false, color: false, level: 40},
 		{format: "full", shell: "sh", sdterr: false, color: false, level: 50},
 
+		// SH:pretty:stderr
 		{format: "full", shell: "sh", sdterr: true, color: true, level: 0},
 		{format: "full", shell: "sh", sdterr: true, color: true, level: 10},
 		{format: "full", shell: "sh", sdterr: true, color: true, level: 20},
@@ -249,6 +318,142 @@ func TestVersionFormats(t *testing.T) {
 		{format: "full", shell: "sh", sdterr: true, color: false, level: 35},
 		{format: "full", shell: "sh", sdterr: true, color: false, level: 40},
 		{format: "full", shell: "sh", sdterr: true, color: false, level: 50},
+
+		// SH:fallback:stdout
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 0},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 10},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 20},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 30},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 35},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 40},
+		{format: "fallback", shell: "sh", sdterr: false, color: true, level: 50},
+
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 0},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 10},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 20},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 30},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 35},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 40},
+		{format: "fallback", shell: "sh", sdterr: false, color: false, level: 50},
+
+		// SH:fallback:stderr
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 0},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 10},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 20},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 30},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 35},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 40},
+		{format: "fallback", shell: "sh", sdterr: true, color: true, level: 50},
+
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 0},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 10},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 20},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 30},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 35},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 40},
+		{format: "fallback", shell: "sh", sdterr: true, color: false, level: 50},
+
+		// ALPINE_SHELL:pretty:stdout
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 0},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 10},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 20},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 30},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 35},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 40},
+		{format: "pretty", shell: "ash", sdterr: false, color: true, level: 50},
+
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 0},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 10},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 20},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 30},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 35},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 40},
+		{format: "pretty", shell: "ash", sdterr: false, color: false, level: 50},
+
+		// ALPINE_SHELL:pretty:stderr
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 0},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 10},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 20},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 30},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 35},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 40},
+		{format: "pretty", shell: "ash", sdterr: true, color: true, level: 50},
+
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 0},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 10},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 20},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 30},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 35},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 40},
+		{format: "pretty", shell: "ash", sdterr: true, color: false, level: 50},
+
+		// ALPINE_SHELL:full:stdout
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 0},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 10},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 20},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 30},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 35},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 40},
+		{format: "full", shell: "ash", sdterr: false, color: true, level: 50},
+
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 0},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 10},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 20},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 30},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 35},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 40},
+		{format: "full", shell: "ash", sdterr: false, color: false, level: 50},
+
+		// ALPINE_SHELL:pretty:stderr
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 0},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 10},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 20},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 30},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 35},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 40},
+		{format: "full", shell: "ash", sdterr: true, color: true, level: 50},
+
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 0},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 10},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 20},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 30},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 35},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 40},
+		{format: "full", shell: "ash", sdterr: true, color: false, level: 50},
+
+		// ALPINE_SHELL:fallback:stdout
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 0},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 10},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 20},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 30},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 35},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 40},
+		{format: "fallback", shell: "ash", sdterr: false, color: true, level: 50},
+
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 0},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 10},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 20},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 30},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 35},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 40},
+		{format: "fallback", shell: "ash", sdterr: false, color: false, level: 50},
+
+		// ALPINE_SHELL:fallback:stderr
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 0},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 10},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 20},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 30},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 35},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 40},
+		{format: "fallback", shell: "ash", sdterr: true, color: true, level: 50},
+
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 0},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 10},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 20},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 30},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 35},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 40},
+		{format: "fallback", shell: "ash", sdterr: true, color: false, level: 50},
 	}
 	for _, tc := range tests {
 		os.Setenv("TZ", "UTC")

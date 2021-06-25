@@ -1,11 +1,16 @@
 # logger
 
-Simple bash logger.
+Simple sh logger.
 
 - Supports leveled logging
 - Supports colored logs
 - Supports https://bixense.com/clicolors/ and https://no-color.org/ standards.
 - Optionally log to stdderr instead of stdout by setting `LOG_TO_STDERR=true`
+- Mostly posix compliant. Only non posix feature used is `local` keyword, but most shells
+including dash and ash implement it anyway.
+- Can be used with bash/ash/dash/sh or zsh.
+- Avoids use of global variables for anything other than configuration.
+- Avoids global state variables
 
 ## Levels
 
@@ -20,11 +25,10 @@ Simple bash logger.
 | `log_error` | 40
 
 - `log_info` and `log_success` have same priority as they are usually related to one another,
-- All functions above have `log_step*` equivalants which add a small indentation to logs when `LOG_FMT==pretty` as as shown in demo below.
 
 ## Settings
 
-- `LOG_FMT` (String) Log format. Default is `pretty`. Set it to `full` to enable logs with timestamps. If terminal is non interactive or if colors are disabled `LOG_FMT` will revert to `full`
+- `LOG_FMT` (String) Log format. Default is `pretty`. Set it to `short` to enable showing level names. Set to any other value to show with timestamps. If terminal is non interactive or if colors are disabled `LOG_FMT` will revert to logs with timestamps.
 - `LOG_LVL` (integer) Log Level. Default is `20`. All levels below this value will not be logged.
 - `LOG_TO_STDERR` (boolean) Log to sdterr instead of stdout (Default is false). If set to `true` logs will be written to stderr instead of stdout.
 

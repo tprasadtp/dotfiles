@@ -52,13 +52,6 @@ __logger_core_event_handler()
   # If LOG_LVL is not set, defaults to 20 - info level
   [ "${LOG_LVL:-20}" -gt "$level" ] && return
 
-  # Get current indent level from global state.
-  # We will discard it if its not valid integer
-  case ${__LOG_CURRENT_INDENT_LEVEL} in
-    '' | *[!0-9]*) local lvl_step="0" ;;
-    *) local lvl_step="$__LOG_CURRENT_INDENT_LEVEL" ;;
-  esac
-
   shift
   local lvl_msg="$*"
 
@@ -98,18 +91,14 @@ __logger_core_event_handler()
   fi
 
   # Log and Date formatter
-  if [ "${LOG_FMT}" = "full" ] || [ "${LOG_FMT}" = "long" ] || [ "$lvl_colorized" = "false" ]; then
-    # shellcheck disable=SC2155
-    local lvl_prefix="$(date --rfc-3339=s)"
-    local lvl_fmt="long"
-  elif [ "${lvl_step}" -gt 0 ]; then
-    local lvl_step_fmt_int="$((lvl_step * 2))"
-    # shellcheck disable=SC2155
-    local lvl_string="$(printf "%${lvl_step_fmt_int}s")•"
-    local lvl_fmt="pretty"
-  else
+  if [ "${LOG_FMT:-pretty}" = "pretty" ] && [ "$lvl_colorized" = "true" ]; then
     local lvl_string="•"
-    local lvl_fmt="pretty"
+  elif [ "${LOG_FMT}" = "full" ] || [ "${LOG_FMT}" = "long" ]; then
+    local lvl_prefix="name+ts"
+    # shellcheck disable=SC2155
+    local lvl_ts="$(date --rfc-3339=s)"
+  else
+    local lvl_prefix="name"
   fi
 
   # Define level, color and timestamp
@@ -118,40 +107,52 @@ __logger_core_event_handler()
   # we will enable long format with timestamps
   case "$lvl_caller" in
     trace)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [TRACE ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[TRACE ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [TRACE ]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;246m')"
       ;;
     debug)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [DEBUG ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[DEBUG ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [DEBUG ]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;250m')"
       ;;
     info)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [INFO  ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[INFO  ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [INFO  ]"
+      # Avoid printing color reset sequence as this level is not colored
+      [ "$lvl_colorized" = "true" ] && lvl_color_reset=""
       ;;
     success)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [OK    ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[OK    ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [OK    ]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;83m')"
       ;;
     warning)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [WARN  ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[WARN  ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [WARN  ]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;214m')"
       ;;
     notice)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [NOTICE]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[NOTICE]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [NOTICE]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;81m')"
       ;;
     error)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [ERROR ]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[ERROR ]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [ERROR ]"
       # shellcheck disable=SC2155
       [ "$lvl_colorized" = "true" ] && local lvl_color="$(printf '\e[38;5;197m')"
       ;;
     *)
-      [ "$lvl_fmt" = "long" ] && local lvl_string="$lvl_prefix [UNKOWN]"
+      [ "$lvl_prefix" = "name" ] && local lvl_string="[UNKOWN]"
+      [ "$lvl_prefix" = "name+ts" ] && local lvl_string="$lvl_ts [UNKNOWN]"
+      # Avoid printing color reset sequence as this level is not colored
+      [ "$lvl_colorized" = "true" ] && lvl_color_reset=""
       ;;
   esac
 
@@ -201,30 +202,4 @@ log_notice()
 log_error()
 {
   __logger_core_event_handler "error" "$@"
-}
-
-log_increment_indent()
-{
-  case "${__LOG_CURRENT_INDENT_LEVEL:-0}" in
-    '' | *[!0-9]*) __LOG_CURRENT_INDENT_LEVEL="1" ;;
-    *) __LOG_CURRENT_INDENT_LEVEL="$((__LOG_CURRENT_INDENT_LEVEL + 1))" ;;
-  esac
-}
-
-log_add_indent()
-{
-  log_increment_indent
-}
-
-log_decrement_indent()
-{
-  case "${__LOG_CURRENT_INDENT_LEVEL:-0}" in
-    *[0-9]*) __LOG_CURRENT_INDENT_LEVEL="$((__LOG_CURRENT_INDENT_LEVEL - 1))" ;;
-    *) __LOG_CURRENT_INDENT_LEVEL="0" ;;
-  esac
-}
-
-log_reset_indent()
-{
-  __LOG_CURRENT_INDENT_LEVEL="0"
 }
