@@ -31,6 +31,7 @@ func ImageBuild(t *testing.T, images []string) error {
 				"--file", "testdata/Dockerfile",
 				"--tag", img,
 				"testdata/")
+			buildCmd.Env = append(os.Environ(), "DOCKER_BUILDKIT=1")
 			if output, err := buildCmd.CombinedOutput(); err != nil {
 				return fmt.Errorf("docker build failed for %s with output %s: %w", img, string(output), err)
 			}
