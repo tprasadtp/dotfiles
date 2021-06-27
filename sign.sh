@@ -15,16 +15,15 @@ trap ctrl_c_signal_handler INT
 trap term_signal_handler SIGTERM
 
 function ctrl_c_signal_handler()
-                                 {
+{
   log_error "User Interrupt! CTRL-C"
   exit 4
 }
 function term_signal_handler()
-                               {
+{
   log_error "Signal Interrupt! SIGTERM"
   exit 4
 }
-
 
 #>> diana::snippet:bash-logger:begin <<#
 # shellcheck shell=sh
@@ -234,42 +233,37 @@ log_error()
 }
 #>> diana::snippet:bash-logger:end <<#
 
-
 function display_usage()
 {
   #Prints out help menu
-  cat << EOF
-Bash script to to checksum and sign files.
+  cat <<EOF
+Generate and verify SHA512 checksums and GPG signatures.
 
-Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
-${VIOLET}
-------------------------- Options ------------------------------${NC}
-[-s --sign]             Generate and sign SHA512SUMS file
-[-v --verify]           Verify SHA512 and GPG signatures
-[-G --skip-gpg-verify]  Skip verifying GPG signature
-${ORANGE}
----------------- Options with Required Argments-----------------${NC}
-None
-${GRAY}
---------------------- Debugging & Help -------------------------${NC}
-[-d | --debug]          Enable debug loggging
-[--stderr]              Log to stderr instead of stdout
-[-h | --help]           Display this help message${NC}
-${TEAL}
-------------------- Environment Variables ----------------------${NC}
-${BLUE}LOG_TO_STDERR${NC}     - Set this to 'true' to log to stderr.
-${BLUE}NO_COLOR${NC}          - Set this to NON-EMPTY to disable all colors.
-${BLUE}CLICOLOR_FORCE${NC}    - Set this to NON-ZERO to force colored output.
-                    Other color related conditions are ignored.
-                  - Colors are disabled if output is not a TTY
+Usage: ${SCRIPT} [OPTION]...
+
+Arguments:
+  None
+
+Options:
+  --sign              Generate and sign checksums file
+  --verify            Verify existing signatures and checksums
+  --verify-skip-gpg   Only verify checksums, and skip GPG verification
+  -h, --help          Display help
+  -v, --verbose       Increase log verbosity
+  --stderr            Log to stderr instead of stdout
+  --version           Display script version
+
+Environment:
+  LOG_TO_STDERR       Set this to 'true' to log to stderr.
+  NO_COLOR            Set this to NON-EMPTY to disable all colors.
+  CLICOLOR_FORCE      Set this to NON-ZERO to force colored output.
 EOF
 }
-
 
 # Checks if command is available
 function has_command()
 {
-  if command -v "$1" > /dev/null; then
+  if command -v "$1" >/dev/null; then
     return 0
   else
     return 1
@@ -282,14 +276,14 @@ function generate_checksums()
   log_info "Checksum will be saved as, SHA512SUMS"
   log_info "Any previous file by that name will be emptied"
 
-  : > SHA512SUMS
+  : >SHA512SUMS
   find . -type f \
     -not -path "./.git/**" \
     -not -path "./vendor/**" \
-      -not -name "SHA512SUMS" \
-      -not -name "SHA512SUMS.asc" \
-      "-print0" | xargs "-0" sha512sum \
-    >> SHA512SUMS
+    -not -name "SHA512SUMS" \
+    -not -name "SHA512SUMS.asc" \
+    "-print0" | xargs "-0" sha512sum \
+    >>SHA512SUMS
   log_success "Generated SHA512 checksums"
 }
 
@@ -314,7 +308,7 @@ function sign_checksum()
 }
 
 function verify_checksums()
-                            {
+{
   log_info "Verifying SHA512SUMS"
   if [[ -f ${CURDIR}/SHA512SUMS ]]; then
     printf "%s" "${YELLOW}"
@@ -353,13 +347,13 @@ function verify_gpg_signature()
   log_info "Data File      : ${CURDIR}/SHA512SUMS"
   # Checks for commands
   if has_command gpg; then
-    if gpg --verify "${checksum_sig_file}" "${CURDIR}/SHA512SUMS" 2> /dev/null; then
+    if gpg --verify "${checksum_sig_file}" "${CURDIR}/SHA512SUMS" 2>/dev/null; then
       log_success "Hooray! digital signature verified"
     else
       log_error "Oh No! Signature checks failed!"
       exit 50
     fi
-  elif has_command gpgv > /dev/null; then
+  elif has_command gpgv >/dev/null; then
     if gpgv --keyring "$HOME/.gnupg/pubring.kbx" "${checksum_sig_file}" "${CURDIR}/SHA512SUMS"; then
       log_success "Signature verified"
     else
@@ -384,23 +378,27 @@ function main()
 
   while [[ ${1} != "" ]]; do
     case ${1} in
-        --sign)                 bool_sign_checksum="true" ;;
-        --verify)               bool_verify_checksum="true" ;;
-        -G | --skip-gpg-verify) bool_skip_gpg_verify="true" ;;
-        # Debugging options
-        --stderr)               LOG_TO_STDERR="true" ;;
-        -v | --verbose)
-                                LOG_LVL="0"
-                                log_info "Enable verbose logging"
-                                                                 ;;
-        -h | --help)
-                                display_usage
-          exit 0
-                                                    ;;
-        *)
-                                log_error "Invalid argument(s). See usage below."
-                                display_usage
-                                exit 1
+      --sign) bool_sign_checksum="true" ;;
+      --verify) bool_verify_checksum="true" ;;
+      --verify-skip-gpg) bool_skip_gpg_verify="true" ;;
+      # Debugging options
+      --stderr) LOG_TO_STDERR="true" ;;
+      -v | --verbose)
+        LOG_LVL="0"
+        log_info "Enable verbose logging"
+        ;;
+      --version)
+        printf "%s version %s\n" "${SCRIPT}" "${SCRIPT_VERSION:-master}"
+        exit 0
+        ;;
+      -h | --help)
+        display_usage
+        exit 0
+        ;;
+      *)
+        log_error "Invalid argument(s). See usage below."
+        display_usage
+        exit 1
         ;;
     esac
     shift

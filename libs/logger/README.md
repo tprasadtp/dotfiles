@@ -12,11 +12,16 @@ including dash and ash implement it anyway.
 - Avoids use of global variables for anything other than configuration.
 - Avoids global state variables
 
+## Dependencies
+
+- Two external commands are used. `printf` and depending on the log format `date`. Both are usually provided by
+`coreutils` package or on some systems by `busybox`.
+
 ## Levels
 
 | Function | Level |
 |---|---|
-| `log_variable` | 0
+| `log_trace` | 0
 | `log_debug` | 10
 | `log_info` | 20
 | `log_success` | 20
@@ -35,7 +40,7 @@ including dash and ash implement it anyway.
 ## Demo
 
 - `LOG_FMT=pretty` (default)
-  <pre><font color="#B8BB26"></font> <font color="#005FD7">./logger/demo.bash</font>
+  <pre><font color="#B8BB26"></font> <font color="#005FD7">./logger/demo.sh</font>
   • This is info level
   <font color="#5FFF5F">• This is ok level </font>
   <font color="#5FD7FF">• This is notice level </font>
@@ -48,8 +53,8 @@ including dash and ash implement it anyway.
   <font color="#FF005F">  - This is error level </font>
   </pre>`
 
-- `LOG_FMT="full"`
-  <pre><font color="#B8BB26"></font> <font color="#00AFFF">LOG_FMT</font><font color="#00A6B2">=</font><font color="#00AFFF">full</font> <font color="#005FD7">./logger/demo.bash</font>
+- `LOG_FMT="long"`
+  <pre><font color="#B8BB26"></font> <font color="#00AFFF">LOG_FMT</font><font color="#00A6B2">=</font><font color="#00AFFF">full</font> <font color="#005FD7">./logger/demo.sh</font>
   2021-06-22 16:12:09+02:00 [INFO  ] This is info level
   <font color="#5FFF5F">2021-06-22 16:12:09+02:00 [OK    ] This is ok level </font>
   <font color="#5FD7FF">2021-06-22 16:12:09+02:00 [NOTICE] This is notice level </font>
@@ -65,7 +70,7 @@ including dash and ash implement it anyway.
 
 - With colors disabled or in a non-interactive terminal
 
-  <pre><font color="#005FD7">./logger/demo.bash</font> <font color="#009900">|</font> <font color="#005FD7">tee</font> <font color="#00AFFF"><u style="text-decoration-style:single">/dev/null</u></font>
+  <pre><font color="#005FD7">./logger/demo.sh</font> <font color="#009900">|</font> <font color="#005FD7">tee</font> <font color="#00AFFF"><u style="text-decoration-style:single">/dev/null</u></font>
   2021-06-22 16:16:03+02:00 [INFO  ] This is info level
   2021-06-22 16:16:03+02:00 [OK    ] This is ok level
   2021-06-22 16:16:03+02:00 [NOTICE] This is notice level

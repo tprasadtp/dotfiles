@@ -289,9 +289,9 @@ function display_usage()
   #Prints out help menu
   cat << EOF
 $LOGO
-Usage: ${TEAL}${SCRIPT} ${BLUE} [options] ${NC}
-${YELLOW}
---------------------------- Modes --------------------------${NC}
+Usage: ${SCRIPT}  [options]
+
+--------------------------- Modes --------------------------
 
 [-i --install]          Install dotfiles
 [--codespaces]          Instal in codespaces mode
@@ -306,8 +306,8 @@ ${YELLOW}
                         custom profiles
 [--hpc]                 HPC mode. Used on HPC clusters.
                         Skipes all GUI stuff.
-${PINK}
-------------------------- Exclusive ------------------------${NC}
+
+------------------------- Exclusive ------------------------
 [-C | --only-config]    Only install configs
 [-F | --only-fish]      Only install fish configs
 [-B | --only-bash]      Only install Bash and starship
@@ -317,8 +317,8 @@ ${PINK}
 [-t | --tools]          Installs necessary tools
                         - direnv, starship
                         - bat,fd and fzf
-${BLUE}
------------------------ Skip ------------------------------${NC}
+
+----------------------- Skip ------------------------------
 [-c | --no-config]      Skip installing all config
 [-e | --minimal-config) Install only base essentials,
                         skip extra, usually GUI stuff
@@ -327,19 +327,19 @@ ${BLUE}
 [-k | --no-fonts)       Skip installing fonts
 [-j | --no-templates)   Skip installing templates
 [-f | --no-fish)        Skip installing all fish configs
-${VIOLET}
--------------------- Skip Tools ---------------------------${NC}
+
+-------------------- Skip Tools ---------------------------
 [--skip-<tool>]         Skip installing this tool
 
 - This only applies if --tools or --codespaces is active.
 - <tool> can be one of the following: starship,fd,fzf,
   direnv or git-chglog
-${TEAL}
----------------------- Addons ----------------------------${NC}
+
+---------------------- Addons ----------------------------
 [-x | --bin]            Install scripts in bin to ~/bin
 [-w | --wallpapers]     Install wallpaper collectiont
-${ORANGE}
------------------- Profile Selector ----------------------${NC}
+
+------------------ Profile Selector ----------------------
 When a profile name is set, and if matching config is found,
 they will be used instead of default ones. Profile specific
 configs are stored in folder with suffix -{ProfileName}.
@@ -347,19 +347,20 @@ configs are stored in folder with suffix -{ProfileName}.
 - Fonts, wallpapers & scripts do not support this!
 - If profile specific settings are not found,
   defaults are used.
-${ORANGE}
-[-p | --profile <NAME>] Set Profile${NC}
-${GRAY}
------------------ Debugging & Help ----------------------${NC}
+
+[-p | --profile <NAME>] Set Profile
+
+----------------- Debugging & Help ----------------------
+
 [-v | --verbose]        Enable verbose loggging
 [--test]                Installs to ~/Junk instead of ~
 [-h --help]             Display this help message
-${TEAL}
------------------- Environment Variables ----------------${NC}
-${BLUE}LOG_TO_STDERR${NC}     - Set this to 'true' to log to stderr.
-${BLUE}LOG_FMT${NC}           - Set this to 'full' to show timestamps.
-${BLUE}NO_COLOR${NC}          - Set this to NON-EMPTY to disable colors.
-${BLUE}CLICOLOR_FORCE${NC}    - Set this to NON-ZERO to force colors.
+
+------------------ Environment Variables ----------------
+LOG_TO_STDERR     - Set this to 'true' to log to stderr.
+LOG_FMT           - Set this to 'full' to show timestamps.
+NO_COLOR          - Set this to NON-EMPTY to disable colors.
+CLICOLOR_FORCE    - Set this to NON-ZERO to force colors.
                   - Colors are disabled by default,
                     if output is not a TTY.
 EOF

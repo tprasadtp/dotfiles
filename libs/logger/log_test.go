@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tprasadtp/dotfiles/libs/libtest"
 	"github.com/tprasadtp/pkg/apollo"
 )
 
@@ -22,14 +23,7 @@ func TestVersionFormats(t *testing.T) {
 	_, faketimeErr := exec.LookPath("faketime")
 	assert.Nil(t, faketimeErr)
 
-	_, zshErr := exec.LookPath("zsh")
-	assert.Nil(t, zshErr)
-
-	_, bashErr := exec.LookPath("bash")
-	assert.Nil(t, bashErr)
-
-	_, alpineShellErr := exec.LookPath("ash")
-	assert.Nil(t, alpineShellErr)
+	libtest.AssertShells(t)
 
 	origNoColor, origNoColorSet := os.LookupEnv("NO_COLOR")
 	origClicolorForce, origClicolorForceSet := os.LookupEnv("CLICOLOR_FORCE")
@@ -497,10 +491,10 @@ func TestVersionFormats(t *testing.T) {
 			assert.Equal(t, 0, cmd.ProcessState.ExitCode())
 
 			if tc.sdterr {
-				assert.Empty(t, stdoutBuf.Bytes())
+				assert.Empty(t, stdoutBuf.String())
 				g.Assert(t, goldenFilePrefix, stderrBuf.Bytes())
 			} else {
-				assert.Empty(t, stderrBuf.Bytes())
+				assert.Empty(t, stderrBuf.String())
 				g.Assert(t, goldenFilePrefix, stdoutBuf.Bytes())
 			}
 		})
