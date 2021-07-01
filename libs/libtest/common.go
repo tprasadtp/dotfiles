@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func AssertShells(t *testing.T) {
-	_, zshErr := exec.LookPath("zsh")
-	assert.Nil(t, zshErr)
+func AssertShellsAvailable(t *testing.T) {
+	for _, shell := range SupportedShells() {
+		_, err := exec.LookPath(shell)
+		assert.Nil(t, err)
+	}
+}
 
-	_, bashErr := exec.LookPath("bash")
-	assert.Nil(t, bashErr)
-
-	_, alpineShellErr := exec.LookPath("ash")
-	assert.Nil(t, alpineShellErr)
+func SupportedShells() [4]string {
+	return [4]string{"bash", "sh", "zsh", "ash"}
 }

@@ -3,5 +3,10 @@
     "python.linting.flake8Args": [
         "--config .flake8"
     ],
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "files.associations": {
+      "has": "shellscript",
+      "changelog": "shellscript",
+      "shellcheck-docker": "shellscript"
+    }
 }

@@ -9,5 +9,5 @@ help: ### This help message
 	@grep -E '^[a-zA-Z_-]+:.*?### .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?### "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: clean
-clean: ### Clean
+clean: ### Cleanup docker images
 	@docker images --filter label=io.github.tprasadtp.shlib-test-image=true --format "{{.Repository}}:{{ .Tag }}" | xargs --no-run-if-empty docker rmi

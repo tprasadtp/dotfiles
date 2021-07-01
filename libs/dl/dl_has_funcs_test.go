@@ -16,20 +16,11 @@ import (
 )
 
 func TestHasAllFunctions(t *testing.T) {
-	t.Parallel()
-	libtest.AssertShells(t)
+	libtest.AssertShellsAvailable(t)
 
-	tests := []struct {
-		shell string
-	}{
-		{shell: "bash"},
-		{shell: "sh"},
-		{shell: "ash"},
-		{shell: "ash"},
-	}
-	for _, tc := range tests {
-		t.Run(tc.shell, func(t *testing.T) {
-			cmd := exec.Command(tc.shell,
+	for _, shell := range libtest.SupportedShells() {
+		t.Run(shell, func(t *testing.T) {
+			cmd := exec.Command(shell,
 				"-c", ". ./../logger/logger.sh && . ./dl.sh && __libdl_has_depfuncs")
 			var stdoutBuf, stderrBuf bytes.Buffer
 			cmd.Stdout = &stdoutBuf
@@ -43,9 +34,8 @@ func TestHasAllFunctions(t *testing.T) {
 	}
 }
 
-func TestMissingFunctions(t *testing.T) {
-	t.Parallel()
-	libtest.AssertShells(t)
+func TestErrOnMissingFunctions(t *testing.T) {
+	libtest.AssertShellsAvailable(t)
 	logFuncs := []string{"log_trace", "log_debug", "log_info", "log_success", "log_warning", "log_notice", "log_error"}
 	rand.Seed(time.Now().Unix())
 
@@ -68,7 +58,7 @@ func TestMissingFunctions(t *testing.T) {
 			cmd.Stderr = &stderrBuf
 			err := cmd.Run()
 			assert.NotNil(t, err)
-			assert.NotEqual(t, 0, cmd.ProcessState.ExitCode())
+			assert.Equal(t, 1, cmd.ProcessState.ExitCode())
 			assert.Empty(t, stderrBuf.String())
 			assert.Empty(t, stdoutBuf.String())
 		})

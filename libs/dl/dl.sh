@@ -21,35 +21,19 @@ libdl_get_GOARCH()
   arch="${1:-$(uname -m)}"
   case $arch in
     x86_64)
-      echo "amd64"
+      printf "amd64"
       return 0
       ;;
-    x86)
-      echo "386"
-      return 0
-      ;;
-    i686)
-      echo "386"
-      return 0
-      ;;
-    i386)
-      echo "386"
+    x86 | i686 | i386)
+      printf "386"
       return 0
       ;;
     aarch64)
-      echo "arm64"
+      printf "arm64"
       return 0
       ;;
-    armv5*)
-      echo "armv5"
-      return 0
-      ;;
-    armv6*)
-      echo "armv6"
-      return 0
-      ;;
-    armv7*)
-      echo "armv7"
+    armv5* | armv6* | armv7* | armv8*)
+      printf "arm"
       return 0
       ;;
   esac
@@ -57,10 +41,31 @@ libdl_get_GOARCH()
   return 1
 }
 
+# convert `uname -m` to GOARM and output
+# By default function will try to map current uname -m to GOARM.
+# You can optionally pass it as an argument (useful in remote mounted filesystems)
+# If cannot convert will output empty string!
+libdl_get_GOARM()
+{
+  local arch
+  arch="${1:-$(uname -m)}"
+  case $arch in
+    armv7*)
+      printf "v7"
+      ;;
+    armv6*)
+      printf "v6"
+      ;;
+    armv5*)
+      printf "v5"
+      ;;
+  esac
+}
+
 # Maps os name to GOOS
 # By default function will try to map current uname -s to GOARCH.
 # You can optionally pass it as an argument (useful in remote mounted mounted filesystems)
-# Returns 0 and echos GOOS if supported OS was detected
+# Returns 0 and printfs GOOS if supported OS was detected
 # otherwise returns 1 and nothing
 libdl_get_GOOS()
 {
@@ -68,19 +73,19 @@ libdl_get_GOOS()
   os="${1:-$(uname -s)}"
   case "$os" in
     Linux)
-      echo "linux"
+      printf "linux"
       return 0
       ;;
     Darwin)
-      echo "darwin"
+      printf "darwin"
       return 0
       ;;
     CYGWIN_NT* | Windows_NT | MSYS_NT* | MINGW*)
-      echo "windows"
+      printf "windows"
       return 0
       ;;
     FreeBSD)
-      echo "freebsd"
+      printf "freebsd"
       return 0
       ;;
   esac
@@ -95,11 +100,11 @@ __libdl_print_error()
     0) ;;
 
     # Dependency errors
-    # Just logging library
+    # Assume we do not have logging functions available either.
     2)
-      echo "[ERROR ] Dependency Error."
-      echo "[ERROR ] This script requires logger library from https://github.com/tprasadtp/shlibs/logger"
-      echo "[ERROR ] Please source it before using dl library."
+      printf "[ERROR ] Dependency Error.\n"
+      printf "[ERROR ] This script requires logger library from https://github.com/tprasadtp/shlibs/logger\n"
+      printf "[ERROR ] Please source it before using dl library.\n"
       ;;
 
     11)
