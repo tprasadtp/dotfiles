@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+set -euo pipefail
 
 if [[ ! -e libs/logger/logger.sh ]]; then
   echo "libs/logger/logger.sh not found"
@@ -10,7 +10,7 @@ fi
 logger_lead="^#>> diana::snippet:bash-logger:begin <<#$"
 logger_tail="^#>> diana::snippet:bash-logger:end <<#$"
 
-logger_files=("sign.sh" "install.sh" "vm/shell.sh" "config/bin-hpc/jobctl" "config/bin-hpc/vnc-ctl" "scripts/shellcheck.sh" "scripts/changelog.sh")
+logger_files=("sign.sh" "install.sh" "vm/shell.sh" "config/bin-hpc/jobctl" "config/bin-hpc/vnc-session" "scripts/shellcheck.sh" "scripts/changelog.sh")
 
 for f in "${logger_files[@]}"; do
   echo "- Update $f (logger)"

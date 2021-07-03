@@ -38,7 +38,7 @@ func TestGetGOOS(t *testing.T) {
 				tcOS = tc.os
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcOS), func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && libdl_get_GOOS %s", tc.os))
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOOS %s", tc.os))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf

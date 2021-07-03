@@ -21,7 +21,7 @@ Following rules apply to Linux, macOS, FreeBSD, Solaris, OpenBSD etc.
 1. Files included **SHOULD NOT** contain acls. This makes sense in most of the cases, though there might be exceptions.
 1. All files in archive **SHOULD** be within a directory. Archive cannot contain files at its root. For example, you can include `/docs/README.md` in your archive, but placing this `README.md` at root of the archive is not recommended.
 1. Binaries, **SHOULD** be static. For embedding data files like server css and javascript and image assets, see [this for golang](https://golang.org/pkg/embed/) and [this for rust](https://github.com/pyros2097/rust-embed).
-1. Archive **MUST** have following layout & permissions. You can however omit components you do not generate or require. This layout is designed to ease end user in installing not just the binary but shell completeion and manpages easily with little effort. Installing fish completions now becomes simple tar command. `tar --extract --gzip --directory ~/.config/fish/completions/ --file awesome-cli-tool.tar.gz completions/fish`. This makes it simple to install stuff, and only the stuff end user needs and where they need it.
+1. Archive **MUST** have following layout & permissions. You can however omit components you do not generate or require. This layout is designed to ease end user in installing not just the binary but shell completion and manpages easily with little effort. Installing fish completions now becomes simple tar command. `tar --extract --gzip --directory ~/.config/fish/completions/ --file awesome-cli-tool.tar.gz completions/fish`. This makes it simple to install stuff, and only the stuff end user needs and where they need it.
 
   | Directory | File Permissions (octal) | Contents
   |---|---|---

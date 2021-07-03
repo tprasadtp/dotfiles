@@ -1,4 +1,3 @@
-# yamllint disable-line rule:document-start
 on:
   push:
     branches:
@@ -31,7 +30,7 @@ jobs:
 
       - name: Verify Checksums
         run: |
-          ./sign.sh -v -G
+          ./sign.sh --verify --verify-skip-gpg
 
       - name: Modify for CI
         # Modify after verification

@@ -10,16 +10,18 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func TestHasCommand(t *testing.T) {
+func Test_has_command(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
+		name    string
 		command string
 		code    int
 	}{
-		{command: "ls", code: 0},
-		{command: "non-existing-command", code: 1},
-		{command: "", code: 1},
+		{name: "ls", command: "ls", code: 0},
+		{name: "non-existing-command", command: "non-existing-command", code: 1},
+		{name: "empty-quote", command: `""`, code: 1},
+		{name: "empty", code: 1},
 	}
 	for _, shell := range libtest.SupportedShells() {
 

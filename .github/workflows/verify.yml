@@ -1,4 +1,3 @@
-# yamllint disable-line rule:document-start
 on:
   push:
     branches:
@@ -22,8 +21,10 @@ jobs:
         env:
           SECOPS_VALIDATOR_DATA_FETCHER: ${{ secrets.SECOPS_VALIDATOR_DATA_FETCHER }}
           SECOPS_VALIDATOR_PRE_EXEC_HOOK: ${{ secrets.SECOPS_VALIDATOR_PRE_EXEC_HOOK }}
+
       - name: Verify
         run: make verify
+
       - name: Cleanup
         run: |
             eval "${SECOPS_VALIDATOR_POST_EXEC_HOOK}"

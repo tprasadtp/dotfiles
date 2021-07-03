@@ -41,7 +41,7 @@ func TestGetGOARCH(t *testing.T) {
 				tcArch = tc.arch
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcArch), func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && libdl_get_GOARCH %s", tc.arch))
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARCH %s", tc.arch))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
@@ -82,7 +82,7 @@ func TestGetGOARM(t *testing.T) {
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.arch), func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && libdl_get_GOARM %s", tc.arch))
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARM %s", tc.arch))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
