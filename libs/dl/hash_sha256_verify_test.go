@@ -83,22 +83,20 @@ func Test__libdl_verify_hash_sha256(t *testing.T) {
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_verify_hash ./%s %s", tc.file, tc.hash))
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_verify_hash %s %s sha256", tc.file, tc.hash))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
 				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true", "LOG_LVL=0")
 				err := cmd.Run()
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				assert.Empty(t, stdoutBuf.String())
 
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				} else {
 					assert.NotNil(t, err)
 					assert.Contains(t, strings.ToLower(stderrBuf.String()), tc.errString)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				}
 			})
 		}

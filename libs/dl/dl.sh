@@ -373,7 +373,7 @@ __libdl_hash_md5()
   local hasher_exe="${2:-auto}"
   local hash
 
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     return 12
   fi
 
@@ -417,7 +417,6 @@ __libdl_hash_md5()
   fi
 }
 
-
 # MD5 hash a file
 # Returns MD5 hash and return code 0 if successful
 __libdl_hash_sha1()
@@ -426,7 +425,7 @@ __libdl_hash_sha1()
   local hasher_exe="${2:-auto}"
   local hash
 
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     return 12
   fi
 
@@ -474,7 +473,6 @@ __libdl_hash_sha1()
   fi
 }
 
-
 # SHA256 hash a file
 # Returns sha256 hash and return code 0 if successful
 __libdl_hash_sha256()
@@ -483,7 +481,7 @@ __libdl_hash_sha256()
   local hasher_exe="${2:-auto}"
   local hash
 
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     return 12
   fi
 
@@ -539,7 +537,7 @@ __libdl_hash_sha512()
   local hasher_exe="${2:-auto}"
   local hash
 
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     return 12
   fi
 
@@ -558,7 +556,7 @@ __libdl_hash_sha512()
       hasher_exe="gsha512sum"
     # coreutils/busybox
     elif __libdl_has_command sha512sum; then
-      hasher_exe="sha256sum"
+      hasher_exe="sha512sum"
     elif __libdl_has_command shasum; then
       # Darwin, freebsd
       hasher_exe="shasum"
@@ -602,7 +600,6 @@ __libdl_is_md5hash()
   fi
 }
 
-
 # check if given string is a sha1 hash
 # return 0 if true 1 otherwise
 __libdl_is_sha1hash()
@@ -614,7 +611,6 @@ __libdl_is_sha1hash()
     return 1
   fi
 }
-
 
 # check if given string is a sha256 hash
 # return 0 if true 1 otherwise
@@ -648,7 +644,7 @@ __libdl_verify_hash()
 {
   local target="$1"
   local hash="$2"
-  local algoithm="${3}"
+  local algorithm="${3}"
 
   if [ "$#" -ne 3 ]; then
     return 12
@@ -670,6 +666,7 @@ __libdl_verify_hash()
   fi
 
   local mode
+  local hash_type
 
   case ${algorithm} in
     sha256 | sha-256 | SHA256 | SHA-256)
@@ -678,6 +675,7 @@ __libdl_verify_hash()
       else
         mode="hash-file"
       fi
+      hash_type="sha256"
       ;;
     sha512 | sha-512 | SHA512 | SHA-512)
       if __libdl_is_sha512hash "$hash"; then
@@ -685,6 +683,7 @@ __libdl_verify_hash()
       else
         mode="hash-file"
       fi
+      hash_type="sha512"
       ;;
     sha1 | sha-1 | SHA1 | SHA-1)
       if __libdl_is_sha1hash "$hash"; then
@@ -692,6 +691,7 @@ __libdl_verify_hash()
       else
         mode="hash-file"
       fi
+      hash_type="sha1"
       ;;
     md5 | md-5 | MD5 | MD-5)
       if __libdl_is_md5hash "$hash"; then
@@ -699,6 +699,7 @@ __libdl_verify_hash()
       else
         mode="hash-file"
       fi
+      hash_type="md5"
       ;;
     *)
       log_error "Unsupported hash algorithm - ${algorithm}"
@@ -724,8 +725,8 @@ __libdl_verify_hash()
     want="${want%% *}"
 
     # if file does not exist $want will be empty
-    case ${algorithm} in
-      sha256 | sha-256 | SHA256 | SHA-256)
+    case ${hash_type} in
+      sha256)
         if ! __libdl_is_sha256hash "$want"; then
           log_error "Error! Failed to find SHA256 hash corresponding to '$target_basename' in file $hash"
           return 35
@@ -734,7 +735,7 @@ __libdl_verify_hash()
         got=$(__libdl_hash_sha256 "$target")
         hash_rc="$?"
         ;;
-      sha512 | sha-512 | SHA512 | SHA-512)
+      sha512)
         if ! __libdl_is_sha512hash "$want"; then
           log_error "Error! Failed to find SHA512 hash corresponding to '$target_basename' in file $hash"
           return 35
@@ -743,7 +744,7 @@ __libdl_verify_hash()
         got=$(__libdl_hash_sha512 "$target")
         hash_rc="$?"
         ;;
-      sha1 | sha-1 | SHA1 | SHA-1)
+      sha1)
         if ! __libdl_is_sha1hash "$want"; then
           log_error "Error! Failed to find SHA1 hash corresponding to '$target_basename' in file $hash"
           return 35
@@ -752,7 +753,7 @@ __libdl_verify_hash()
         got=$(__libdl_hash_sha1 "$target")
         hash_rc="$?"
         ;;
-      md5 | md-1 | MD5 | MD-5)
+      md5)
         if ! __libdl_is_md5hash "$want"; then
           log_error "Error! Failed to find MD5 hash corresponding to '$target_basename' in file $hash"
           return 35
