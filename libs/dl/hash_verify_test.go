@@ -12,7 +12,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_hash_sha256_verify(t *testing.T) {
+func Test__libdl_verify_hash_sha256(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -80,10 +80,10 @@ func Test__libdl_hash_sha256_verify(t *testing.T) {
 			code:      35,
 		},
 	}
-	for _, shell := range []string{"bash"} {
+	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
-			t.Run(tc.name, func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha256_verify ./%s %s", tc.file, tc.hash))
+			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_verify_hash ./%s %s", tc.file, tc.hash))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf

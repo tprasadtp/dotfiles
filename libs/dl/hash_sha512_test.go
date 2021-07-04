@@ -11,7 +11,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_hash_sha256(t *testing.T) {
+func Test__libdl_hash_sha512(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -23,7 +23,7 @@ func Test__libdl_hash_sha256(t *testing.T) {
 		{
 			name: "existing-file",
 			file: "testdata/checksum.txt",
-			hash: "c7ff397df263ecbf0af7b717affa95c6a19fd784dbd20a210190cd5402556177",
+			hash: "948da6c339b8a2edd280ac2a6b1bcf9b181338b8ce92542f6cfad47f63684cf9d58aa72079bcd4f8c6db4ab83643fcd6c4a11e60ccca2ccfec643875528c4e64",
 		},
 		{
 			name: "non-existant-file",
@@ -41,7 +41,7 @@ func Test__libdl_hash_sha256(t *testing.T) {
 		},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		for _, tcHashHandler := range []string{"", "sha256sum", "shasum", "rhash"} {
+		for _, tcHashHandler := range []string{"", "sha512sum", "shasum", "rhash"} {
 			for _, tc := range tests {
 				var tCName string
 				var tcArg string
@@ -59,7 +59,7 @@ func Test__libdl_hash_sha256(t *testing.T) {
 				}
 
 				t.Run(fmt.Sprintf("%s-%s-%s", shell, tcHashHandler, tCName), func(t *testing.T) {
-					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha256 %s %s", tcArg, tcHashHandler))
+					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha512 %s %s", tcArg, tcHashHandler))
 					var stdoutBuf, stderrBuf bytes.Buffer
 					cmd.Stdout = &stdoutBuf
 					cmd.Stderr = &stderrBuf

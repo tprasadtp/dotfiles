@@ -11,7 +11,87 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
+func Test__libdl_is_md5hash(t *testing.T) {
+	t.Parallel()
+	libtest.AssertShellsAvailable(t)
+
+	tests := []struct {
+		name string
+		code int
+		hash string
+	}{
+		{name: "valid", hash: "f25eb2f56cad9ff59dff0e9dd2b64251"},
+		{name: "invalid", hash: "z25eb2f56cad9ff59dff0e9dd2b64251", code: 1},
+		{name: "filename", hash: "testdata/MD5SUMS.txt", code: 1},
+		{name: "empty-quote", hash: `""`, code: 1},
+		{name: "none", code: 1},
+	}
+	for _, shell := range libtest.SupportedShells() {
+		for _, tc := range tests {
+			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_is_md5hash %s", tc.hash))
+				var stdoutBuf, stderrBuf bytes.Buffer
+				cmd.Stdout = &stdoutBuf
+				cmd.Stderr = &stderrBuf
+				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+
+				err := cmd.Run()
+				assert.Empty(t, stdoutBuf.String())
+				assert.Empty(t, stdoutBuf.String())
+				if tc.code == 0 {
+					assert.Nil(t, err)
+					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
+				} else {
+					assert.NotNil(t, err)
+					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				}
+			})
+		}
+	}
+}
+
+func Test__libdl_is_sha1hash(t *testing.T) {
+	t.Parallel()
+
+	libtest.AssertShellsAvailable(t)
+
+	tests := []struct {
+		name string
+		code int
+		hash string
+	}{
+		{name: "valid", hash: "b5db34c1b59b6e0c223b103ba52967dbb59c2f8b"},
+		{name: "invalid", hash: "z5db34c1b59b6e0c223b103ba52967dbb59c2f8b", code: 1},
+		{name: "filename", hash: "testdata/SHA1SUMS.txt", code: 1},
+		{name: "empty-quote", hash: `""`, code: 1},
+		{name: "none", code: 1},
+	}
+	for _, shell := range libtest.SupportedShells() {
+		for _, tc := range tests {
+			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
+				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_is_sha1hash %s", tc.hash))
+				var stdoutBuf, stderrBuf bytes.Buffer
+				cmd.Stdout = &stdoutBuf
+				cmd.Stderr = &stderrBuf
+				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+
+				err := cmd.Run()
+				assert.Empty(t, stdoutBuf.String())
+				assert.Empty(t, stdoutBuf.String())
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				if tc.code == 0 {
+					assert.Nil(t, err)
+				} else {
+					assert.NotNil(t, err)
+				}
+			})
+		}
+	}
+}
+
 func Test__libdl_is_sha256hash(t *testing.T) {
+	t.Parallel()
+
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -36,15 +116,13 @@ func Test__libdl_is_sha256hash(t *testing.T) {
 				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
 
 				err := cmd.Run()
+				assert.Empty(t, stdoutBuf.String())
+				assert.Empty(t, stdoutBuf.String())
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stderrBuf.String())
-					assert.Empty(t, stdoutBuf.String())
 				} else {
 					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				}
 			})
 		}
@@ -52,6 +130,8 @@ func Test__libdl_is_sha256hash(t *testing.T) {
 }
 
 func Test__libdl_is_sha512hash(t *testing.T) {
+	t.Parallel()
+
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -75,15 +155,13 @@ func Test__libdl_is_sha512hash(t *testing.T) {
 				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
 
 				err := cmd.Run()
+				assert.Empty(t, stdoutBuf.String())
+				assert.Empty(t, stdoutBuf.String())
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stderrBuf.String())
-					assert.Empty(t, stdoutBuf.String())
 				} else {
 					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				}
 			})
 		}

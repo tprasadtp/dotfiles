@@ -11,7 +11,8 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_hash_sha256(t *testing.T) {
+func Test__libdl_hash_sha1(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -23,7 +24,7 @@ func Test__libdl_hash_sha256(t *testing.T) {
 		{
 			name: "existing-file",
 			file: "testdata/checksum.txt",
-			hash: "c7ff397df263ecbf0af7b717affa95c6a19fd784dbd20a210190cd5402556177",
+			hash: "b5db34c1b59b6e0c223b103ba52967dbb59c2f8b",
 		},
 		{
 			name: "non-existant-file",
@@ -36,34 +37,24 @@ func Test__libdl_hash_sha256(t *testing.T) {
 			code: 12,
 		},
 		{
-			name: "empty-quotes",
+			name: "none",
 			code: 12,
 		},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		for _, tcHashHandler := range []string{"", "sha256sum", "shasum", "rhash"} {
+		for _, tcHashHandler := range []string{"", "sha1sum", "shasum", "rhash"} {
 			for _, tc := range tests {
-				var tCName string
-				var tcArg string
-				if tc.file == "" {
-					// needed to ensure multiple args are passed
-					tcArg = `""`
-					tCName = "no-file-specified"
-				} else {
-					tcArg = tc.file
-					tCName = tc.file
-				}
 
 				if tcHashHandler == "" {
 					tcHashHandler = "auto"
 				}
 
-				t.Run(fmt.Sprintf("%s-%s-%s", shell, tcHashHandler, tCName), func(t *testing.T) {
-					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha256 %s %s", tcArg, tcHashHandler))
+				t.Run(fmt.Sprintf("%s-%s-%s", shell, tcHashHandler, tc.name), func(t *testing.T) {
+					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha1 %s %s", tc.file, tcHashHandler))
 					var stdoutBuf, stderrBuf bytes.Buffer
 					cmd.Stdout = &stdoutBuf
 					cmd.Stderr = &stderrBuf
-					cmd.Env = append(os.Environ(), "TZ=UTC")
+					cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
 
 					err := cmd.Run()
 					if tc.code == 0 {
@@ -75,7 +66,6 @@ func Test__libdl_hash_sha256(t *testing.T) {
 						assert.NotNil(t, err)
 						assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
 						assert.Empty(t, stdoutBuf.String())
-						assert.Empty(t, stderrBuf.String())
 					}
 				})
 			}

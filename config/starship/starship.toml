@@ -13,6 +13,7 @@ $conda\
 $python\
 $ruby\
 $rust\
+$vagrant\
 $aws\
 $gcloud\
 $kubernetes\
@@ -29,23 +30,6 @@ $character\
 """
 
 # format = "$all"
-
-# Core
-# ﬏  ﬦ      﫟  
-# Extra OS Logos
-# Ubuntu     - 
-# Lubuntu    - 
-# Fedora     - 
-# OpenBSD    - 
-# Raspbian   - 
-# Arch Linux - 
-# Manjaro    - 
-# Linux Mint - 
-# Rocky      - 
-# Windows    - 
-# Qubes      - 
-# Open Suse  - 
-# Linux      - 
 
 # This is targeted for NEMO
 # Because of conda on BGFS
@@ -159,31 +143,29 @@ command = """
 GIT_REMOTE=$(command git ls-remote --get-url 2> /dev/null)
 GIT_HOST=$(printf "%s" "$GIT_REMOTE" | sed -e 's/[^/]*\\/\\/\\([^@]*@\\)\\?\\([^:/]*\\).*/\\2/')
 if [[ "$GIT_HOST" =~ ^github.com ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^github* ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " ${GIT_HOST}"
 elif [[ "$GIT_HOST" =~ git-codecommit.([^/]*).amazonaws.com ]]; then
-    printf  "  ${BASH_REMATCH[1]}"
+    printf  "  ${BASH_REMATCH[1]}"
 elif [[ "$GIT_HOST" =~ "gitlab.com" ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^gitlab.com|^gitlab* ]]; then
-    printf  "  ${GIT_HOST}"
+    printf  "  ${GIT_HOST}"
 elif [[ "$GIT_HOST" =~ "bitbucket.com" ]]; then
-    printf  " "
-elif [[ "$GIT_HOST" =~ ^gitea* ]]; then
-    printf  " ${GIT_HOST}"
+    printf  " "
 elif [[ "$GIT_HOST" =~ "git.launchpad.net" ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^(ssh.dev.azure.com|dev.azure.com|vs-ssh.visualstudio.com|visualstudio.com) ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" =~ ^developers.google.com* ]]; then
     printf  " "
 elif [[ "$GIT_HOST" == "aur.archlinux.org" ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" == "salsa.debian.org" ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" == "src.fedoraproject.org" ]]; then
-    printf  " "
+    printf  " "
 elif [[ "$GIT_HOST" == "" ]]; then
     printf  " "
 else
@@ -200,13 +182,13 @@ format = "(at [$output ]($style))"
 [kubernetes]
 disabled = false
 # symbol = "ﴱ "
-symbol = " "
+symbol = " "
 format = '(on [$symbol$context( \($namespace\))]($style)) '
 style = "#5e92f3"
 
 [helm]
-# symbol = "⚙"
-symbol = " "
+symbol = "⚙"
+# symbol = " "
 
 [golang]
 symbol = " "
@@ -226,13 +208,13 @@ format = "[$symbol$environment]($style) "
 
 [package]
 #symbol = " "
-symbol = " "
+symbol = " "
 style = "#ff833a"
 disabled = false
 
 [shell]
 fish_indicator = ""
-bash_indicator = ""
+bash_indicator = ""
 powershell_indicator = "_"
 disabled = false
 
@@ -246,7 +228,7 @@ time_format = "%I:%M %p"
 
 [terraform]
 disabled = false
-symbol = " "
+symbol = " "
 format = "[$symbol\\($workspace\\)]($style) "
 style = "#9a67ea"
 
@@ -341,7 +323,6 @@ style = "#DEA584"
 disabled = true
 
 [singularity]
-symbol = " "
 style = "#ED1944"
 disabled = false
 
@@ -353,7 +334,8 @@ disabled = true
 disabled = false
 
 [vagrant]
-disabled = true
+symbol = " "
+disabled = false
 
 [zig]
 disabled = true
