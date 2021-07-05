@@ -3,11 +3,11 @@
 Simple sh logger.
 
 - Supports leveled logging
+- Outputs to stderr by default, Optionally log to stdout instead of stderr by setting `LOG_TO_STDOUT=true`
 - Supports colored logs
 - Supports https://bixense.com/clicolors/ and https://no-color.org/ standards.
-- Optionally log to stdderr instead of stdout by setting `LOG_TO_STDERR=true`
-- Mostly posix compliant. Only non posix feature used is `local` keyword, but most shells
-including dash and ash implement it anyway.
+- Mostly POSIX compliant. Only non POSIX feature used is `local` keyword, but most shells
+including dash and ash implement it anyway. See [this](https://github.com/koalaman/shellcheck/wiki/SC3043).
 - Can be used with bash/ash/dash/sh or zsh.
 - Avoids use of global variables for anything other than configuration.
 - Avoids global state variables
@@ -15,7 +15,7 @@ including dash and ash implement it anyway.
 ## Dependencies
 
 - Two external commands are used. `printf` and depending on the log format `date`. Both are usually provided by
-`coreutils` package or on some systems by `busybox`.
+`coreutils` package or on some systems like alpine by `busybox`.
 
 ## Levels
 

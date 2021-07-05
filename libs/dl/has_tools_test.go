@@ -1,5 +1,5 @@
-//go:build docker
-// +build docker
+//go:build extended
+// +build extended
 
 package dl
 

@@ -14,6 +14,7 @@
 # - For signature verification
 #   - gpgv or gpg command               - if gpg key is binary
 #   - gpg                               - if gpg key is in ascii armored file
+#
 # See https://github.com/tprasadtp/shlibs/dl/README.md
 # If included in other files, contents between snippet markers is
 # automatically updated and all changes between markers will be ignored.
@@ -134,7 +135,7 @@ __libdl_print_error()
     32) log_error "Checksum file was not found or not accessible." ;;
     33) log_error "Failed to caclulate checksum for unknown reasons" ;;
     34) log_error "Checksum hash is invalid" ;;
-    35) log_error "Checksum file is missing hashes for the target specified" ;;
+    35) log_error "Checksum file is missing hashes for the target specified or is invalid" ;;
     36) log_error "Unsupported hash algorithm. Only sha256 and sha512 are supported" ;;
 
     # Checksum remote errors
@@ -393,8 +394,6 @@ __libdl_hash_md5()
     # coreutils/busybox
     elif __libdl_has_command md5sum; then
       hasher_exe="md5sum"
-    elif __libdl_has_command rhash; then
-      hasher_exe="rhash"
     fi
   fi
 
@@ -402,7 +401,6 @@ __libdl_hash_md5()
   case $hasher_exe in
     gmd5sum) hash="$(gmd5sum "$target")" || return 33 ;;
     md5sum) hash="$(md5sum "$target")" || return 33 ;;
-    rhash) hash="$(rhash --md5 "$target")" || return 33 ;;
     *) return 22 ;;
   esac
 
@@ -448,8 +446,6 @@ __libdl_hash_sha1()
     elif __libdl_has_command shasum; then
       # Darwin, freebsd
       hasher_exe="shasum"
-    elif __libdl_has_command rhash; then
-      hasher_exe="rhash"
     fi
   fi
 
@@ -458,7 +454,6 @@ __libdl_hash_sha1()
     gsha1sum) hash="$(gsha1sum "$target")" || return 33 ;;
     sha1sum) hash="$(sha1sum "$target")" || return 33 ;;
     shasum) hash="$(shasum -a 1 "$target" 2>/dev/null)" || return 33 ;;
-    rhash) hash="$(rhash --sha1 "$target")" || return 33 ;;
     *) return 22 ;;
   esac
 
@@ -504,8 +499,6 @@ __libdl_hash_sha256()
     elif __libdl_has_command shasum; then
       # Darwin, freebsd
       hasher_exe="shasum"
-    elif __libdl_has_command rhash; then
-      hasher_exe="rhash"
     fi
   fi
 
@@ -514,7 +507,6 @@ __libdl_hash_sha256()
     gsha256sum) hash="$(gsha256sum "$target")" || return 33 ;;
     sha256sum) hash="$(sha256sum "$target")" || return 33 ;;
     shasum) hash="$(shasum -a 256 "$target" 2>/dev/null)" || return 33 ;;
-    rhash) hash="$(rhash --sha256 "$target")" || return 33 ;;
     *) return 22 ;;
   esac
 
@@ -560,8 +552,6 @@ __libdl_hash_sha512()
     elif __libdl_has_command shasum; then
       # Darwin, freebsd
       hasher_exe="shasum"
-    elif __libdl_has_command rhash; then
-      hasher_exe="rhash"
     fi
   fi
 
@@ -570,7 +560,6 @@ __libdl_hash_sha512()
     gsha512sum) hash="$(gsha512sum "$target")" || return 33 ;;
     sha512sum) hash="$(sha512sum "$target")" || return 33 ;;
     shasum) hash="$(shasum -a 512 "$target" 2>/dev/null)" || return 33 ;;
-    rhash) hash="$(rhash --sha512 "$target")" || return 33 ;;
     *) return 22 ;;
   esac
 
@@ -640,7 +629,7 @@ __libdl_is_sha512hash()
 # This function produces some output which is not machine readable
 # Status codes should be used instead of output which is intended for
 # console use and logging.
-__libdl_verify_hash()
+__libdl_hash_verify()
 {
   local target="$1"
   local hash="$2"
@@ -717,6 +706,7 @@ __libdl_verify_hash()
       log_error "Checksum file not found: ${hash}"
       return 32
     fi
+    log_debug "Looking for target ${hash_type} hash in ${hash}"
     # http://stackoverflow.com/questions/2664740/extract-file-basename-without-path-and-extension-in-bash
     target_basename=${target##*/}
     want="$(grep "${target_basename}" "${hash}" 2>/dev/null)"
@@ -726,42 +716,31 @@ __libdl_verify_hash()
 
     # if file does not exist $want will be empty
     case ${hash_type} in
-      sha256)
-        if ! __libdl_is_sha256hash "$want"; then
-          log_error "Error! Failed to find SHA256 hash corresponding to '$target_basename' in file $hash"
+      md5)
+        if ! __libdl_is_md5hash "$want"; then
+          log_error "Error! Failed to find MD5 hash corresponding to '$target_basename' in file $hash"
           return 35
         fi
-        # Caclulate SHA256 hash of target file
-        got=$(__libdl_hash_sha256 "$target")
-        hash_rc="$?"
-        ;;
-      sha512)
-        if ! __libdl_is_sha512hash "$want"; then
-          log_error "Error! Failed to find SHA512 hash corresponding to '$target_basename' in file $hash"
-          return 35
-        fi
-        # Caclulate SHA512 hash of target file
-        got=$(__libdl_hash_sha512 "$target")
-        hash_rc="$?"
         ;;
       sha1)
         if ! __libdl_is_sha1hash "$want"; then
           log_error "Error! Failed to find SHA1 hash corresponding to '$target_basename' in file $hash"
           return 35
         fi
-        # Caclulate SHA512 hash of target file
-        got=$(__libdl_hash_sha1 "$target")
-        hash_rc="$?"
         ;;
-      md5)
-        if ! __libdl_is_md5hash "$want"; then
-          log_error "Error! Failed to find MD5 hash corresponding to '$target_basename' in file $hash"
+      sha256)
+        if ! __libdl_is_sha256hash "$want"; then
+          log_error "Error! Failed to find SHA256 hash corresponding to '$target_basename' in file $hash"
           return 35
         fi
-        # Caclulate SHA512 hash of target file
-        got=$(__libdl_hash_md5 "$target")
-        hash_rc="$?"
         ;;
+      sha512)
+        if ! __libdl_is_sha512hash "$want"; then
+          log_error "Error! Failed to find SHA512 hash corresponding to '$target_basename' in file $hash"
+          return 35
+        fi
+        ;;
+      # we should never reach this code
       *)
         log_error "Unsupported hash algorithm - ${algorithm}"
         return 36
@@ -773,17 +752,42 @@ __libdl_verify_hash()
     want="$hash"
   fi
 
-  if [ $hash_rc -ne 0 ]; then
+  # Compute file hashes
+  case ${hash_type} in
+    md5)
+      got=$(__libdl_hash_md5 "$target")
+      hash_rc="$?"
+      ;;
+    sha1)
+      got=$(__libdl_hash_sha1 "$target")
+      hash_rc="$?"
+      ;;
+    sha256)
+      got=$(__libdl_hash_sha256 "$target")
+      hash_rc="$?"
+      ;;
+    sha512)
+      got=$(__libdl_hash_sha512 "$target")
+      hash_rc="$?"
+      ;;
+    # we should never reach this code
+    *)
+      log_error "Unsupported hash algorithm - ${algorithm}"
+      return 36
+      ;;
+  esac
+
+  if [ "${hash_rc:-33}" -ne 0 ]; then
     log_error "An error occured while caclulating hash(${algorithm}) for file - ${target}"
     return $hash_rc
   else
     if [ "$want" != "$got" ]; then
-      log_error "Hash(${algorithm}) for '$target' did not match!"
-      log_error "Expected : ${want}"
-      log_error "Got      : ${got}"
+      log_error "Hash - ${algorithm} for '$target' did not match!"
+      log_error "Target Hash    : ${want}"
+      log_error "Expected Hash  : ${got}"
       return 80
     else
-      log_error "Hash(${algorithm}) for '$target' verified"
+      log_trace "Hash - ${algorithm} for '$target' verified"
       log_trace "Target Hash   : ${got}"
       log_trace "Expected Hash : ${want}"
       return 0

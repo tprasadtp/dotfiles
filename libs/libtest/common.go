@@ -1,12 +1,18 @@
 package libtest
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func AssertCommandAvailable(t *testing.T, cmd string) {
+	_, err := exec.LookPath(cmd)
+	assert.Nil(t, err)
+}
 
 func AssertShellsAvailable(t *testing.T) {
 	for _, shell := range SupportedShells() {
@@ -36,5 +42,11 @@ func UnameS() string {
 		return strings.Replace(strings.Replace(string(out), "\n", "", -1), "\r", "", -1)
 	} else {
 		return ""
+	}
+}
+
+func DebugPrintCmd(t *testing.T, cmd *exec.Cmd) {
+	if os.Getenv("DEBUG") == "1" {
+		t.Log(cmd.String())
 	}
 }

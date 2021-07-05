@@ -156,10 +156,11 @@ __logger_core_event_handler()
       ;;
   esac
 
-  if [ "${LOG_TO_STDERR:-false}" = "true" ]; then
-    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$lvl_msg" "${lvl_color_reset}" 1>&2
-  else
+  # By defaut logs are written to stderr
+  if [ "${LOG_TO_STDOUT:-false}" = "true" ]; then
     printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$lvl_msg" "${lvl_color_reset}"
+  else
+    printf "%s%s %s %s\n" "$lvl_color" "${lvl_string}" "$lvl_msg" "${lvl_color_reset}" 1>&2
   fi
 }
 

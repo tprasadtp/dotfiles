@@ -7,6 +7,7 @@ SCRIPTPATH="$(
   cd -- "$(dirname "$0")" >/dev/null 2>&1
   pwd -P
 )"
+
 if [ -e $SCRIPTPATH/logger.sh ]; then
   #shellcheck source=/dev/null
   . "$SCRIPTPATH"/logger.sh

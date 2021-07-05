@@ -12,7 +12,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_verify_hash_sha256(t *testing.T) {
+func Test__libdl_hash_verify_sha256(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -76,29 +76,30 @@ func Test__libdl_verify_hash_sha256(t *testing.T) {
 			name:      "existing-file-err-on-missing-from-hashes-file",
 			file:      "testdata/checksum.txt",
 			hash:      "testdata/SHA256SUMS.missing.txt",
-			errString: "failed to find hash corresponding to",
+			errString: "failed to find sha256 hash corresponding to",
 			code:      35,
 		},
 	}
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
-			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
-				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_verify_hash %s %s sha256", tc.file, tc.hash))
-				var stdoutBuf, stderrBuf bytes.Buffer
-				cmd.Stdout = &stdoutBuf
-				cmd.Stderr = &stderrBuf
-				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true", "LOG_LVL=0")
-				err := cmd.Run()
-				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-				assert.Empty(t, stdoutBuf.String())
-
-				if tc.code == 0 {
-					assert.Nil(t, err)
-				} else {
-					assert.NotNil(t, err)
-					assert.Contains(t, strings.ToLower(stderrBuf.String()), tc.errString)
-				}
-			})
+			for _, hashTypeInput := range []string{"sha256", "sha-256", "SHA256", "SHA-256"} {
+				t.Run(fmt.Sprintf("%s-%s-%s", shell, tc.name, hashTypeInput), func(t *testing.T) {
+					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
+					var stdoutBuf, stderrBuf bytes.Buffer
+					cmd.Stdout = &stdoutBuf
+					cmd.Stderr = &stderrBuf
+					cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true", "LOG_LVL=0")
+					err := cmd.Run()
+					assert.Empty(t, stdoutBuf.String())
+					if tc.code == 0 {
+						assert.Nil(t, err)
+					} else {
+						assert.NotNil(t, err)
+						assert.Contains(t, strings.ToLower(stderrBuf.String()), tc.errString)
+					}
+					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				})
+			}
 		}
 	}
 }
