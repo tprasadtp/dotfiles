@@ -12,7 +12,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_hash_verify_sha256(t *testing.T) {
+func Test__libdl_verify_sha256(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -60,16 +60,16 @@ func Test__libdl_hash_verify_sha256(t *testing.T) {
 		},
 		// Invalid checksum
 		{
-			name: "existing-file-raw-hash-invalid-checksum",
-			file: "testdata/checksums.txt",
+			name: "existing-file-raw-hash-invalid-looks-for-file",
+			file: "testdata/checksum.txt",
 			hash: "z7ff397df263ecbf0af7b717affa95c6a19fd784dbd20a210190cd5402556177",
-			code: 31,
+			code: 32,
 		},
 		{
 			name: "existing-file-checksum-file-invalid-checksum",
-			file: "testdata/checksums.txt",
+			file: "testdata/checksum.txt",
 			hash: "testdata/SHA256SUMS.invalid.txt",
-			code: 31,
+			code: 35,
 		},
 		// Target missing from checksums file
 		{
@@ -83,8 +83,9 @@ func Test__libdl_hash_verify_sha256(t *testing.T) {
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
 			for _, hashTypeInput := range []string{"sha256", "sha-256", "SHA256", "SHA-256"} {
-				t.Run(fmt.Sprintf("%s-%s-%s", shell, tc.name, hashTypeInput), func(t *testing.T) {
+				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
+					libtest.DebugPrintCmd(t, cmd)
 					var stdoutBuf, stderrBuf bytes.Buffer
 					cmd.Stdout = &stdoutBuf
 					cmd.Stderr = &stderrBuf

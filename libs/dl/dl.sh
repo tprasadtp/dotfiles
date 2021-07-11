@@ -1,7 +1,9 @@
+#
+# tprasadtp/shalibs/dl/dl.sh
+#
 # shellcheck shell=sh
 # shellcheck disable=SC3043
 
-# SHELL DOWNLOAD LIBRARY
 # - DEPENDS ON LOGGING LIBRARY
 # - Requires wget/curl
 #
@@ -42,17 +44,17 @@ __libdl_print_error()
       ;;
 
     11)
-      log_error "GOOS/GOARCH Mapper error!"
-      log_error "Please report this error to https://github.com/tprasadtp/shlibs"
-      log_error "Please include outputs of following commands in your error reports"
-      log_error "1. uname -m"
-      log_error "2. uname -r"
+      log_error "Failed to detect and map GOOS/GOARCH/GOARM!"
+      __libdl_report_error_helper
       ;;
 
     12)
       log_error "Internal Error! Invalid arguments!"
       ;;
-
+    14)
+      log_error "Failed to determine system architecture or os"
+      __libdl_report_error_helper
+      ;;
     21)
       log_error "This script requires curl or wget, but both of them were not installed or not available."
       if [ -n "$LOADEDMODULES" ] && __libdl_has_command "module"; then
@@ -167,6 +169,27 @@ __libdl_print_error()
   esac
 }
 
+__libdl_report_error_helper()
+{
+  log_error "Please report this error to https://github.com/tprasadtp/shlibs"
+  log_error "Please include following details of following commands in your error report."
+  local goos goarm gorach uname_m uname_s
+
+  # Following assignments/subshells will mask return values and its by design!
+  uname_s="$(uname -s)"
+  uname_m="$(uname -m)"
+
+  goos="$(__libdl_GOOS)"
+  goarch="$(__libdl_GOARCH)"
+  goarm="$(__libdl_GOARM)"
+
+  log_error "System Architecture (uname -m) : ${uname_m:-Undefined}"
+  log_error "System Type (uname -s)         : ${uname_s:-Undefined}"
+  log_error "Detected GOOS value            : ${goos:-Undefined}"
+  log_error "Detected GOARCH value          : ${goarch:-Undefined}"
+  log_error "Detected GOARM value           : ${goarm:-Undefined}"
+
+}
 # convert `uname -m` to GOARCH and output
 # By default function will try to map current uname -m to GOARCH.
 # You can optionally pass it as an argument (useful in remote mounted filesystems)
@@ -184,7 +207,8 @@ __libdl_GOARCH()
       printf "386"
       return 0
       ;;
-    aarch64)
+    # arm64 is required to handler apple silicons
+    aarch64 | arm64)
       printf "arm64"
       return 0
       ;;
@@ -194,7 +218,7 @@ __libdl_GOARCH()
       ;;
   esac
   # We failed to map architectures to GOARCH
-  return 1
+  return 11
 }
 
 # convert `uname -m` to GOARM and output
@@ -206,14 +230,28 @@ __libdl_GOARM()
   local arch
   arch="${1:-$(uname -m)}"
   case $arch in
+    x86 | i686 | i386 | x86_64 | aarch64 | arm64)
+      return 0
+      ;;
     armv7*)
-      printf "v7"
+      printf "7"
+      return 0
+      ;;
+    # ARM64 CPPU in 32 bit mode
+    armv8*)
+      printf "7"
+      return 0
       ;;
     armv6*)
-      printf "v6"
+      printf "6"
+      return 0
       ;;
     armv5*)
-      printf "v5"
+      printf "5"
+      return 0
+      ;;
+    *)
+      return 11
       ;;
   esac
 }
@@ -649,7 +687,7 @@ __libdl_hash_verify()
     return 31
   fi
 
-  if [ ! -e "$target" ]; then
+  if ! test -f "$target"; then
     log_error "File not found - $target"
     return 31
   fi
@@ -706,7 +744,7 @@ __libdl_hash_verify()
       log_error "Checksum file not found: ${hash}"
       return 32
     fi
-    log_debug "Looking for target ${hash_type} hash in ${hash}"
+    log_trace "Looking for target ${hash_type} hash in ${hash}"
     # http://stackoverflow.com/questions/2664740/extract-file-basename-without-path-and-extension-in-bash
     target_basename=${target##*/}
     want="$(grep "${target_basename}" "${hash}" 2>/dev/null)"
@@ -782,21 +820,21 @@ __libdl_hash_verify()
     return $hash_rc
   else
     if [ "$want" != "$got" ]; then
-      log_error "Hash - ${algorithm} for '$target' did not match!"
-      log_error "Target Hash    : ${want}"
-      log_error "Expected Hash  : ${got}"
+      log_error "Target Hash   : ${want}"
+      log_error "Expected Hash : ${got}"
+      log_error "Result        : MISMATCH"
       return 80
     else
-      log_trace "Hash - ${algorithm} for '$target' verified"
       log_trace "Target Hash   : ${got}"
       log_trace "Expected Hash : ${want}"
+      log_trace "Result        : VERIFIED"
       return 0
     fi
   fi
 }
 
 # Render URL
-__libdl_get_rendered_string()
+__libdl_render_template()
 {
   local url="${1}"
   local goos goarch goarm version uname_s uname_m
@@ -842,19 +880,23 @@ __libdl_get_rendered_string()
       ;;
   esac
 
-  # Template rendering:ARCH
+  # Template rendering:SYSTEM_ARCH
   case $url in
-    *%ARCH%*)
+    *%SYSTEM_ARCH%*)
       uname_m="$(uname -m)"
-      url="$(printf "%s" "${url}" | sed -e "s/++GOOS++/${goos}/g")"
+      url="$(printf "%s" "${url}" | sed -e "s/++SYSTEM_ARCH++/${uname_m}/g")"
       ;;
   esac
 
-  # Template rendering:OS
+  # Template rendering:SYSTEM_OS
   case $url in
-    *%OS%*)
+    *++SYSTEM_OS%++*)
       uname_s="$(uname -s)"
-      url="${url//%OS%/${uname_s}}"
+      if [ -n "$uname_s" ]; then
+        url="${url//++SYSTEM_OS++/${uname_s}}"
+      else
+        return 14
+      fi
       ;;
   esac
 
@@ -960,7 +1002,7 @@ download_file()
     fi
   fi
 
-  # url basic validity checks
+  # Url basic validity checks
   if [ -z "${url}" ]; then
     return 4
   else

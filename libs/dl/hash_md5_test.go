@@ -14,7 +14,7 @@ import (
 func generateMD5TestTable() []hashTestTable {
 	var testCases []hashTestTable
 	for _, shell := range libtest.SupportedShells() {
-		for _, hasherOverride := range []string{"auto", "md5sum", "empty-quotes", "none"} {
+		for _, hasherOverride := range []string{"auto", "md5sum", "none"} {
 			for _, variant := range []string{"existing-file", "non-existant-file", "empty-quotes", "empty"} {
 				var tc hashTestTable
 				name := fmt.Sprintf("%s-hasher-override-%s-%s", shell, hasherOverride, variant)
@@ -46,11 +46,18 @@ func generateMD5TestTable() []hashTestTable {
 						returnCode:     12,
 					}
 				case "empty":
+					var rc int
+					switch hasherOverride {
+					case "none", `""`:
+						rc = 12
+					default:
+						rc = 31
+					}
 					tc = hashTestTable{
 						name:           name,
 						shell:          shell,
 						hasherOverride: hasherOverride,
-						returnCode:     12,
+						returnCode:     rc,
 					}
 				}
 				// build table
@@ -62,12 +69,12 @@ func generateMD5TestTable() []hashTestTable {
 	return testCases
 }
 
-func Test__libdl_hash_md5_New(t *testing.T) {
+func Test__libdl_hash_md5(t *testing.T) {
 	// t.Parallel()
 	testCases := generateMD5TestTable()
 	t.Logf("MD5 Total test cases: %d", len(testCases))
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s=%d", tc.name, tc.returnCode), func(t *testing.T) {
 			// t.Parallel()
 
 			var cmd *exec.Cmd
@@ -96,5 +103,4 @@ func Test__libdl_hash_md5_New(t *testing.T) {
 			}
 		})
 	}
-
 }

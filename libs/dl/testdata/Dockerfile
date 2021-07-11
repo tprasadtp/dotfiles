@@ -14,7 +14,7 @@ RUN apt-get purge --yes --allow-remove-essential gpgv
 FROM base as all
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt/lists \
-    apt-get update && apt-get install --no-install-recommends --yes curl wget gpg rhash
+    apt-get update && apt-get install --no-install-recommends --yes curl wget gpg rhash perl
 
 FROM base as curl-gpgv
 RUN --mount=type=cache,target=/var/cache/apt \

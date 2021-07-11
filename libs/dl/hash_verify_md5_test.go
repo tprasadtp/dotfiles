@@ -12,7 +12,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test__libdl_verify_sha1(t *testing.T) {
+func Test__libdl_verify_md5(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -25,64 +25,64 @@ func Test__libdl_verify_sha1(t *testing.T) {
 		{
 			name: "existing-file-raw-hash-match",
 			file: "testdata/checksum.txt",
-			hash: "b5db34c1b59b6e0c223b103ba52967dbb59c2f8b",
+			hash: "f25eb2f56cad9ff59dff0e9dd2b64251",
 		},
 		{
 			name: "existing-file-checksum-file-match",
 			file: "testdata/checksum.txt",
-			hash: "testdata/SHA1SUMS.txt",
+			hash: "testdata/MD5SUMS.txt",
 		},
 		// Checksums failure
 		{
 			name: "existing-file-raw-hash-err-on-mismatch",
 			file: "testdata/checksum.txt",
-			hash: "f5db34c1b59b6e0c223b103ba52967dbb59c2f8b",
+			hash: "f25eb2f56cad9ff59dff0e9dd2b64252",
 			code: 80,
 		},
 		{
 			name: "existing-file-checksum-err-on-mismatch",
 			file: "testdata/checksum.txt",
-			hash: "testdata/SHA1SUMS.mismatch.txt",
+			hash: "testdata/MD5SUMS.mismatch.txt",
 			code: 80,
 		},
 		// Target is missing
 		{
 			name: "non-existing-target-err-checksum-raw",
 			file: "testdata/no-such-file.txt",
-			hash: "b5db34c1b59b6e0c223b103ba52967dbb59c2f8b",
+			hash: "f25eb2f56cad9ff59dff0e9dd2b64251",
 			code: 31,
 		},
 		{
 			name: "non-existing-target-err-checksum-file",
 			file: "testdata/no-such-file.txt",
-			hash: "testdata/SHA1SUMS.txt",
+			hash: "testdata/MD5SUMS.txt",
 			code: 31,
 		},
 		// Invalid checksum
 		{
 			name: "existing-file-raw-hash-invalid-looks-for-file",
 			file: "testdata/checksum.txt",
-			hash: "z5db34c1b59b6e0c223b103ba52967dbb59c2f8b",
+			hash: "z25eb2f56cad9ff59dff0e9dd2b64251",
 			code: 32,
 		},
 		{
 			name: "existing-file-checksum-file-invalid-checksum",
 			file: "testdata/checksum.txt",
-			hash: "testdata/SHA1SUMS.invalid.txt",
+			hash: "testdata/MD5SUMS.invalid.txt",
 			code: 35,
 		},
 		// Target missing from checksums file
 		{
 			name:      "existing-file-err-on-missing-from-hashes-file",
 			file:      "testdata/checksum.txt",
-			hash:      "testdata/SHA1SUMS.missing.txt",
-			errString: "failed to find sha1 hash corresponding to",
+			hash:      "testdata/MD5SUMS.missing.txt",
+			errString: "failed to find md5 hash corresponding to",
 			code:      35,
 		},
 	}
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
-			for _, hashTypeInput := range []string{"sha1", "sha-1", "SHA1", "SHA-1"} {
+			for _, hashTypeInput := range []string{"md5", "md-5", "MD5", "MD-5"} {
 				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
 					libtest.DebugPrintCmd(t, cmd)

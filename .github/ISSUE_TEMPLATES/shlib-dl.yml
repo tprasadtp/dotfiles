@@ -1,0 +1,203 @@
+name: Bug Report - Download Library
+description: Report a bug in lshlib/dl library.
+title: "[BUG:LIB:DL] -  "
+labels: ["Bug:DL", "Bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        - Thanks for taking the time to fill out this bug report!
+        - Please leave the prefilled title prefix as-is.
+        - Unless overidden by scripts, library should print out and
+          generate a clickable link or displayed a url which,
+          should have pre-filled most of this form!
+        - If for some reason, the link does not work,
+          fill out the values manually.
+
+  # uname-s
+  - type: input
+    id: uname-s
+    attributes:
+      label: System Type
+      description: |
+        - Output of `uname -s` command.
+        - If unable to detect or not applicable, leave the field as is.
+      value: NA
+    validations:
+      required: true
+
+  # uname-m
+  - type: input
+    id: uname-m
+    attributes:
+      label: System Architecture
+      description: |
+        - Output of `uname -m` command.
+        - If unable to detect or not applicable, leave the field as is.
+      value: NA
+    validations:
+      required: true
+
+  # detected values
+  - type: dropdown
+    id: detected-goos
+    attributes:
+      label: Detected GOOS value
+      options:
+        - linux
+        - darwin
+        - windows
+        - freebsd
+        - netbsd
+        - dragonflybsd
+        - error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: detected-goarch
+    attributes:
+      label: Detected GOARCH value
+      options:
+        - amd64
+        - arm64
+        - 386
+        - arm
+        - error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: detected-goarm
+    attributes:
+      label: Detected GOARM value
+      description: |
+        - GOARM is only required on ARM-32 bit systems
+        - This value is not displayed/popluated if not applicable
+      options:
+        - 5
+        - 6
+        - 7
+        - 8
+        - not-arm32
+        - error
+    validations:
+      required: true
+
+  # Download handler
+  - type: dropdown
+    id: download-handler
+    attributes:
+      label: Download Handler
+      options:
+        - curl
+        - wget
+        - ERROR
+    validations:
+      required: true
+
+  - type: textarea
+    id: curl-version
+    attributes:
+      label: Version of curl/libcurl
+      description: |
+          - Paste the output of command `curl --version`
+          - If you are not using curl as is the case with busybox based distros, you can leave this field empty or as is.
+      value: NA
+
+  - type: textarea
+    id: wget-version
+    attributes:
+      label: Version of wget
+      description: |
+          - Paste the output of command `wget --version`
+          - If you are not using wget you can leave this field empty or as is.
+      value: NA
+
+  - type: checkboxes
+    id: checksum-algorithm
+    attributes:
+      label: Checksum Algorithm
+      description: |
+        - Please check all the algorithms which apply
+        - If you are not using checksum verification, you can leave this field empty or as is.
+      options:
+        - label: MD5
+        - label: SHA1
+        - label: SHA256
+        - label: SHA512
+
+  - type: checkboxes
+    id: checksum-provider
+    attributes:
+      label: How was the checksum or checksum file provided?
+      options:
+        - label: Hash URL
+        - label: Checksum File URL
+
+
+  # GPG handler
+  - type: dropdown
+    id: gpg-handler
+    attributes:
+      label: GPG Signature Verification Handler
+      options:
+        - gpgv
+        - gpg
+        - ERROR
+
+
+  - type: checkboxes
+    id: gpg-key-location
+    attributes:
+      label: How were the GPG keys provided?
+      description: Location of GPG Keys
+      options:
+        - label: Default Keyring
+        - label: Local custom keyring file
+        - label: GPG Key ID
+        - label: URL to file containing GPG key
+
+
+  # Logs
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: |
+        ## What do you see when you run the script with debug logs enabled?
+        You can try one of the following to get debug logs,
+        - Try this `export LOG_LVL=0; eport LOG_FMT="long"` before running your script
+        - Use installer's debug logs option if available.
+      render: shell
+
+  - type: textarea
+    id: script
+    attributes:
+      label: Link or contents of the script which caused the error
+      description: |
+        ## What script were you running which caused the error?
+
+        - You can specify a link to the script which caused the error.
+        - Contributors cannot run the script due to security reasons, but can only look at it and provide feedback necessary.
+        - If you cannot provide a script because its private or due to policy, Please provide a minimum working example which triggers the issue.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Any additional info
+      description: Any additional details like steps to reproduce intermittant bugs, race conditions etc.
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Code of Conduct
+      description: |
+        By submitting this issue, you agree to follow code of conduct for this repository.
+        In case the repository is missing code of conduct, Contributor Covenant code of conduct applies.
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

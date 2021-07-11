@@ -12,7 +12,7 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func TestGetGOOS(t *testing.T) {
+func Test__libdl_GOOS(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {

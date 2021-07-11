@@ -1,5 +1,5 @@
-//go:build extended
-// +build extended
+//go:build linux
+// +build linux
 
 package dl
 
@@ -21,56 +21,118 @@ var testDockerImages = []string{"ghcr.io/tprasadtp/shlibs-testing-dl:none",
 	"ghcr.io/tprasadtp/shlibs-testing-dl:curl-gpgv",
 	"ghcr.io/tprasadtp/shlibs-testing-dl:curl-gpg"}
 
-func TestHasToolsUnifiedTest(t *testing.T) {
+type hasToolsTestCase struct {
+	name       string
+	shell      string
+	command    string
+	testImage  string
+	returnCode int
+}
 
-	_, dockerErr := exec.LookPath("docker")
-	assert.Nil(t, dockerErr)
+func hasToolsTestCases() []hasToolsTestCase {
+	var testCases []hasToolsTestCase
+	for _, shell := range libtest.SupportedShells() {
+		for _, img := range []string{"all", "none"} {
+			for _, command := range []string{"wget", "curl", "gpg", "gpgv"} {
+				var name string
+				var dockerTag string
+				var rc int
+				switch img {
+				case "all":
+					rc = 0
+					dockerTag = "ghcr.io/tprasadtp/shlibs-testing-dl:all"
+					name = fmt.Sprintf("%s-available-%s=%d", shell, command, rc)
+				case "none":
+					rc = 1
+					dockerTag = "ghcr.io/tprasadtp/shlibs-testing-dl:none"
+					name = fmt.Sprintf("%s-missing-%s=%d", shell, command, rc)
+				}
+				testCases = append(testCases,
+					hasToolsTestCase{
+						name:       name,
+						shell:      shell,
+						command:    command,
+						testImage:  dockerTag,
+						returnCode: rc,
+					})
+			}
+		}
+	}
+	return testCases
+}
+
+func Test__libdl_has_tools(t *testing.T) {
+	libtest.AssertCommandAvailable(t, "docker")
 
 	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
+	for _, tc := range hasToolsTestCases() {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			wd, _ := os.Getwd()
 
-	tests := []struct {
-		command string
-		code    int
-	}{
-		{code: 0, command: "curl"},
-		{code: 1, command: "curl"},
-		{code: 0, command: "gpg"},
-		{code: 1, command: "gpg"},
-		{code: 0, command: "wget"},
-		{code: 1, command: "wget"},
+			cmd := exec.Command("docker",
+				"run",
+				"--rm",
+				"--volume", fmt.Sprintf("%s:/shlibs:ro", wd),
+				"--workdir", "/shlibs",
+				tc.testImage,
+				tc.shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_command %s", tc.command))
+
+			libtest.DebugPrintCmd(t, cmd)
+
+			var stdoutBuf, stderrBuf bytes.Buffer
+			cmd.Stdout = &stdoutBuf
+			cmd.Stderr = &stderrBuf
+
+			err := cmd.Run()
+			assert.Equal(t, tc.returnCode, cmd.ProcessState.ExitCode())
+			assert.Empty(t, stdoutBuf.String())
+			assert.Empty(t, stderrBuf.String())
+
+			if tc.returnCode == 0 {
+				assert.Nil(t, err)
+			} else {
+				err := cmd.Run()
+				assert.NotNil(t, err)
+			}
+		})
 	}
-	for _, shell := range libtest.SupportedShells() {
-		for _, tc := range tests {
-			t.Run(fmt.Sprintf("%s-%s-return-%d", shell, tc.command, tc.code), func(t *testing.T) {
-				var testImageTag string
-				wd, _ := os.Getwd()
+}
 
-				if tc.code == 0 {
-					testImageTag = "ghcr.io/tprasadtp/shlibs-testing-dl:all"
-				} else {
-					testImageTag = "ghcr.io/tprasadtp/shlibs-testing-dl:none"
-				}
-				cmd := exec.Command("docker", "run",
-					"--rm",
-					"--volume", fmt.Sprintf("%s:/shlibs:ro", wd),
-					"--workdir", "/shlibs",
-					testImageTag,
-					shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_%s", tc.command))
-				var stdoutBuf, stderrBuf bytes.Buffer
-				cmd.Stdout = &stdoutBuf
-				cmd.Stderr = &stderrBuf
-				if tc.code == 0 {
-					err := cmd.Run()
-					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-				} else {
-					err := cmd.Run()
-					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-				}
-				assert.Empty(t, stdoutBuf.String())
-				assert.Empty(t, stderrBuf.String())
-			})
-		}
+func Test__libdl_has_tools_extended_validators(t *testing.T) {
+	libtest.AssertCommandAvailable(t, "docker")
+
+	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
+	for _, tc := range hasToolsTestCases() {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			wd, _ := os.Getwd()
+
+			cmd := exec.Command("docker",
+				"run",
+				"--rm",
+				"--volume", fmt.Sprintf("%s:/shlibs:ro", wd),
+				"--workdir", "/shlibs",
+				tc.testImage,
+				tc.shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_%s", tc.command))
+
+			libtest.DebugPrintCmd(t, cmd)
+
+			var stdoutBuf, stderrBuf bytes.Buffer
+			cmd.Stdout = &stdoutBuf
+			cmd.Stderr = &stderrBuf
+
+			err := cmd.Run()
+			assert.Equal(t, tc.returnCode, cmd.ProcessState.ExitCode())
+			assert.Empty(t, stdoutBuf.String())
+			assert.Empty(t, stderrBuf.String())
+
+			if tc.returnCode == 0 {
+				assert.Nil(t, err)
+			} else {
+				err := cmd.Run()
+				assert.NotNil(t, err)
+			}
+		})
 	}
 }

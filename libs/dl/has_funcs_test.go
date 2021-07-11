@@ -34,7 +34,7 @@ func TestHasAllFunctions(t *testing.T) {
 	}
 }
 
-func TestErrOnMissingFunctions(t *testing.T) {
+func Test__libdl_has_depfuncs(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 	logFuncs := []string{"log_trace", "log_debug", "log_info", "log_success", "log_warning", "log_notice", "log_error"}
 	rand.Seed(time.Now().Unix())

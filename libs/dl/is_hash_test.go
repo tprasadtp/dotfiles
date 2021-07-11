@@ -33,17 +33,17 @@ func Test__libdl_is_md5hash(t *testing.T) {
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
-				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+				cmd.Env = append(os.Environ(), "TZ=UTC")
 
 				err := cmd.Run()
 				assert.Empty(t, stdoutBuf.String())
 				assert.Empty(t, stdoutBuf.String())
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
 				} else {
 					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
 				}
 			})
 		}
@@ -73,7 +73,7 @@ func Test__libdl_is_sha1hash(t *testing.T) {
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
-				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+				cmd.Env = append(os.Environ(), "TZ=UTC")
 
 				err := cmd.Run()
 				assert.Empty(t, stdoutBuf.String())
@@ -113,7 +113,7 @@ func Test__libdl_is_sha256hash(t *testing.T) {
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
-				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+				cmd.Env = append(os.Environ(), "TZ=UTC")
 
 				err := cmd.Run()
 				assert.Empty(t, stdoutBuf.String())
@@ -152,7 +152,7 @@ func Test__libdl_is_sha512hash(t *testing.T) {
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
-				cmd.Env = append(os.Environ(), "TZ=UTC", "LOG_TO_STDERR=true")
+				cmd.Env = append(os.Environ(), "TZ=UTC")
 
 				err := cmd.Run()
 				assert.Empty(t, stdoutBuf.String())
