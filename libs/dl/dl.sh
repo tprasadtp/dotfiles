@@ -52,7 +52,11 @@ __libdl_print_error()
       log_error "Internal Error! Invalid arguments!"
       ;;
     14)
-      log_error "Failed to determine system architecture or os"
+      log_error "Failed to determine system architecture or os."
+      __libdl_report_error_helper
+      ;;
+    15)
+      log_error "Failed to determine verificataion handler."
       __libdl_report_error_helper
       ;;
     21)
@@ -140,8 +144,11 @@ __libdl_print_error()
     35) log_error "Checksum file is missing hashes for the target specified or is invalid" ;;
     36) log_error "Unsupported hash algorithm. Only sha256 and sha512 are supported" ;;
 
-    # Checksum remote errors
-    40) log_error "GPG signature verification was enabled but GPG ID/ Key file or key file URL was not specified" ;;
+    # Signature errors
+    41) log_error "Target file not found or not accesible." ;;
+    42) log_error "Signature file was not found or not accessible." ;;
+    43) log_error "Keyring file specified was not or not accessible" ;;
+    44) log_error "Failed to verify signature for unknown reasons" ;;
 
     # Path errors
     50) log_error "Temp dir is not writable or tempdir creation failed" ;;
@@ -157,12 +164,13 @@ __libdl_print_error()
     71) log_error "Asset not found! Server returned a 4XX error!" ;;
     72) log_error "Asset download failed. (Generic Error)!" ;;
 
+    # Verification errors
     80) log_error "Checksum verification failed!" ;;
     81) log_error "GPG signature check failed!" ;;
 
     # IOErrors
-    90) log_error "Failed to replace existing binary" ;;
-    91) log_error "Failed to cleanup temporary files" ;;
+    100) log_error "Failed to replace existing binary" ;;
+    101) log_error "Failed to cleanup temporary files" ;;
 
     # Unknown
     *) log_error "Unknown error: ${err_code}" ;;
@@ -190,6 +198,7 @@ __libdl_report_error_helper()
   log_error "Detected GOARM value           : ${goarm:-Undefined}"
 
 }
+
 # convert `uname -m` to GOARCH and output
 # By default function will try to map current uname -m to GOARCH.
 # You can optionally pass it as an argument (useful in remote mounted filesystems)
@@ -366,13 +375,10 @@ __libdl_has_curl()
 __libdl_has_wget()
 {
   if __libdl_has_command wget; then
-    if wget --version >/dev/null 2>&1; then
-      return 0
-    else
-      return 2
-    fi
+    return 0
+  else
+    return 1
   fi
-  return 1
 }
 
 # Checks if gpgv is available
@@ -677,9 +683,9 @@ __libdl_hash_verify()
     return 12
   fi
 
-  log_trace "Target File   : ${target}"
-  log_trace "Hash          : ${hash}"
-  log_trace "Type          : ${algorithm}"
+  log_trace "Target File    : ${target}"
+  log_trace "Hash           : ${hash}"
+  log_trace "Type           : ${algorithm}"
 
   # Check if target exists
   if [ -z "$target" ]; then
@@ -907,6 +913,130 @@ __libdl_render_template()
   printf "%s" "${url}"
 }
 
+# Verify signature
+__libdl_gpg_verify()
+{
+  local signature="${2}"
+  local target="${1}"
+
+  # Use custom keyring
+  local keyring="${3}"
+
+  # Runtime variables
+  local verification_handler
+
+  log_trace "Target File    : ${target}"
+  log_trace "Signature File : ${signature}"
+  log_trace "Keyring        : ${keyring:-DEFAULT-KEYRING}"
+
+  if [ "$#" -lt 2 ]; then
+    return 12
+  fi
+
+  # Check if gpg or gpgv is available
+  # gpg will take priority
+  if __libdl_has_gpg; then
+    verification_handler="gpg"
+  elif __libdl_has_gpgv; then
+    verification_handler="gpgv"
+  else
+    return 27
+  fi
+
+  # Validate correct tool is available
+  # gpgv cannot handle ascii armored keyring files
+  if ! test -z "${keyring}"; then
+    # check if keyring file is readable
+    if ! test -r "${keyring}"; then
+      log_error "Keyring file not found - ${keyring}"
+      return 43
+    fi
+
+    if grep -q "BEGIN PGP PUBLIC KEY BLOCK" "${keyring}"; then
+      # we need gpg, gpgv wont work
+      if __libdl_has_gpg; then
+        verification_handler="gpg"
+      else
+        return 26
+      fi
+    fi
+
+  fi
+
+  log_trace "Verify Handler : ${verification_handler}"
+
+  # Target verification
+  if [ -z "${target}" ]; then
+    log_error "Target file not specified!"
+    return 12
+  fi
+
+  if ! test -f "$target"; then
+    log_error "Target File not found - $target"
+    return 41
+  fi
+
+  # Check if signature exists
+  if [ -z "$signature" ]; then
+    log_error "No signature file specified!"
+    return 12
+  fi
+
+  if ! test -f "$signature"; then
+    log_error "Signature File not found - $target"
+    return 42
+  fi
+
+  # Verify
+  case ${verification_handler} in
+    gpg)
+      if test -z "${keyring}"; then
+        if gpg --verify "${signature}" "${target}" >/dev/null 2>&1; then
+          log_trace "Signature      : VERIFIED"
+          return 0
+        else
+          log_error "Signature      : FAILED"
+          return 81
+        fi
+      else
+        if gpg --verify --keyring "${keyring}" "${signature}" "${target}" >/dev/null 2>&1; then
+          log_trace "Signature      : VERIFIED"
+          return 0
+        else
+          log_trace "Signature      : FAILED"
+
+          return 81
+        fi
+      fi
+      return 81
+      ;;
+    gpgv)
+      if test -z "${keyring}"; then
+        if gpgv "${signature}" "${target}" >/dev/null 2>&1; then
+          log_trace "Signature      : VERIFIED"
+          return 0
+        else
+          log_trace "Signature      : FAILED"
+          return 81
+        fi
+      else
+        if gpg --keyring "${keyring}" "${signature}" "${target}" >/dev/null 2>&1; then
+          log_trace "Signature      : VERIFIED"
+          return 0
+        else
+          log_trace "Signature      : FAILED"
+          return 81
+        fi
+      fi
+      return 81
+      ;;
+    *)
+      return 15
+      ;;
+  esac
+
+}
+
 # Main download file handler.
 # This will be called recursively if checksum and gpg keys are remote.
 # URLs supports placeholders for GOOS, GOARCH, GOARM, uname -m and uname -r
@@ -1007,6 +1137,7 @@ download_file()
   fi
 
   # Url basic validity checks
+  # checksum is
   if [ -z "${url}" ]; then
     return 4
   else

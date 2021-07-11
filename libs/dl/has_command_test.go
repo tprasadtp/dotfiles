@@ -25,11 +25,8 @@ func Test_libdl_has_command(t *testing.T) {
 		{name: "empty", code: 1},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		shell := shell
 		for _, tc := range tests {
-			tc := tc
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.command), func(t *testing.T) {
-				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_command %s", tc.command))
 				libtest.PrintCmdDebug(t, cmd)
 
@@ -37,15 +34,16 @@ func Test_libdl_has_command(t *testing.T) {
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
 				err := cmd.Run()
-				if tc.code == 0 {
-					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-				} else {
-					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-				}
+
 				assert.Empty(t, stdoutBuf.String())
 				assert.Empty(t, stderrBuf.String())
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+
+				if tc.code == 0 {
+					assert.Nil(t, err)
+				} else {
+					assert.NotNil(t, err)
+				}
 			})
 		}
 	}

@@ -67,9 +67,7 @@ func Test__libdl_has_tools(t *testing.T) {
 
 	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
 	for _, tc := range hasToolsTestCases() {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			wd, _ := os.Getwd()
 
 			cmd := exec.Command("docker",
@@ -107,9 +105,7 @@ func Test__libdl_has_tools_extended_validators(t *testing.T) {
 
 	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
 	for _, tc := range hasToolsTestCases() {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			wd, _ := os.Getwd()
 
 			cmd := exec.Command("docker",
@@ -132,6 +128,52 @@ func Test__libdl_has_tools_extended_validators(t *testing.T) {
 			assert.Empty(t, stderrBuf.String())
 
 			if tc.returnCode == 0 {
+				assert.Nil(t, err)
+			} else {
+				err := cmd.Run()
+				assert.NotNil(t, err)
+			}
+		})
+	}
+}
+
+func Test__libdl_has_tools_extended_alpine(t *testing.T) {
+	t.Parallel()
+	libtest.AssertCommandAvailable(t, "docker")
+	for _, tc := range []string{"curl", "wget", "gpg", "gpgv"} {
+		t.Run(tc, func(t *testing.T) {
+			wd, _ := os.Getwd()
+
+			cmd := exec.Command("docker",
+				"run",
+				"--rm",
+				"--volume", fmt.Sprintf("%s:/shlibs:ro", wd),
+				"--workdir", "/shlibs",
+				"alpine:latest",
+				"ash", "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_%s", tc))
+
+			libtest.PrintCmdDebug(t, cmd)
+
+			var stdoutBuf, stderrBuf bytes.Buffer
+			var returnCode int
+			cmd.Stdout = &stdoutBuf
+			cmd.Stderr = &stderrBuf
+
+			switch tc {
+			case "curl", "gpg", "gpgv":
+				returnCode = 1
+			case "wget":
+				returnCode = 0
+			default:
+				returnCode = -1
+			}
+
+			err := cmd.Run()
+			assert.Empty(t, stdoutBuf.String())
+			assert.Empty(t, stderrBuf.String())
+			assert.Equal(t, returnCode, cmd.ProcessState.ExitCode())
+
+			if returnCode == 0 {
 				assert.Nil(t, err)
 			} else {
 				err := cmd.Run()

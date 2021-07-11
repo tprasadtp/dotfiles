@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_get_rendered_string(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	// ARCH := libtest.UnameM()

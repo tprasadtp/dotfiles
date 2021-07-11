@@ -20,9 +20,7 @@ func Test__libdl_has_depfuncs_success(t *testing.T) {
 	libtest.AssertShellsAvailable(t)
 
 	for _, shell := range libtest.SupportedShells() {
-		shell := shell
 		t.Run(shell, func(t *testing.T) {
-			t.Parallel()
 			cmd := exec.Command(shell,
 				"-c", ". ./../logger/logger.sh && . ./dl.sh && __libdl_has_depfuncs")
 			libtest.PrintCmdDebug(t, cmd)
@@ -55,9 +53,7 @@ func Test__libdl_has_depfuncs_missing(t *testing.T) {
 		{shell: "ash", undefine: logFuncs[rand.Intn(len(logFuncs))]},
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run(fmt.Sprintf("%s-missing-%s", tc.shell, tc.undefine), func(t *testing.T) {
-			t.Parallel()
 			cmd := exec.Command(tc.shell,
 				"-c", fmt.Sprintf(". ./../logger/logger.sh && . ./dl.sh && unset -f %s && __libdl_has_depfuncs", tc.undefine))
 

@@ -1,1 +1,1 @@
-c7ff397df263ecbf0af7b717affa95c6a19fd784dbd20a210190cd5402556177  checksum.txt
+c7ff397df263ecbf0af7b717affa95c6a19fd784dbd20a210190cd5402556177  testdata/checksum.txt

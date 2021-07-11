@@ -29,7 +29,10 @@ func Test__libdl_is_md5hash(t *testing.T) {
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
+				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_is_md5hash %s", tc.hash))
+				libtest.PrintCmdDebug(t, cmd)
+
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
@@ -107,7 +110,6 @@ func Test__libdl_is_sha256hash(t *testing.T) {
 	}
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
-
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_is_sha256hash %s", tc.hash))
 				var stdoutBuf, stderrBuf bytes.Buffer

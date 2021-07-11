@@ -32,11 +32,8 @@ func Test__libdl_GOARM(t *testing.T) {
 		{arch: "FOO-BAR", code: 11},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		shell := shell
 		for _, tc := range tests {
-			tc := tc
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.arch), func(t *testing.T) {
-				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARM %s", tc.arch))
 				libtest.PrintCmdDebug(t, cmd)
 

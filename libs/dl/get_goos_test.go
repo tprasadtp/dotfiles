@@ -30,9 +30,7 @@ func Test__libdl_GOOS(t *testing.T) {
 		{os: "FOO-BAR", code: 1},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		shell := shell
 		for _, tc := range tests {
-			tc := tc
 			var tcOS string
 			if tc.os == "" || strings.ToLower(tc.os) == "default" {
 				tcOS = "Default"
@@ -40,21 +38,21 @@ func Test__libdl_GOOS(t *testing.T) {
 				tcOS = tc.os
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcOS), func(t *testing.T) {
-				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOOS %s", tc.os))
+				libtest.PrintCmdDebug(t, cmd)
+
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
 				err := cmd.Run()
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				assert.Equal(t, tc.expect, stdoutBuf.String())
+				assert.Empty(t, stderrBuf.String())
+
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stderrBuf.String())
-					assert.Equal(t, tc.expect, stdoutBuf.String())
 				} else {
 					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				}
 			})
 		}

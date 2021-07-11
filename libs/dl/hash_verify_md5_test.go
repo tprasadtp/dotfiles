@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_verify_md5(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -81,9 +82,13 @@ func Test__libdl_verify_md5(t *testing.T) {
 		},
 	}
 	for _, shell := range libtest.SupportedShells() {
+		shell := shell
 		for _, tc := range tests {
+			tc := tc
 			for _, hashTypeInput := range []string{"md5", "md-5", "MD5", "MD-5"} {
+				hashTypeInput := hashTypeInput
 				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
+					t.Parallel()
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
 					libtest.PrintCmdDebug(t, cmd)
 					var stdoutBuf, stderrBuf bytes.Buffer

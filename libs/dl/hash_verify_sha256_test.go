@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_verify_sha256(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -83,6 +84,7 @@ func Test__libdl_verify_sha256(t *testing.T) {
 	for _, shell := range libtest.SupportedShells() {
 		for _, tc := range tests {
 			for _, hashTypeInput := range []string{"sha256", "sha-256", "SHA256", "SHA-256"} {
+				hashTypeInput := hashTypeInput
 				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
 					libtest.PrintCmdDebug(t, cmd)

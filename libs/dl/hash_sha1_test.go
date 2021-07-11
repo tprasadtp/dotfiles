@@ -75,8 +75,6 @@ func Test__libdl_hash_sha1(t *testing.T) {
 	t.Logf("SHA1 Total test cases: %d", len(testCases))
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s=%d", tc.name, tc.returnCode), func(t *testing.T) {
-			t.Parallel()
-
 			var cmd *exec.Cmd
 			if tc.hasherOverride == "none" {
 				cmd = exec.Command(tc.shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_sha1 %s", tc.targetFile))

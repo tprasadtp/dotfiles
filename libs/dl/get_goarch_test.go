@@ -34,9 +34,7 @@ func Test__libdl_GOARCH(t *testing.T) {
 		{arch: "FOO-BAR", code: 11},
 	}
 	for _, shell := range libtest.SupportedShells() {
-		shell := shell
 		for _, tc := range tests {
-			tc := tc
 			var tcArch string
 			if tc.arch == "" || strings.ToLower(tc.arch) == "default" {
 				tcArch = "Default"
@@ -44,7 +42,6 @@ func Test__libdl_GOARCH(t *testing.T) {
 				tcArch = tc.arch
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcArch), func(t *testing.T) {
-				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARCH %s", tc.arch))
 				libtest.PrintCmdDebug(t, cmd)
 
@@ -52,15 +49,15 @@ func Test__libdl_GOARCH(t *testing.T) {
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
 				err := cmd.Run()
+
+				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
+				assert.Empty(t, stderrBuf.String())
+				assert.Equal(t, tc.expect, stdoutBuf.String())
+
 				if tc.code == 0 {
 					assert.Nil(t, err)
-					assert.Equal(t, 0, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stderrBuf.String())
-					assert.Equal(t, tc.expect, stdoutBuf.String())
 				} else {
 					assert.NotNil(t, err)
-					assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
-					assert.Empty(t, stdoutBuf.String())
 				}
 			})
 		}

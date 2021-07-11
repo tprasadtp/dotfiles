@@ -74,6 +74,7 @@ func Test__libdl_hash_sha512(t *testing.T) {
 	testCases := generatesha512TestTable()
 	t.Logf("SHA512 Total test cases: %d", len(testCases))
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(fmt.Sprintf("%s=%d", tc.name, tc.returnCode), func(t *testing.T) {
 			t.Parallel()
 

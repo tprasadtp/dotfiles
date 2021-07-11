@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_verify_sha1(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
