@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_GOARCH(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -33,7 +34,9 @@ func Test__libdl_GOARCH(t *testing.T) {
 		{arch: "FOO-BAR", code: 11},
 	}
 	for _, shell := range libtest.SupportedShells() {
+		shell := shell
 		for _, tc := range tests {
+			tc := tc
 			var tcArch string
 			if tc.arch == "" || strings.ToLower(tc.arch) == "default" {
 				tcArch = "Default"
@@ -41,7 +44,10 @@ func Test__libdl_GOARCH(t *testing.T) {
 				tcArch = tc.arch
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcArch), func(t *testing.T) {
+				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARCH %s", tc.arch))
+				libtest.PrintCmdDebug(t, cmd)
+
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf

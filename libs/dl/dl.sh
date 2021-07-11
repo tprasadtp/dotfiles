@@ -14,8 +14,8 @@
 #   - gmd5sum/md5sum/rhash              - for MD5
 #
 # - For signature verification
-#   - gpgv or gpg command               - if gpg key is binary
-#   - gpg                               - if gpg key is in ascii armored file
+#   - gpgv/gpg                          - if gpg key is binary
+#   - gpg                               - if gpg key is ascii armored
 #
 # See https://github.com/tprasadtp/shlibs/dl/README.md
 # If included in other files, contents between snippet markers is
@@ -64,7 +64,7 @@ __libdl_print_error()
       ;;
 
     22)
-      log_error "Cannot find any of: sha256sum, gsha256sum, shasum rhash, required for SHA256 checksum verification."
+      log_error "Cannot find any of: sha256sum, gsha256sum, or shasum, required for SHA256 checksum verification."
       # shellcheck disable=SC2155
       local __libdl_errmap_os="$(libdl_get_GOOS)"
       case $__libdl_errmap_os in
@@ -78,7 +78,7 @@ __libdl_print_error()
       ;;
 
     23)
-      log_error "Cannot find any of: sha512sum, gsha512sum, shasum or rhash, required for SHA512 checksum verification."
+      log_error "Cannot find any of: sha512sum, gsha512sum or shasum, required for SHA512 checksum verification."
       # shellcheck disable=SC2155
       local __libdl_errmap_os="$(libdl_get_GOOS)"
       case $__libdl_errmap_os in
@@ -92,7 +92,7 @@ __libdl_print_error()
       ;;
 
     24)
-      log_error "Cannot any any of: sha1sum, gsha1sum or rhash, Required for SHA1 checksum verification."
+      log_error "Cannot any any of: sha1sum, gsha1sum or shasum, Required for SHA1 checksum verification."
       # shellcheck disable=SC2155
       local __libdl_errmap_os="$(libdl_get_GOOS)"
       case $__libdl_errmap_os in
@@ -106,7 +106,7 @@ __libdl_print_error()
       ;;
 
     25)
-      log_error "Cannot any any of: md5sum, rhash, Required for MD5 checksum verification."
+      log_error "Cannot any any of: md5sum or gmd5sum, Required for MD5 checksum verification."
       # shellcheck disable=SC2155
       local __libdl_errmap_os="$(libdl_get_GOOS)"
       case $__libdl_errmap_os in
@@ -237,7 +237,7 @@ __libdl_GOARM()
       printf "7"
       return 0
       ;;
-    # ARM64 CPPU in 32 bit mode
+    # ARM8 CPU in 32 bit mode
     armv8*)
       printf "7"
       return 0
@@ -880,20 +880,24 @@ __libdl_render_template()
       ;;
   esac
 
-  # Template rendering:SYSTEM_ARCH
+  # Template rendering:UNAME_M
   case $url in
-    *%SYSTEM_ARCH%*)
+    *++UNAME_M++*)
       uname_m="$(uname -m)"
-      url="$(printf "%s" "${url}" | sed -e "s/++SYSTEM_ARCH++/${uname_m}/g")"
+      if [ -n "$uname_m" ]; then
+        url="$(printf "%s" "${url}" | sed -e "s/++UNAME_M++/${uname_m}/g")"
+      else
+        return 14
+      fi
       ;;
   esac
 
-  # Template rendering:SYSTEM_OS
+  # Template rendering:UNAME_S
   case $url in
-    *++SYSTEM_OS%++*)
+    *++UNAME_S++*)
       uname_s="$(uname -s)"
       if [ -n "$uname_s" ]; then
-        url="${url//++SYSTEM_OS++/${uname_s}}"
+        url="$(printf "%s" "${url}" | sed -e "s/++UNAME_S++/${uname_s}/g")"
       else
         return 14
       fi

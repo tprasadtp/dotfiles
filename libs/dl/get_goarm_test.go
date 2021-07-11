@@ -11,6 +11,7 @@ import (
 )
 
 func Test__libdl_GOARM(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -31,17 +32,20 @@ func Test__libdl_GOARM(t *testing.T) {
 		{arch: "FOO-BAR", code: 11},
 	}
 	for _, shell := range libtest.SupportedShells() {
+		shell := shell
 		for _, tc := range tests {
 			tc := tc
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.arch), func(t *testing.T) {
+				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOARM %s", tc.arch))
-				libtest.DebugPrintCmd(t, cmd)
+				libtest.PrintCmdDebug(t, cmd)
 
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf
 				err := cmd.Run()
 				assert.Equal(t, tc.expect, stdoutBuf.String())
+				assert.Empty(t, stderrBuf.String())
 				assert.Equal(t, tc.code, cmd.ProcessState.ExitCode())
 
 				if tc.code == 0 {

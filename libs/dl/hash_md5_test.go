@@ -70,12 +70,12 @@ func generateMD5TestTable() []hashTestTable {
 }
 
 func Test__libdl_hash_md5(t *testing.T) {
-	// t.Parallel()
+	t.Parallel()
 	testCases := generateMD5TestTable()
 	t.Logf("MD5 Total test cases: %d", len(testCases))
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s=%d", tc.name, tc.returnCode), func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			var cmd *exec.Cmd
 			if tc.hasherOverride == "none" {
@@ -84,7 +84,7 @@ func Test__libdl_hash_md5(t *testing.T) {
 				cmd = exec.Command(tc.shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_md5 %s %s", tc.targetFile, tc.hasherOverride))
 			}
 
-			libtest.DebugPrintCmd(t, cmd)
+			libtest.PrintCmdDebug(t, cmd)
 			var stdoutBuf, stderrBuf bytes.Buffer
 			cmd.Stdout = &stdoutBuf
 			cmd.Stderr = &stderrBuf

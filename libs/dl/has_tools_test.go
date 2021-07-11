@@ -62,12 +62,14 @@ func hasToolsTestCases() []hasToolsTestCase {
 }
 
 func Test__libdl_has_tools(t *testing.T) {
+	t.Parallel()
 	libtest.AssertCommandAvailable(t, "docker")
 
 	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
 	for _, tc := range hasToolsTestCases() {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			wd, _ := os.Getwd()
 
 			cmd := exec.Command("docker",
@@ -78,7 +80,7 @@ func Test__libdl_has_tools(t *testing.T) {
 				tc.testImage,
 				tc.shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_command %s", tc.command))
 
-			libtest.DebugPrintCmd(t, cmd)
+			libtest.PrintCmdDebug(t, cmd)
 
 			var stdoutBuf, stderrBuf bytes.Buffer
 			cmd.Stdout = &stdoutBuf
@@ -100,12 +102,14 @@ func Test__libdl_has_tools(t *testing.T) {
 }
 
 func Test__libdl_has_tools_extended_validators(t *testing.T) {
+	t.Parallel()
 	libtest.AssertCommandAvailable(t, "docker")
 
 	assert.NoError(t, libtest.ImageBuild(t, testDockerImages))
 	for _, tc := range hasToolsTestCases() {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			wd, _ := os.Getwd()
 
 			cmd := exec.Command("docker",
@@ -116,7 +120,7 @@ func Test__libdl_has_tools_extended_validators(t *testing.T) {
 				tc.testImage,
 				tc.shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_%s", tc.command))
 
-			libtest.DebugPrintCmd(t, cmd)
+			libtest.PrintCmdDebug(t, cmd)
 
 			var stdoutBuf, stderrBuf bytes.Buffer
 			cmd.Stdout = &stdoutBuf

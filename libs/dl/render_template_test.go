@@ -40,16 +40,26 @@ func Test__libdl_get_rendered_string(t *testing.T) {
 			expect: fmt.Sprintf("https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_linux_%s.tar.gz", runtime.GOARCH),
 		},
 		{
-			name:   "with-goarch",
-			url:    "https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_linux_++GOARCH++.tar.gz",
-			expect: fmt.Sprintf("https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_linux_%s.tar.gz", runtime.GOARCH),
+			name:   "with-system-os",
+			url:    "https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_++UNAME_S++.tar.gz",
+			expect: fmt.Sprintf("https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_%s.tar.gz", libtest.UnameS()),
+		},
+		{
+			name:   "with-system-arch",
+			url:    "https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_linux_++UNAME_M++.tar.gz",
+			expect: fmt.Sprintf("https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_linux_%s.tar.gz", libtest.UnameM()),
+		},
+		{
+			name:   "with-all",
+			url:    "https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_++UNAME_S++_++UNAME_M++_++GOOS++_++GOARCH++.tar.gz",
+			expect: fmt.Sprintf("https://github.com/tprasadtp/gfilt/releases/download/v0.1.48/gfilt_%s_%s_%s_%s.tar.gz", libtest.UnameS(), libtest.UnameM(), runtime.GOOS, runtime.GOARCH),
 		},
 	}
 	for _, shell := range []string{"bash"} {
 		for _, tc := range tests {
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.name), func(t *testing.T) {
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_render_template %s", tc.url))
-				libtest.DebugPrintCmd(t, cmd)
+				libtest.PrintCmdDebug(t, cmd)
 
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf

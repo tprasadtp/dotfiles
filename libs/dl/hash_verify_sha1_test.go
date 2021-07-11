@@ -85,7 +85,7 @@ func Test__libdl_verify_sha1(t *testing.T) {
 			for _, hashTypeInput := range []string{"sha1", "sha-1", "SHA1", "SHA-1"} {
 				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
-					libtest.DebugPrintCmd(t, cmd)
+					libtest.PrintCmdDebug(t, cmd)
 					var stdoutBuf, stderrBuf bytes.Buffer
 					cmd.Stdout = &stdoutBuf
 					cmd.Stderr = &stderrBuf

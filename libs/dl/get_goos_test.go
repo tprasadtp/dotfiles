@@ -13,6 +13,7 @@ import (
 )
 
 func Test__libdl_GOOS(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -29,8 +30,9 @@ func Test__libdl_GOOS(t *testing.T) {
 		{os: "FOO-BAR", code: 1},
 	}
 	for _, shell := range libtest.SupportedShells() {
-
+		shell := shell
 		for _, tc := range tests {
+			tc := tc
 			var tcOS string
 			if tc.os == "" || strings.ToLower(tc.os) == "default" {
 				tcOS = "Default"
@@ -38,6 +40,7 @@ func Test__libdl_GOOS(t *testing.T) {
 				tcOS = tc.os
 			}
 			t.Run(fmt.Sprintf("%s-%s", shell, tcOS), func(t *testing.T) {
+				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_GOOS %s", tc.os))
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf

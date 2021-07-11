@@ -10,7 +10,8 @@ import (
 	"github.com/tprasadtp/dotfiles/libs/libtest"
 )
 
-func Test_has_command(t *testing.T) {
+func Test_libdl_has_command(t *testing.T) {
+	t.Parallel()
 	libtest.AssertShellsAvailable(t)
 
 	tests := []struct {
@@ -24,10 +25,14 @@ func Test_has_command(t *testing.T) {
 		{name: "empty", code: 1},
 	}
 	for _, shell := range libtest.SupportedShells() {
-
+		shell := shell
 		for _, tc := range tests {
+			tc := tc
 			t.Run(fmt.Sprintf("%s-%s", shell, tc.command), func(t *testing.T) {
+				t.Parallel()
 				cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && __libdl_has_command %s", tc.command))
+				libtest.PrintCmdDebug(t, cmd)
+
 				var stdoutBuf, stderrBuf bytes.Buffer
 				cmd.Stdout = &stdoutBuf
 				cmd.Stderr = &stderrBuf

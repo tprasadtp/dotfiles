@@ -45,7 +45,7 @@ func UnameS() string {
 	}
 }
 
-func DebugPrintCmd(t *testing.T, cmd *exec.Cmd) {
+func PrintCmdDebug(t *testing.T, cmd *exec.Cmd) {
 	if os.Getenv("DEBUG") == "1" {
 		t.Log(cmd.String())
 	}

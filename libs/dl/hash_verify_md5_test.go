@@ -85,7 +85,7 @@ func Test__libdl_verify_md5(t *testing.T) {
 			for _, hashTypeInput := range []string{"md5", "md-5", "MD5", "MD-5"} {
 				t.Run(fmt.Sprintf("%s-%s-%s=%d", shell, tc.name, hashTypeInput, tc.code), func(t *testing.T) {
 					cmd := exec.Command(shell, "-c", fmt.Sprintf(". ./dl.sh && . ../logger/logger.sh && __libdl_hash_verify %s %s %s", tc.file, tc.hash, hashTypeInput))
-					libtest.DebugPrintCmd(t, cmd)
+					libtest.PrintCmdDebug(t, cmd)
 					var stdoutBuf, stderrBuf bytes.Buffer
 					cmd.Stdout = &stdoutBuf
 					cmd.Stderr = &stderrBuf
